@@ -1,5 +1,6 @@
 package com.wlk.ideaPlugin.qldebugger.factory;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -21,8 +22,11 @@ public class QlExpressToolWindowFactory implements ToolWindowFactory, DumbAware 
         System.out.println("createToolWindowContent");
         QlPanel qlPanel = new QlPanel();
         qlPanel.initWithToolWindows(toolWindow);
-
-        Content content = ContentFactory.getInstance().createContent(qlPanel.getQlMainPanel(), "", false);
+        //需要版本在222以上
+//        Content content = ContentFactory.getInstance().createContent(qlPanel.getQlMainPanel(), "", false);
+        //下面是比较通用的写法，不依赖版本
+        ContentFactory service = ApplicationManager.getApplication().getService(ContentFactory.class);
+        Content content = service.createContent(qlPanel.getQlMainPanel(), "", false);
         toolWindow.getContentManager().addContent(content);
         toolWindow.getContentManager().addContentManagerListener(new ContentManagerListener(){
 

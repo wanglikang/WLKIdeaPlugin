@@ -37,7 +37,7 @@ dependencies {
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("2022.3.3")
+    version.set("2022.2.1")
     type.set("IC") // Target IDE Platform
     plugins.set(listOf(/* Plugin Dependencies */))
 }
@@ -49,8 +49,11 @@ tasks {
         targetCompatibility = "17"
     }
 
+//    版本号对照关系：https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html#platformVersions
     patchPluginXml {
-        sinceBuild.set("221")
+//        203 ，要求java 11
+//        222 ，要求java17
+        sinceBuild.set("222")
         untilBuild.set("233.*")
     }
 
