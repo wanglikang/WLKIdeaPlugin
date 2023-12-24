@@ -9,5 +9,4 @@ rootProject.name = "WLK Tool Plugin"
 
 
 includeBuild("QLExpressDebugger")
-includeBuild("specialResultToJson")
-includeBuild("DO2sqlMapper")
+//includeBuild("DO2sqlMapper")

@@ -1,0 +1,28 @@
+<idea-plugin>
+    <id>com.wlk.ideaPlugin.QLExpressDebugger</id>
+
+    <name>QLExpressDebugger</name>
+    <depends>com.intellij.modules.platform</depends>
+
+
+<!--    <description>QLExpress调试器，用于在idea里调试 复杂的表达式，提升效率，使用qlexpress版本为：3.0.17</description>-->
+    <description>QLExpressDebugger Debugger,based on Taobao QLExpresss(version:3.0.17)</description>
+    <vendor email="1024196018@qq.com" url="https://www.baidu.com">王利康(奈昕)</vendor>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!--        <applicationService serviceImplementation="com.github.wanglikang.ideafunplugin.services.MyApplicationService"/>-->
+        <!--        <projectService serviceImplementation="com.github.wanglikang.ideafunplugin.services.MyProjectService"/>-->
+
+        <toolWindow id="QL表达式调试器" secondary="true" icon="AllIcons.Toolwindows.WebToolWindow" anchor="bottom"
+                    factoryClass="com.wlk.ideaPlugin.qldebugger.factory.QlExpressToolWindowFactory"/>
+        <notificationGroup displayType="BALLOON" id="qlNotify" />
+
+        <applicationService serviceImplementation="com.wlk.ideaPlugin.qldebugger.persistence.QLTestConfigSetting2"/>
+
+    </extensions>
+
+
+</idea-plugin>

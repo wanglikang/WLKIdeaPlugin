@@ -1,0 +1,26 @@
+<idea-plugin>
+    <id>com.example.DO2sqlMapper</id>
+    <name>DO2sqlMapper</name>
+
+    <description>一个简单的dao层数据自动生成工具，根据一个DO。自动生成对应的mapper的模板文件，提升CRUD的效率</description>
+    <vendor email="wlk266583@cainiao.com" url="https://www.baidu.com">王利康(奈昕)</vendor>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+    </extensions>
+
+    <actions>
+        <action id="testIDEAPlugin.testRightPopUp"
+                class="com.wlk.ideaPlugin.do2sqlmapper.RightPopUp"
+                text="生成sql模板"
+                description="测试右键菜单">
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+        </action>
+    </actions>
+
+</idea-plugin>

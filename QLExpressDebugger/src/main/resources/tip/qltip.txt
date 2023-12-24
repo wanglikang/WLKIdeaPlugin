@@ -1,0 +1,7 @@
+map的遍历方式：
+keySet = map.keySet();
+objArr = keySet.toArray();
+for (i=0;i<objArr.length;i++) {
+  key = objArr[i];
+  System.out.println(map.get(key));
+}
