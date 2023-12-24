@@ -1,0 +1,5 @@
+当前的依赖有
+
+commons-collections4-4.4.jar
+fastjson-1.2.60.jar
+taobao-express-3.0.17.jar
