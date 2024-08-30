@@ -23,16 +23,15 @@ public class QlExpressToolWindowFactory implements ToolWindowFactory, DumbAware 
         QlPanel qlPanel = new QlPanel();
         qlPanel.initWithToolWindows(toolWindow);
         //需要版本在222以上
-//        Content content = ContentFactory.getInstance().createContent(qlPanel.getQlMainPanel(), "", false);
+        //        Content content = ContentFactory.getInstance().createContent(qlPanel.getQlMainPanel(), "", false);
         //下面是比较通用的写法，不依赖版本
         ContentFactory service = ApplicationManager.getApplication().getService(ContentFactory.class);
         Content content = service.createContent(qlPanel.getQlMainPanel(), "", false);
         toolWindow.getContentManager().addContent(content);
         toolWindow.getContentManager().addContentManagerListener(new ContentManagerListener(){
-
             @Override
             public void contentRemoved(@NotNull ContentManagerEvent event) {
-                    qlPanel.onClose();
+                qlPanel.onClose();
                 ContentManagerListener.super.contentRemoved(event);
             }
         });

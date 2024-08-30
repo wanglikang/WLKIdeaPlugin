@@ -26,6 +26,8 @@ public class MyData {
 
     private String lastEditKey;
 
+    private String selectedVersion;
+
     public MyData() {
         paramsMap = new HashMap<>();
         expressMap = new HashMap<>();
@@ -54,5 +56,13 @@ public class MyData {
 
     public void setLastEditKey(String lastEditKey) {
         this.lastEditKey = lastEditKey;
+    }
+
+    public String getSelectedVersion() {
+        return selectedVersion;
+    }
+
+    public void setSelectedVersion(String selectedVersion) {
+        this.selectedVersion = selectedVersion;
     }
 }

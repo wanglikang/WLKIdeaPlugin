@@ -5,9 +5,31 @@
     <depends>com.intellij.modules.platform</depends>
 
 
+    <change-notes>
+        <![CDATA[
+          <b>1.2</b> 添加了fastjson的额外依赖.<br>
+          <b>1.1</b> 添加了动态切换不同版本3.x 的功能.<br>
+          <b>1.0</b> 基本功能
+        ]]>
+    </change-notes>
 <!--    <description>QLExpress调试器，用于在idea里调试 复杂的表达式，提升效率，使用qlexpress版本为：3.0.17</description>-->
-    <description>QLExpressDebugger Debugger,based on Taobao QLExpresss(version:3.0.17)</description>
-    <vendor email="1024196018@qq.com" url="https://www.baidu.com">王利康</vendor>
+    <description>
+        <![CDATA[
+      	<H1>Based on Taobao QLExpresss(version:3.0.17)</H1>
+          <ol>
+             <li>A simple qlexpress expression debugger that can execute expressions in real time and display the results in real time.</li>
+            <li>The input parameter should be a string in JSON format (if it does not comply with JSON format, there will be a reminder)</li>
+            <li>Currently, expressions only support simple expressions and can import packages from fastjson. Importing other packages is not currently supported (may be supported in the future)</li>
+          </ol>
+            <hr>
+          <ol>
+            <li>一个简单的qlexpress 表达式调试器,可以实时执行表达式,并将结果实时显示。 </li>
+            <li>输入参数应该是一个json格式的字符串（若不符合json格式，会有提醒） </li>
+            <li>表达式目前仅支持简单的表达式，可以import fastjson的包，暂不支持import其他的包（未来可能会支持）</li>
+          </ol>
+        ]]>
+    </description>
+    <vendor email="1024196018@qq.com" url="/">王利康</vendor>
 
     <!-- Product and plugin compatibility requirements.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->

@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Service
 @State(name = "qlTest2", storages = {@Storage(value = "qlTestConfig.xml")})
-public class QLTestConfigSetting2  implements PersistentStateComponent<MyData> {
+public final class QLTestConfigSetting2  implements PersistentStateComponent<MyData> {
 
     private MyData myData;
 
