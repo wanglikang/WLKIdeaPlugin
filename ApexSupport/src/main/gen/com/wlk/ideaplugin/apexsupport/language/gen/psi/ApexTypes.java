@@ -13,6 +13,8 @@ public interface ApexTypes {
   IElementType WITHOUT = new ApexElementType("without");
   IElementType SHARING = new ApexElementType("sharing");
   IElementType CLASS = new ApexElementType("class");
+  IElementType IMPLEMENTS = new ApexElementType("implements");
+  IElementType STRING = new ApexElementType("String");
 
   IElementType PROPERTY = new ApexElementType("PROPERTY");
 
@@ -21,6 +23,13 @@ public interface ApexTypes {
   IElementType KEY = new ApexTokenType("KEY");
   IElementType SEPARATOR = new ApexTokenType("SEPARATOR");
   IElementType VALUE = new ApexTokenType("VALUE");
+
+  public static IElementType createElementTypeByName(String name,int col,int row){
+    return new ApexTokenType(name,col,row);
+  }
+  public static IElementType createElementTypeByName(String name,int col,int row,Object value){
+    return new ApexTokenType(name,col,row,value);
+  }
 
   class Factory {
     public static PsiElement createElement(ASTNode node) {

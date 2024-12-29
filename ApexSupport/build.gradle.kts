@@ -65,9 +65,37 @@ tasks {
   }
 }
 
-//tasks.register<JavaExec>("ApexLexerRunTask") {
-//  mainClass.set("com.wlk.ideaplugin.apexsupport.language.parser.ApexLexer")
-//  classpath = sourceSets["main"].runtimeClasspath
-//  // 假设引入的类在包 com.jetbrains.somepackage 中
-//  classpath += files("libs/com.jetbrains/ideaIC/2024.2.3/util-8.jar")
-//}
+tasks.register<JavaExec>("ApexLexerRunTask") {
+  mainClass.set("com.wlk.ideaplugin.apexsupport.language.parser.ApexLexer")
+  classpath = sourceSets["main"].runtimeClasspath
+  // 假设引入的类在包 com.jetbrains.somepackage 中
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/annotations.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/app-client.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/app.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/bouncy-castle.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/external-system-rt.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/externalProcess-rt.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/forms_rt.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/groovy.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/idea_rt.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/intellij-test-discovery.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/jps-model.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/jsch-agent.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/junit4.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/lib-client.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/lib.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/nio-fs.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/opentelemetry.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/platform-loader.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/protobuf.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/rd.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/stats.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/testFramework.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/trove.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/util-8.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/util.jar")
+  classpath += files("/Users/bytedance/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/util_rt.jar")
+
+  args("/Users/bytedance/GithubProjects/WLKIdeaPlugin/ApexSupport/src/main/java/com/wlk/ideaplugin/apexsupport/grammar/TestApexClass.cls")
+}
+

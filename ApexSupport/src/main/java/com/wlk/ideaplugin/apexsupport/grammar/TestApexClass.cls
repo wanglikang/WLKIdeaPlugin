@@ -1,4 +1,4 @@
-public class AccountTrigger implenments Trigger{
+public class AccountTrigger implements Trigger{
     public String Name = "name";
     public Integer count = "count";
     AccountTrigger(String n){

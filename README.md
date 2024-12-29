@@ -45,3 +45,19 @@ Java 21	65.0
 Java 22	66.0
 Java 23	67.0
 Java 24	68.0
+
+# 注意事项
+## gradle 的下载加速镜像
+```
+distributionUrl=https\://mirrors.cloud.tencent.com/gradle/gradle-8.3-all.zip
+#distributionUrl=https\://mirrors.aliyun.com/gradle/distributions/v8.3.0/gradle-8.3-all.zip
+```
+一个腾讯的，一个阿里云的
+## 新建插件类型的module
+1、 在IDEA上，右键新建module时，选择IDE plugin类型后，一开始只有一个文件（xxxxx.iml)，，然后IDEA 会自动去下载好多文件，比较久
+下载gradle、jbr等
+
+![下载文件的截图](./notes/img.png)
+![下载文件的截图](./notes/img_1.png)
+![下载文件的截图](./notes/img_2.png)
+![下载文件的截图](./notes/img_3.png)

@@ -64,9 +64,9 @@ dependencies {
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 // 1.x 版本的配置
 intellij {
-    version.set("2024.2.0.2")
-//    type.set("IC") // Target IDE Platform
-    type.set("IU") // AI, CL, GW, GO, IC, IU, PS, PY, PC, RD
+    version.set("2024.2.3")
+    type.set("IC") // Target IDE Platform
+//    type.set("IU") // AI, CL, GW, GO, IC, IU, PS, PY, PC, RD
     plugins.set(listOf(/* Plugin Dependencies */))
 }
 

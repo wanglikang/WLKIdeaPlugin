@@ -1,2 +1,26 @@
 从bnf文件中，使用idea的工具【Generate Parse Code】
 	生成 elementTypeHolderClass  所定义的类
+
+
+使用grammar-kit 插件，一键生成词法解析器
+其实际运行的命令是：
+
+"/Applications/IntelliJ IDEA.app/Contents/jbr/Contents/Home/bin/java" -Xmx512m -Dfile.encoding=UTF-8 -Dsun.stdout.encoding=UTF-8 -Dsun.stderr.encoding=UTF-8 -jar /Users/bytedance/GithubProjects/WLKIdeaPlugin/ApexSupport/script/jflex-1.9.1.jar -skel /Users/bytedance/GithubProjects/WLKIdeaPlugin/ApexSupport/script/idea-flex.skeleton -d /Users/bytedance/GithubProjects/WLKIdeaPlugin/ApexSupport/src/main/gen/com/wlk/ideaplugin/apexsupport/language/parser Simple.flex
+格式化后：
+"/Applications/IntelliJ IDEA.app/Contents/jbr/Contents/Home/bin/java" -Xmx512m \
+-Dfile.encoding=UTF-8 \
+-Dsun.stdout.encoding=UTF-8 \
+-Dsun.stderr.encoding=UTF-8 \
+-jar /Users/bytedance/GithubProjects/WLKIdeaPlugin/ApexSupport/script/jflex-1.9.1.jar \
+-info \
+-d /Users/bytedance/GithubProjects/WLKIdeaPlugin/ApexSupport/src/main/gen/com/wlk/ideaplugin/apexsupport/language/parser \
+Simple.flex
+
+
+关键在
+-skel /Users/bytedance/GithubProjects/WLKIdeaPlugin/ApexSupport/script/idea-flex.skeleton
+这个skel 参数，里面有预定义的解析器生产的模版
+里面和模版内容，和grammar-kit插件一起，修改了jflex的生成文件，使得适配idea，但是没法自测
+
+单纯生成lexer（不和idea产生关联，使用
+script/buildLexerForTest.sh
