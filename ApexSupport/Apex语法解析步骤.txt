@@ -1,0 +1,8 @@
+1、先解析下面的结构
+
+public without sharing class UserTriggerHandler {
+    public static Boolean isRun = true;
+    public class UserTriggerHandlerException extends Exception {
+    }
+
+}

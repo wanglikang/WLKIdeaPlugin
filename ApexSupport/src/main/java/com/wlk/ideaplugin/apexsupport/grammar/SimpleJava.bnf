@@ -1,0 +1,38 @@
+// Copyright 2000-2022 JetBrains s.r.o. and other contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+{
+  parserClass="com.wlk.ideaplugin.apexsupport.language.parser.ApexParser"
+  parserUtilClass="com.wlk.ideaplugin.apexsupport.language.parser.ApexParserUtil"
+  // 在此文件中，运行 【Generate Parse Util】 后，会自动生成一个ApexParserUtil  放到和 parserClass 同一个文件夹下，
+  // 并自动生成此配置，然后，此文件的右键选项中，就没有【Generate Parse Util】 的选项了
+//  parserUtilClass="com.wlk.ideaplugin.apexsupport.language.parser.ApexParserUtil"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Apex"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.wlk.ideaplugin.apexsupport.language.gen.psi"
+  psiImplPackage="com.wlk.ideaplugin.apexsupport.language.gen.psi.impl"
+// 这个 type ，应该是会自动生成的
+  elementTypeHolderClass="com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexTypes"
+
+  elementTypeClass="com.wlk.ideaplugin.apexsupport.language.psi.ApexElementType"
+  tokenTypeClass="com.wlk.ideaplugin.apexsupport.language.psi.ApexTokenType"
+// psiImplUtilClass 暂不知道是干什么的
+  psiImplUtilClass="com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexPsiImplUtil"
+}
+
+simpleFile ::= item_*
+
+private item_ ::= (property|COMMENT|CRLF)
+
+property ::= (KEY? SEPARATOR VALUE?) | KEY {
+  pin=3
+  recoverWhile="recover_property"
+  // 需要提前定义好，再定义这个ApexNamedElementImpl
+  mixin="com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexNamedElementImpl"
+  // 需要提前定义好,先定义 ApexNamedElement
+  implements="com.wlk.ideaplugin.apexsupport.language.psi.ApexNamedElement"
+  methods=[getKey getValue getName setName getNameIdentifier getPresentation]
+}
+
+private recover_property ::= !(KEY|SEPARATOR|COMMENT)

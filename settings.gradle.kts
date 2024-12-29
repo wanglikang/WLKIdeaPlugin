@@ -5,8 +5,10 @@
  * For more detailed information on multi-project builds, please refer to https://docs.gradle.org/8.3/userguide/building_swift_projects.html in the Gradle documentation.
  */
 
-rootProject.name = "WLK Tool Plugin"
+rootProject.name = "WLKIdeaPlugin"
 
 
 includeBuild("QLExpressDebugger")
+includeBuild("ApexSupport")
+
 //includeBuild("DO2sqlMapper")
