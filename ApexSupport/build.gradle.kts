@@ -8,12 +8,13 @@ plugins {
 group = "com.wlk.ideaPlugin"
 version = "1.0-SNAPSHOT"
 
+// 使用init.gradle 去配置全局的加速
 repositories {
   mavenLocal()
-  mavenCentral()
   maven { setUrl("https://maven.aliyun.com/repository/gradle-plugin") }
   maven { setUrl("https://maven.aliyun.com/repository/central") }
   maven { setUrl("https://maven.aliyun.com/repository/public") }
+  mavenCentral()
 }
 
 //dependencies {
