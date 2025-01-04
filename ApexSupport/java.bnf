@@ -1,0 +1,224 @@
+<!-- 编译单元 -->
+<compilation-unit> ::= <package-declaration>? <import-declarations> <type-declarations>
+
+<!-- 包声明 -->
+<package-declaration> ::= "package" <identifier> ("." <identifier>)* ";"
+
+<!-- 导入声明 -->
+<import-declarations> ::= (<import-declaration>)*
+<import-declaration> ::= "import" <qualified-identifier> ("." "*")? ";"
+<qualified-identifier> ::= <identifier> ("." <identifier>)*
+
+<!-- 类型声明 -->
+<type-declarations> ::= (<type-declaration>)*
+<type-declaration> ::= <class-declaration> | <interface-declaration> | <enum-declaration> | <annotation-declaration>
+
+<!-- 类声明 -->
+<class-declaration> ::= ["public" | "private" | "protected"]? ["abstract" | "final"]? "class" <identifier> ["extends" <type-identifier>] ["implements" <type-identifier-list>] <class-body>
+<class-body> ::= "{" <class-body-declarations> "}"
+<class-body-declarations> ::= (<class-body-declaration>)*
+<class-body-declaration> ::= <field-declaration> | <method-declaration> | <constructor-declaration> | <initializer-block> | <nested-class-declaration>
+
+<!-- 字段声明 -->
+<field-declaration> ::= <type-identifier> <variable-declarators> ";"
+<variable-declarators> ::= <variable-declarator> ("," <variable-declarator>)*
+<variable-declarator> ::= <identifier> ["=" <expression>]
+
+<!-- 方法声明 -->
+<method-declaration> ::= ["public" | "private" | "protected"]? ["abstract" | "final" | "native" | "synchronized" | "static"]? <type-identifier> <identifier> "(" <parameter-list> ")" ["throws" <type-identifier-list>] <method-body>
+<parameter-list> ::= <parameter> ("," <parameter>)* | ε
+<parameter> ::= <type-identifier> <identifier>
+<method-body> ::= <block> | ";"
+
+<!-- 构造函数声明 -->
+<constructor-declaration> ::= ["public" | "private" | "protected"]? <identifier> "(" <parameter-list> ")" ["throws" <type-identifier-list>] <constructor-body>
+<constructor-body> ::= <block> | ";"
+
+<!-- 初始化块 -->
+<initializer-block> ::= ["static"]? "{" <block-statements> "}"
+
+<!-- 嵌套类声明 -->
+<nested-class-declaration> ::= <class-declaration> | <interface-declaration> | <enum-declaration> | <annotation-declaration>
+
+<!-- 接口声明 -->
+<interface-declaration> ::= ["public" | "private" | "protected"]? ["abstract" | "default"]? "interface" <identifier> ["extends" <type-identifier-list>] <interface-body>
+<interface-body> ::= "{" <interface-body-declarations> "}"
+<interface-body-declarations> ::= (<interface-body-declaration>)*
+<interface-body-declaration> ::= <constant-declaration> | <method-signature-declaration> | <default-method-declaration> | <static-method-declaration> | <nested-interface-declaration>
+
+<!-- 常量声明 -->
+<constant-declaration> ::= ["public" | "private" | "protected"]? ["static" | "final"]? <type-identifier> <identifier> ["=" <expression>] ";"
+
+<!-- 方法签名声明 -->
+<method-signature-declaration> ::= ["public" | "private" | "protected"]? ["abstract" | "default"]? <type-identifier> <identifier> "(" <parameter-list> ")" ["throws" <type-identifier-list>] ";"
+
+<!-- 默认方法声明 -->
+<default-method-declaration> ::= ["public" | "private" | "protected"]? "default" <type-identifier> <identifier> "(" <parameter-list> ")" ["throws" <type-identifier-list>] <method-body>
+
+<!-- 静态方法声明 -->
+<static-method-declaration> ::= ["public" | "private" | "protected"]? "static" <type-identifier> <identifier> "(" <parameter-list> ")" ["throws" <type-identifier-list>] <method-body>
+
+<!-- 嵌套接口声明 -->
+<nested-interface-declaration> ::= <interface-declaration>
+
+<!-- 枚举声明 -->
+<enum-declaration> ::= ["public" | "private" | "protected"]? "enum" <identifier> ["implements" <type-identifier-list>] <enum-body>
+<enum-body> ::= "{" <enum-constants> ("," <enum-constants>)* ("," <enum-body-declarations>)? "}"
+<enum-constants> ::= <identifier> ["(" <arguments> ")"]
+<enum-body-declarations> ::= (<enum-body-declaration>)*
+<enum-body-declaration> ::= <field-declaration> | <method-declaration> | <constructor-declaration> | <initializer-block>
+
+<!-- 注解声明 -->
+<annotation-declaration> ::= ["public" | "private" | "protected"]? "@interface" <identifier> <annotation-body>
+<annotation-body> ::= "{" <annotation-elements> "}"
+<annotation-elements> ::= (<annotation-element>)*
+<annotation-element> ::= <type-identifier> <identifier> ( "(" <arguments> ")" )? ["=" <default-value>] ";"
+<default-value> ::= <expression>
+
+<!-- 块 -->
+<block> ::= "{" <block-statements> "}"
+<block-statements> ::= (<block-statement>)*
+<block-statement> ::= <local-variable-declaration> | <statement>
+
+<!-- 局部变量声明 -->
+<local-variable-declaration> ::= <type-identifier> <variable-declarators> ";"
+
+<!-- 语句 -->
+<statement> ::= <expression-statement> | <if-statement> | <while-statement> | <for-statement> | <foreach-statement> | <switch-statement> | <try-catch-finally-statement> | <return-statement> | <throw-statement> | <break-statement> | <continue-statement> | <synchronized-statement> | <assertion-statement> | <labeled-statement> | <empty-statement>
+
+<!-- 表达式语句 -->
+<expression-statement> ::= <expression>? ";"
+
+<!-- 条件语句 -->
+<if-statement> ::= "if" "(" <expression> ")" <statement> ["else" <statement>]
+
+<!-- 循环语句：while -->
+<while-statement> ::= "while" "(" <expression> ")" <statement>
+
+<!-- 循环语句：for -->
+<for-statement> ::= "for" "(" <for-init> <for-condition>? <for-update>? ")" <statement>
+<for-init> ::= <local-variable-declaration> | <expression-list>
+<for-condition> ::= <expression>
+<for-update> ::= <expression-list>
+<expression-list> ::= <expression> ("," <expression>)*
+
+<!-- 循环语句：foreach -->
+<foreach-statement> ::= "for" "(" <type-identifier> <identifier> ":" <expression> ")" <statement>
+
+<!-- 选择语句 -->
+<switch-statement> ::= "switch" "(" <expression> ")" <switch-block>
+<switch-block> ::= "{" <switch-group> (<switch-group>)* "}"
+<switch-group> ::= <switch-label> <block-statements>
+<switch-label> ::= "case" <constant-expression> ":" | "default" ":"
+
+<!-- 异常处理语句 -->
+<try-catch-finally-statement> ::= "try" <block> (<catch-clause>)* ["finally" <block>]
+<catch-clause> ::= "catch" "(" <formal-parameter> ")" <block>
+<formal-parameter> ::= <type-identifier> <identifier>
+
+<!-- 返回语句 -->
+<return-statement> ::= "return" <expression>? ";"
+
+<!-- 抛出语句 -->
+<throw-statement> ::= "throw" <expression> ";"
+
+<!-- 中断语句 -->
+<break-statement> ::= "break" ["<identifier>"] ";"
+
+<!-- 继续语句 -->
+<continue-statement> ::= "continue" ["<identifier>"] ";"
+
+<!-- 同步语句 -->
+<synchronized-statement> ::= "synchronized" "(" <expression> ")" <block>
+
+<!-- 断言语句 -->
+<assertion-statement> ::= "assert" <expression> ["=" <expression>] ";"
+
+<!-- 带标签语句 -->
+<labeled-statement> ::= <identifier> ":" <statement>
+d
+<!-- 空语句 -->
+<empty-statement> ::= ";"
+
+<!-- 类型标识符 -->
+<type-identifier> ::= <identifier> | <qualified-identifier>
+
+<!-- 标识符 -->
+<identifier> ::= <letter> (<letter> | <digit> | "_")*
+<letter> ::= "A" | "B" |... | "Z" | "a" | "b" |... | "z"
+<digit> ::= "0" | "1" |... | "9"
+
+<!-- 常量表达式 -->
+<constant-expression> ::= <expression> // where the expression results in a compile-time constant
+
+<!-- 表达式 -->
+<expression> ::= <assignment-expression> ("," <assignment-expression>)*
+<assignment-expression> ::= <conditional-expression> ("=" | "+=" | "-=" | "*=" | "/=" | "%=" | "<<=" | ">>=" | ">>>=" | "&=" | "|=" | "^=") <assignment-expression> | <conditional-expression>
+<conditional-expression> ::= <logical-or-expression> ("?" <expression> ":" <assignment-expression>) | <logical-or-expression>
+<logical-or-expression> ::= <logical-and-expression> ("||" <logical-and-expression>)*
+<logical-and-expression> ::= <inclusive-or-expression> ("&&" <inclusive-or-expression>)*
+<inclusive-or-expression> ::= <exclusive-or-expression> ("|" <exclusive-or-expression>)*
+<exclusive-or-expression> ::= <and-expression> ("^" <and-expression>)*
+<and-expression> ::= <equality-expression> ("&" <equality-expression>)*
+<equality-expression> ::= <relational-expression> ("==" | "!=") <relational-expression>
+<relational-expression> ::= <shift-expression> (("<" | "<=" | ">" | ">=") <shift-expression>)*
+<shift-expression> ::= <additive-expression> (("<<" | ">>" | ">>>") <additive-expression>)*
+<additive-expression> ::= <multiplicative-expression> (("+" | "-") <multiplicative-expression>)*
+<multiplicative-expression> ::= <unary-expression> (("*" | "/" | "%") <unary-expression>)*
+<unary-expression> ::= ["+" | "-" | "++" | "--" | "!" | "~"] <primary-expression>
+<primary-expression> ::= <literal> | <identifier> | "(" <expression> ")" | <this-expression> | <super-expression> | <method-invocation> | <field-access> | <array-access> | <new-expression>
+
+<!-- 字面量 -->
+<literal> ::= <integer-literal> | <floating-point-literal> | <boolean-literal> | <character-literal> | <string-literal> | <null-literal>
+
+<!-- 整数字面量 -->
+<integer-literal> ::= <decimal-literal> | <hexadecimal-literal> | <octal-literal>
+<decimal-literal> ::= <digit> <digit>*
+<hexadecimal-literal> ::= "0x" <hex-digit> <hex-digit>*
+<hex-digit> ::= <digit> | "A" | "B" |... | "F" | "a" | "b" |... | "f"
+<octal-literal> ::= "0" <octal-digit> <octal-digit>*
+<octal-digit> ::= "0" | "1" |... | "7"
+
+<!-- 浮点字面量 -->
+<floating-point-literal> ::= <digit-sequence> "." <digit-sequence> <exponent-part>? | <digit-sequence> <exponent-part> | "." <digit-sequence> <exponent-part>
+<digit-sequence> ::= <digit> <digit>*
+<exponent-part> ::= ("E" | "e") ["+" | "-"] <digit-sequence>
+
+<!-- 布尔字面量 -->
+<boolean-literal> ::= "true" | "false"
+
+<!-- 字符字面量 -->
+<character-literal> ::= '\'' <character> '\''
+<character> ::= <any-ASCII-character-except-single-quote-and-newline>
+
+<!-- 字符串字面量 -->
+<string-literal> ::= '"' <string-characters> '"'
+<string-characters> ::= <string-character> (<string-character>)*
+<string-character> ::= <any-ASCII-character-except-double-quote-and-newline>
+
+<!-- 空字面量 -->
+<null-literal> ::= "null"
+
+<!--  this 表达式 -->
+<this-expression> ::= "this" ["." <identifier>]
+
+<!--  super 表达式 -->
+<super-expression> ::= "super" ["." <identifier>]
+
+<!-- 方法调用 -->
+<method-invocation> ::= <identifier> "(" <expression-list> ")" | <primary-expression> "." <identifier> "(" <expression-list> ")"
+
+<!-- 字段访问 -->
+<field-access> ::= <identifier> | <primary-expression> "." <identifier>
+
+<!-- 数组访问 -->
+<array-access> ::= <expression> "[" <expression> "]"
+
+<!-- 新建表达式 -->
+<new-expression> ::= "new" <type-identifier> ["(" <expression-list> ")" | <array-initializer>]
+<array-initializer> ::= "{" <variable-initializer> ("," <variable-initializer>)* "}"
+<variable-initializer> ::= <expression> | <array-initializer>
+
+<!-- 参数列表 -->
+<arguments> ::= <expression> ("," <expression>)*
+<type-identifier-list> ::= <type-identifier> ("," <type-identifier>)*
