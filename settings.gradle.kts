@@ -8,7 +8,7 @@
 rootProject.name = "WLKIdeaPlugin"
 
 
-includeBuild("QLExpressDebugger")
+//includeBuild("QLExpressDebugger")
 includeBuild("ApexSupport")
 
 //includeBuild("DO2sqlMapper")
