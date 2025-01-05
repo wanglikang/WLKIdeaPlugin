@@ -512,22 +512,22 @@ apexDbExpression
     ;
 
 expression
-    : primary
+    : primary       //  // done
     | expression '.' GET '(' expressionList? ')'
     | expression '.' SET '(' expressionList? ')'
-    | expression '?'? '.' Identifier
-    | expression '.' THIS
-    | expression '.' NEW
+    | expression '?'? '.' Identifier        //
+    | expression '.' THIS               //done
+    | expression '.' NEW                    //done
     | expression '.' (DB_INSERT | DB_UPSERT | DB_UPDATE | DB_DELETE | DB_UNDELETE)
-    | expression '.' SUPER superSuffix
-    | expression '.' explicitGenericInvocation
-    | expression '[' expression ']'
-    | expression '(' expressionList? ')'
+    | expression '.' SUPER superSuffix          // done
+    | expression '.' explicitGenericInvocation      //done
+    | expression '[' expression ']'                 //done
+    | expression '(' expressionList? ')'    //   //done
     | NEW creator
-    | '(' type_ ')' expression
-    | expression ('++' | '--')
-    | ('+' | '-' | '++' | '--') expression
-    | ('~' | '!') expression
+    | '(' type_ ')' expression                   //done
+    | expression ('++' | '--')                   //done
+    | ('+' | '-' | '++' | '--') expression      //done
+    | ('~' | '!') expression                    //done
     | expression ('*' | '/' | '%') expression
     | expression ('+' | '-') expression
     | expression ('<' '<' | '>' '>' '>' | '>' '>') expression

@@ -24,6 +24,9 @@ public class ApexTokenType extends IElementType {
         this.column = col;
         this.value = obj;
     }
+    public IElementType createTokenType(String name){
+        return new ApexTokenType(name);
+    }
     @Override
     public String toString() {
         return "ApexTokenType." + super.toString();

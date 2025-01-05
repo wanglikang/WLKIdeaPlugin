@@ -16,15 +16,21 @@ import static com.intellij.openapi.editor.colors.TextAttributesKey.createTextAtt
 public class ApexSyntaxHighlighter extends SyntaxHighlighterBase {
 
     public static final TextAttributesKey SEPARATOR = createTextAttributesKey("SIMPLE_SEPARATOR", DefaultLanguageHighlighterColors.OPERATION_SIGN);
-    public static final TextAttributesKey KEY = createTextAttributesKey("SIMPLE_KEY", DefaultLanguageHighlighterColors.KEYWORD);
+    public static final TextAttributesKey CLASS = createTextAttributesKey("CLASS", DefaultLanguageHighlighterColors.CLASS_NAME);
+    public static final TextAttributesKey KEYWORD = createTextAttributesKey("CLASS", DefaultLanguageHighlighterColors.KEYWORD);
+    public static final TextAttributesKey STATIC = createTextAttributesKey("STATIC", DefaultLanguageHighlighterColors.STATIC_FIELD);
+
     public static final TextAttributesKey VALUE = createTextAttributesKey("SIMPLE_VALUE", DefaultLanguageHighlighterColors.STRING);
     public static final TextAttributesKey COMMENT = createTextAttributesKey("SIMPLE_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT);
     public static final TextAttributesKey BAD_CHARACTER = createTextAttributesKey("SIMPLE_BAD_CHARACTER", HighlighterColors.BAD_CHARACTER);
 
 
+    private static final TextAttributesKey[] STATIC_KEYS = new TextAttributesKey[]{STATIC};
     private static final TextAttributesKey[] BAD_CHAR_KEYS = new TextAttributesKey[]{BAD_CHARACTER};
     private static final TextAttributesKey[] SEPARATOR_KEYS = new TextAttributesKey[]{SEPARATOR};
-    private static final TextAttributesKey[] KEY_KEYS = new TextAttributesKey[]{KEY};
+    private static final TextAttributesKey[] CLASS_KEYS = new TextAttributesKey[]{CLASS};
+    private static final TextAttributesKey[] KEYWORD_KEYS = new TextAttributesKey[]{KEYWORD};
+
     private static final TextAttributesKey[] VALUE_KEYS = new TextAttributesKey[]{VALUE};
     private static final TextAttributesKey[] COMMENT_KEYS = new TextAttributesKey[]{COMMENT};
     private static final TextAttributesKey[] EMPTY_KEYS = new TextAttributesKey[0];
@@ -37,15 +43,16 @@ public class ApexSyntaxHighlighter extends SyntaxHighlighterBase {
 
     @Override
     public TextAttributesKey @NotNull [] getTokenHighlights(IElementType tokenType) {
-        if (tokenType.equals(ApexTypes.SEPARATOR)) {
-            return SEPARATOR_KEYS;
+        if (tokenType.equals(ApexTypes.CLASS)) {
+            return CLASS_KEYS;
         }
-        if (tokenType.equals(ApexTypes.KEY)) {
-            return KEY_KEYS;
+        if (tokenType.equals(ApexTypes.PUBLIC)) {
+            return KEYWORD_KEYS;
         }
-        if (tokenType.equals(ApexTypes.VALUE)) {
-            return VALUE_KEYS;
+        if (tokenType.equals(ApexTypes.STATIC)) {
+            return STATIC_KEYS;
         }
+
         if (tokenType.equals(ApexTypes.COMMENT)) {
             return COMMENT_KEYS;
         }

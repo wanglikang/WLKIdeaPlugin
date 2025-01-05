@@ -3,4 +3,5 @@
 export PATH=$PATH:$HOME/Env/jflex-1.9.1/bin
 cd $HOME/GithubProjects/WLKIdeaPlugin/ApexSupport || return
 jflex -d src/main/gen/com/wlk/ideaplugin/apexsupport/language/parser \
-src/main/resources/grammar/ApexCls.flex
+src/main/resources/grammar/_ApexLexer.flex
+#src/main/resources/grammar/ApexCls.flex

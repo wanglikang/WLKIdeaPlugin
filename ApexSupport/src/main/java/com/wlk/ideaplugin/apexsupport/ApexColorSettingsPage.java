@@ -16,7 +16,7 @@ import java.util.Map;
 final class ApexColorSettingsPage implements ColorSettingsPage {
 
     private static final AttributesDescriptor[] DESCRIPTORS = new AttributesDescriptor[]{
-            new AttributesDescriptor("Key", ApexSyntaxHighlighter.KEY),
+            new AttributesDescriptor("CLASS", ApexSyntaxHighlighter.CLASS),
             new AttributesDescriptor("Separator", ApexSyntaxHighlighter.SEPARATOR),
             new AttributesDescriptor("Value", ApexSyntaxHighlighter.VALUE),
             new AttributesDescriptor("Bad value", ApexSyntaxHighlighter.BAD_CHARACTER)

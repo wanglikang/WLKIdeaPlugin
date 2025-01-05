@@ -25,17 +25,18 @@
   tokenTypeClass="com.wlk.ideaplugin.apexsupport.language.psi.ApexTokenType"
 
 // psiImplUtilClass 暂不知道是干什么的
-  psiImplUtilClass="com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexPsiImplUtil"
-
+//  psiImplUtilClass="com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexPsiImplUtil"
+  extends(".*expr")=expr
   tokens=[
-    // 有几个内置的flex 变量可以用，参考：org.intellij.grammar.actions.BnfGenerateLexerAction#text2JFlex
+    // 有几个内置的flex 变量可以用，参考【Grammar-kit】项目中的：org.intellij.grammar.actions.BnfGenerateLexerAction#text2JFlex
     // [:letter:]、[:digit:]、[:lowercase:]、[:uppercase:]、([:letter:]|[:digit:])、[\x00-\x7F]
 
-    Identifier="regexp:[a-zA-Z]+[a-zA-Z0-9]*"
+    identifier="regexp:[a-zA-Z]+[a-zA-Z0-9]*"
+    keywordidentifier="regexp:(String|Integer)"
     space = "regexp:\s+"
     string = "regexp:\"[^\"]*\"|'[^']*'"
-    number = "regexp:(\\+|\\-)?\d*"
-    id = "regexp:\p{Alpha}\w*"
+//    number = "regexp:(\\+|\\-)?\d*"
+//    id = "regexp:\p{Alpha}\w*"
 
 
     //整数 字面量
@@ -63,7 +64,8 @@
 
     //字符串字面量(单引号包裹的）
 
-    SingleQuoteStringLiteral = "regexp:'[a-z]+'"
+//    singlequotestringliteral = "regexp:[a-zA-Z0-9]+"
+    singlequotestringliteral = "regexp:\\'[a-zA-Z0-9]+\\'"
 
     // 分隔符
     LPAREN = "("
@@ -160,13 +162,13 @@
 compilationUnit ::= packageDeclaration? importDeclaration* typeDeclaration*
 
 packageDeclaration::=  annotation* "PACKAGE" qualifiedName ';'
-    ;
+
 
 importDeclaration::= "IMPORT" "STATIC"? qualifiedName ('.' '*')? ';'
-    ;
+
 typeDeclaration ::= classOrInterfaceModifier* classDeclaration
     | ';'
-    ;
+
 
 classOrInterfaceModifier::= annotation           // class or interface
     | "PUBLIC"               // class or interface
@@ -182,24 +184,24 @@ classOrInterfaceModifier::= annotation           // class or interface
     | "TESTMETHOD"           // method only
     | "APEX_WITH_SHARING"    // class only
     | "APEX_WITHOUT_SHARING" //class only
-    ;
-classDeclaration::= "CLASS" Identifier typeParameters? ("EXTENDS" type_)? ("IMPLEMENTS" typeList)? classBody
-    ;
+
+classDeclaration::= "CLASS" identifier typeParameters? ("EXTENDS" type_)? ("IMPLEMENTS" typeList)? classBody
+
 
 typeParameters::= '<' typeParameter (',' typeParameter)* '>'
-    ;
 
-typeParameter::= Identifier ("EXTENDS" typeBound)?
-    ;
+
+typeParameter::= identifier ("EXTENDS" typeBound)?
+
 
 typeBound::= type_ ('&' type_)*
-    ;
+
 classBody ::= '{' classBodyDeclaration* '}'
-    ;
+
 classBodyDeclaration ::= ';'
     | "STATIC"? block
     | modifier* memberDeclaration
-    ;
+
 memberDeclaration::= methodDeclaration
 //    | genericMethodDeclaration
     | fieldDeclaration
@@ -210,97 +212,152 @@ memberDeclaration::= methodDeclaration
     | classDeclaration
 //    | enumDeclaration
 //    | propertyDeclaration
-    ;
-methodDeclaration::= "OVERRIDE"? (type_ | "VOID") Identifier formalParameters ('[' ']')* ("THROWS" qualifiedNameList)? (
+
+methodDeclaration::= "OVERRIDE"? (type_ | "VOID") identifier formalParameters ('[' ']')* ("THROWS" qualifiedNameList)? (
         methodBody
         | ';'
     )
-    ;
+
+qualifiedNameList::= qualifiedName (',' qualifiedName)*
+
 methodBody::= block
-    ;
+
 formalParameters::= '(' formalParameterList? ')'
-    ;
+
 
 formalParameterList::= formalParameter (',' formalParameter)* (',' lastFormalParameter)?
     | lastFormalParameter
-    ;
+
 
 formalParameter::= variableModifier* type_ variableDeclaratorId
-    ;
+
 lastFormalParameter::= variableModifier* type_ '...' variableDeclaratorId
-    ;
+
 fieldDeclaration::= type_ variableDeclarators ';'
-    ;
+
 modifier::= classOrInterfaceModifier
     | "NATIVE"
     | "SYNCHRONIZED"
     | "TRANSIENT"
-    ;
+
 block ::= '{' blockStatement* '}'
-    ;
+
 blockStatement ::= localVariableDeclarationStatement
     | statement
     | typeDeclaration
-    ;
+
 localVariableDeclarationStatement ::= localVariableDeclaration ';'
-    ;
+
 localVariableDeclaration ::= variableModifier* type_ variableDeclarators
-    ;
+
 variableDeclarators::= variableDeclarator (',' variableDeclarator)*
-    ;
+
 variableDeclarator::= variableDeclaratorId ('=' variableInitializer)?
-    ;
+
 
 variableInitializer::= arrayInitializer
     | expression
-    ;
+
 arrayInitializer::= '{' (variableInitializer (',' variableInitializer)* ','?)? '}'
-    ;
 
 
-variableDeclaratorId::= Identifier ('[' ']')*
-    ;
+variableDeclaratorId::= variableDeclaratorType ('[' ']')*
+
+variableDeclaratorType::=
+     "INTEGER" | "INT"
+//    | "DOUBLE" | "FLOAT"
+    | identifier
 
 
 
 variableModifier::= "FINAL"
     | annotation
-    ;
+
 
 annotation::= '@' annotationName ('(' ( elementValuePairs | elementValue)? ')')?
-    ;
-annotationName::= qualifiedName
-    ;
-qualifiedName::= Identifier ('.' Identifier)*
-    ;
-elementValuePairs ::= elementValuePair (','? elementValuePair)*
-    ;
 
-elementValuePair ::= Identifier '=' elementValue
-    ;
+annotationName::= qualifiedName
+
+qualifiedName::= identifier ('.' identifier)*
+
+elementValuePairs ::= elementValuePair (','? elementValuePair)*
+
+
+elementValuePair ::= identifier '=' elementValue
+
 elementValue ::= expression
     | annotation
     | elementValueArrayInitializer
-    ;
-elementValueArrayInitializer::= '{' (elementValue (',' elementValue)*)? ','? '}'
-    ;
 
-expression::= primary
+elementValueArrayInitializer::= '{' (elementValue (',' elementValue)*)? ','? '}'
+
+////////直接使用示例中的expr的编写方法，开始
+expression ::= expr
+// the root expression rule
+expr ::=
+    primary_group
+    | qualification_expr
+    | left_recursion_group
+    | suffix_expr
+    | right_assoc_expr
+
+suffix_expr::= '(' type_ ')' expr
+    | ('+' | '-' | '++' | '--') expression
+    |  ('~' | '!') expression
+
+qualification_expr ::= expr '?'? '.' identifier
+private primary_group ::= simple_ref_expr  | paren_expr | primary_expr
+paren_expr::= '(' expr ')'
+primary_expr::= primary
+
+private left_recursion_group ::= expr_list_expr
+    | expr_arr_index_expr
+    | new_expr | this_expr | super_expr
+    | gene_invocation_expr | plus_minus_expr | if_else_expr
+
+// 左递归的内容，得一个一个的去声明
+new_expr::=expr '.' "NEW"
+this_expr::=expr '.' "THIS"
+super_expr::=expr '.' "SUPER" superSuffix
+gene_invocation_expr::= expr '.' explicitGenericInvocation
+expr_arr_index_expr::=expr '[' expr? ']'
+expr_list_expr::=expr '(' expr? ')'
+plus_minus_expr::= expr ('++' | '--')
+if_else_expr::= expr '?' expr ':' expr
+
+// 右关联的子表达式，先单独声明一下试试
+right_assoc_expr::= expr ('=' | '+=' | '-=' | '*=' | '/=' | '&=' | '|=' | '^=' | '>>=' | '>>>=' | '<<=' | '%=' )
+    expr { rightAssociative=true }
+
+//fake ref_expr ::= expr? '.' identifier
+//simple_ref_expr ::= identifier {extends=ref_expr elementType=ref_expr}
+//qualification_expr ::= expr '?'? '.' identifier {extends=ref_expr elementType=ref_expr}
+
+simple_ref_expr ::= identifier
+////////直接使用示例中的expr的编写方法，结束
+
+
+
+
 //    | expression '.' "GET" '(' expressionList? ')'
 //    | expression '.' "SET" '(' expressionList? ')'
-//    | expression '?'? '.' Identifier
+//    | expression '?'? '.' identifier
+//      | expressionRecursionidentifier
+//      |  qualification_expr
 //    | expression '.' "THIS"
 //    | expression '.' "NEW"
 //    | expression '.' ("DB_INSERT" | "DB_UPSERT" | "DB_UPDATE" | "DB_DELETE" | "DB_UNDELETE")
 //    | expression '.' "SUPER" superSuffix
 //    | expression '.' explicitGenericInvocation
 //    | expression '[' expression ']'
-//    | expression '(' expressionList? ')'
+//     | expression '(' expressionList? ')'//        消除左递归
+//    | expressionRecursionList
+
 ////    | "NEW" creator
-    | '(' type_ ')' expression
+//    | '(' type_ ')' expression
 //    | expression ('++' | '--')
-    | ('+' | '-' | '++' | '--') expression
-    | ('~' | '!') expression
+//    | ('+' | '-' | '++' | '--') expression
+//    | ('~' | '!') expression
 //    | expression ('*' | '/' | '%') expression
 //    | expression ('+' | '-') expression
 //    | expression ('<' '<' | '>' '>' '>' | '>' '>') expression
@@ -327,25 +384,26 @@ expression::= primary
 //        | '<<='
 //        | '%='
 //    ) expression
-    ;
 
-primary ::= '(' expression ')'
-    | "THIS"
+primary::= "THIS"
     | "SUPER"
     | literal
-    | Identifier
+    | identifier
     | type_ '.' "CLASS"
     | "VOID" '.' "CLASS"
     | nonWildcardTypeArguments (explicitGenericInvocationSuffix | "THIS" arguments)
 //    | SoqlLiteral
-    ;
-literal::= IntegerLiteral
+
+literal::=
+    number
+    | IntegerLiteral
     | FloatingPointLiteral
 //    | CharacterLiteral
     | StringLiteral
 //    | BooleanLiteral
     | "NULL"
-    ;
+
+
 IntegerLiteral::= DecIntegerLiteral
     |   DecLongLiteral
     |   HexIntegerLiteral
@@ -355,8 +413,8 @@ IntegerLiteral::= DecIntegerLiteral
     ;
 FloatingPointLiteral::= FloatLiteral
     |   DoubleLiteral
-    ;
-StringLiteral::= SingleQuoteStringLiteral
+
+StringLiteral::=  singlequotestringliteral
 
 nonWildcardTypeArguments::= '<' typeList '>'
     ;
@@ -365,7 +423,7 @@ typeList::= type_ (',' type_)*
 type_::= classOrInterfaceType ('[' ']')*
     | primitiveType ('[' ']')*
     ;
-classOrInterfaceType ::= Identifier typeArguments? ('.' Identifier typeArguments?)*
+classOrInterfaceType ::= identifier typeArguments? ('.' identifier typeArguments?)*
     | "SET" typeArguments // 'set <' has to be defined explisitly, otherwise it clashes with SET of property setter
     ;
 
@@ -383,10 +441,10 @@ primitiveType::= "CHAR"
     ;
 
 explicitGenericInvocationSuffix::= "SUPER" superSuffix
-    | Identifier arguments
+    | identifier arguments
     ;
 superSuffix::= arguments
-    | '.' Identifier arguments?
+    | '.' identifier arguments?
     ;
 arguments::= '(' expressionList? ')'
     ;
@@ -405,19 +463,19 @@ statement::= block
 //    | TRY resourceSpecification block catchClause* finallyBlock?
 //    | RETURN expression? ';'
 //    | THROW expression ';'
-//    | BREAK Identifier? ';'
-//    | CONTINUE Identifier? ';'
+//    | BREAK identifier? ';'
+//    | CONTINUE identifier? ';'
     | ';'
     | statementExpression ';'
-    | Identifier ':' statement
+    | identifier ':' statement
     | apexDbExpression ';'
     ;
 
 statementExpression::= expression
-    ;
+
 apexDbExpression::= ("DB_INSERT" | "DB_UPDATE" | "DB_DELETE" | "DB_UNDELETE") expression
     | apexDbUpsertExpression
-    ;
+
 
 apexDbUpsertExpression::= "DB_UPSERT" expression expression*
-    ;
+

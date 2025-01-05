@@ -1,3 +1,4 @@
+/*
 package com.wlk.ideaplugin.apexsupport.language.psi;
 
 import com.intellij.openapi.project.Project;
@@ -29,3 +30,4 @@ public class ApexElementFactory {
     }
 
 }
+*/

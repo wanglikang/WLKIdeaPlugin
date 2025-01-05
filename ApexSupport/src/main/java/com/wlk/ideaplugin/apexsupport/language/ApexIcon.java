@@ -6,6 +6,7 @@ import javax.swing.*;
 
 public class ApexIcon {
 
-    public static final Icon FILE = IconLoader.getIcon("/icons/jar-gray.png", ApexFileType.class);
+//    public static final Icon FILE = IconLoader.getIcon("/icons/jar-gray.png", ApexFileType.class);
+        public static final Icon FILE = IconLoader.getIcon("/icons/apex.png", ApexFileType.class);
 
 }

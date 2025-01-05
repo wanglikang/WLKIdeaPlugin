@@ -8,7 +8,8 @@ public interface ApexTokenSets {
 
     //标识符
     // 注释2
-    TokenSet IDENTIFIERS = TokenSet.create(ApexTypes.KEY);
+//    TokenSet IDENTIFIERS = TokenSet.create(ApexTypes.CLASS);
+    TokenSet CLASS = TokenSet.create(ApexTypes.CLASS);
 
     TokenSet COMMENTS = TokenSet.create(ApexTypes.COMMENT);
 
