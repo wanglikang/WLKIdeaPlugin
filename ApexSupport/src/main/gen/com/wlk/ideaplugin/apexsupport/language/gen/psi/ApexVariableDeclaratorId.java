@@ -8,6 +8,6 @@ import com.intellij.psi.PsiElement;
 public interface ApexVariableDeclaratorId extends PsiElement {
 
   @NotNull
-  ApexVariableDeclaratorType getVariableDeclaratorType();
+  PsiElement getIdentifier();
 
 }

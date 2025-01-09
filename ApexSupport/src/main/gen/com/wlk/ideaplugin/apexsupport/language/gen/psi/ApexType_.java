@@ -13,4 +13,7 @@ public interface ApexType_ extends PsiElement {
   @Nullable
   ApexPrimitiveType getPrimitiveType();
 
+  @NotNull
+  PsiElement getArrayDefine();
+
 }

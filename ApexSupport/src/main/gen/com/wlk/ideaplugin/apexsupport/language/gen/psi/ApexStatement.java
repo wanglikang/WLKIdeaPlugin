@@ -13,8 +13,26 @@ public interface ApexStatement extends PsiElement {
   @Nullable
   ApexBlock getBlock();
 
+  @NotNull
+  List<ApexCatchClause> getCatchClauseList();
+
   @Nullable
-  ApexStatement getStatement();
+  ApexExpression getExpression();
+
+  @Nullable
+  ApexFinallyBlock getFinallyBlock();
+
+  @Nullable
+  ApexForStatement getForStatement();
+
+  @Nullable
+  ApexParExpression getParExpression();
+
+  @Nullable
+  ApexResourceSpecification getResourceSpecification();
+
+  @NotNull
+  List<ApexStatement> getStatementList();
 
   @Nullable
   ApexStatementExpression getStatementExpression();

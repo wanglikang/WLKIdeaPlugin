@@ -4,6 +4,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexForStatement;
 import com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexTypes;
 //import com.wlk.ideaplugin.apexsupport.language.psi.ApexElementFactory;
 import org.jetbrains.annotations.Nullable;
@@ -12,14 +13,14 @@ import javax.swing.*;
 
 public class ApexPsiImplUtil {
 //
-//    public static String getKey(ApexProperty element) {
-////        ASTNode keyNode = element.getNode().findChildByType(ApexTypes.KEY);
-////        if (keyNode != null) {
-////            // IMPORTANT: Convert embedded escaped spaces to Apex spaces
-////            return keyNode.getText().replaceAll("\\\\ ", " ");
-////        } else {
+//    public static String getKey(ApexForStatement element) {
+//        ASTNode keyNode = element.getNode().findChildByType(ApexTypes.KEY);
+//        if (keyNode != null) {
+//            // IMPORTANT: Convert embedded escaped spaces to Apex spaces
+//            return keyNode.getText().replaceAll("\\\\ ", " ");
+//        } else {
 //            return null;
-////        }
+//        }
 //    }
 //
 //    public static String getValue(ApexProperty element) {

@@ -11,22 +11,42 @@ import com.wlk.ideaplugin.apexsupport.language.gen.psi.impl.*;
 public interface ApexTypes {
 
   IElementType ANNOTATION = new ApexElementType("ANNOTATION");
+  IElementType ANNOTATION_CONSTANT_REST = new ApexElementType("ANNOTATION_CONSTANT_REST");
+  IElementType ANNOTATION_METHOD_OR_CONSTANT_REST = new ApexElementType("ANNOTATION_METHOD_OR_CONSTANT_REST");
+  IElementType ANNOTATION_METHOD_REST = new ApexElementType("ANNOTATION_METHOD_REST");
   IElementType ANNOTATION_NAME = new ApexElementType("ANNOTATION_NAME");
+  IElementType ANNOTATION_TYPE_BODY = new ApexElementType("ANNOTATION_TYPE_BODY");
+  IElementType ANNOTATION_TYPE_DECLARATION = new ApexElementType("ANNOTATION_TYPE_DECLARATION");
+  IElementType ANNOTATION_TYPE_ELEMENT_DECLARATION = new ApexElementType("ANNOTATION_TYPE_ELEMENT_DECLARATION");
+  IElementType ANNOTATION_TYPE_ELEMENT_REST = new ApexElementType("ANNOTATION_TYPE_ELEMENT_REST");
   IElementType APEX_DB_EXPRESSION = new ApexElementType("APEX_DB_EXPRESSION");
   IElementType APEX_DB_UPSERT_EXPRESSION = new ApexElementType("APEX_DB_UPSERT_EXPRESSION");
   IElementType ARGUMENTS = new ApexElementType("ARGUMENTS");
   IElementType ARRAY_INITIALIZER = new ApexElementType("ARRAY_INITIALIZER");
   IElementType BLOCK = new ApexElementType("BLOCK");
   IElementType BLOCK_STATEMENT = new ApexElementType("BLOCK_STATEMENT");
+  IElementType CATCH_CLAUSE = new ApexElementType("CATCH_CLAUSE");
+  IElementType CATCH_TYPE = new ApexElementType("CATCH_TYPE");
   IElementType CLASS_BODY = new ApexElementType("CLASS_BODY");
   IElementType CLASS_BODY_DECLARATION = new ApexElementType("CLASS_BODY_DECLARATION");
   IElementType CLASS_DECLARATION = new ApexElementType("CLASS_DECLARATION");
   IElementType CLASS_OR_INTERFACE_MODIFIER = new ApexElementType("CLASS_OR_INTERFACE_MODIFIER");
   IElementType CLASS_OR_INTERFACE_TYPE = new ApexElementType("CLASS_OR_INTERFACE_TYPE");
+  IElementType COMPILATION_UNIT = new ApexElementType("COMPILATION_UNIT");
+  IElementType CONSTANT_DECLARATOR = new ApexElementType("CONSTANT_DECLARATOR");
+  IElementType CONSTRUCTOR_BODY = new ApexElementType("CONSTRUCTOR_BODY");
+  IElementType CONSTRUCTOR_DECLARATION = new ApexElementType("CONSTRUCTOR_DECLARATION");
+  IElementType CONST_DECLARATION = new ApexElementType("CONST_DECLARATION");
+  IElementType DEFAULT_VALUE = new ApexElementType("DEFAULT_VALUE");
   IElementType ELEMENT_VALUE = new ApexElementType("ELEMENT_VALUE");
   IElementType ELEMENT_VALUE_ARRAY_INITIALIZER = new ApexElementType("ELEMENT_VALUE_ARRAY_INITIALIZER");
   IElementType ELEMENT_VALUE_PAIR = new ApexElementType("ELEMENT_VALUE_PAIR");
   IElementType ELEMENT_VALUE_PAIRS = new ApexElementType("ELEMENT_VALUE_PAIRS");
+  IElementType ENHANCED_FOR_CONTROL = new ApexElementType("ENHANCED_FOR_CONTROL");
+  IElementType ENUM_BODY_DECLARATIONS = new ApexElementType("ENUM_BODY_DECLARATIONS");
+  IElementType ENUM_CONSTANT = new ApexElementType("ENUM_CONSTANT");
+  IElementType ENUM_CONSTANTS = new ApexElementType("ENUM_CONSTANTS");
+  IElementType ENUM_DECLARATION = new ApexElementType("ENUM_DECLARATION");
   IElementType EXPLICIT_GENERIC_INVOCATION = new ApexElementType("EXPLICIT_GENERIC_INVOCATION");
   IElementType EXPLICIT_GENERIC_INVOCATION_SUFFIX = new ApexElementType("EXPLICIT_GENERIC_INVOCATION_SUFFIX");
   IElementType EXPR = new ApexElementType("EXPR");
@@ -35,14 +55,27 @@ public interface ApexTypes {
   IElementType EXPR_ARR_INDEX_EXPR = new ApexElementType("EXPR_ARR_INDEX_EXPR");
   IElementType EXPR_LIST_EXPR = new ApexElementType("EXPR_LIST_EXPR");
   IElementType FIELD_DECLARATION = new ApexElementType("FIELD_DECLARATION");
+  IElementType FINALLY_BLOCK = new ApexElementType("FINALLY_BLOCK");
   IElementType FLOATING_POINT_LITERAL = new ApexElementType("FLOATING_POINT_LITERAL");
   IElementType FORMAL_PARAMETER = new ApexElementType("FORMAL_PARAMETER");
   IElementType FORMAL_PARAMETERS = new ApexElementType("FORMAL_PARAMETERS");
   IElementType FORMAL_PARAMETER_LIST = new ApexElementType("FORMAL_PARAMETER_LIST");
+  IElementType FOR_CONTROL = new ApexElementType("FOR_CONTROL");
+  IElementType FOR_INIT = new ApexElementType("FOR_INIT");
+  IElementType FOR_STATEMENT = new ApexElementType("FOR_STATEMENT");
+  IElementType FOR_UPDATE = new ApexElementType("FOR_UPDATE");
+  IElementType GENERIC_CONSTRUCTOR_DECLARATION = new ApexElementType("GENERIC_CONSTRUCTOR_DECLARATION");
+  IElementType GENERIC_INTERFACE_METHOD_DECLARATION = new ApexElementType("GENERIC_INTERFACE_METHOD_DECLARATION");
+  IElementType GENERIC_METHOD_DECLARATION = new ApexElementType("GENERIC_METHOD_DECLARATION");
   IElementType GENE_INVOCATION_EXPR = new ApexElementType("GENE_INVOCATION_EXPR");
   IElementType IF_ELSE_EXPR = new ApexElementType("IF_ELSE_EXPR");
   IElementType IMPORT_DECLARATION = new ApexElementType("IMPORT_DECLARATION");
   IElementType INTEGER_LITERAL = new ApexElementType("INTEGER_LITERAL");
+  IElementType INTERFACE_BODY = new ApexElementType("INTERFACE_BODY");
+  IElementType INTERFACE_BODY_DECLARATION = new ApexElementType("INTERFACE_BODY_DECLARATION");
+  IElementType INTERFACE_DECLARATION = new ApexElementType("INTERFACE_DECLARATION");
+  IElementType INTERFACE_MEMBER_DECLARATION = new ApexElementType("INTERFACE_MEMBER_DECLARATION");
+  IElementType INTERFACE_METHOD_DECLARATION = new ApexElementType("INTERFACE_METHOD_DECLARATION");
   IElementType LAST_FORMAL_PARAMETER = new ApexElementType("LAST_FORMAL_PARAMETER");
   IElementType LITERAL = new ApexElementType("LITERAL");
   IElementType LOCAL_VARIABLE_DECLARATION = new ApexElementType("LOCAL_VARIABLE_DECLARATION");
@@ -55,6 +88,7 @@ public interface ApexTypes {
   IElementType NON_WILDCARD_TYPE_ARGUMENTS = new ApexElementType("NON_WILDCARD_TYPE_ARGUMENTS");
   IElementType PACKAGE_DECLARATION = new ApexElementType("PACKAGE_DECLARATION");
   IElementType PAREN_EXPR = new ApexElementType("PAREN_EXPR");
+  IElementType PAR_EXPRESSION = new ApexElementType("PAR_EXPRESSION");
   IElementType PLUS_MINUS_EXPR = new ApexElementType("PLUS_MINUS_EXPR");
   IElementType PRIMARY = new ApexElementType("PRIMARY");
   IElementType PRIMARY_EXPR = new ApexElementType("PRIMARY_EXPR");
@@ -62,8 +96,10 @@ public interface ApexTypes {
   IElementType QUALIFICATION_EXPR = new ApexElementType("QUALIFICATION_EXPR");
   IElementType QUALIFIED_NAME = new ApexElementType("QUALIFIED_NAME");
   IElementType QUALIFIED_NAME_LIST = new ApexElementType("QUALIFIED_NAME_LIST");
+  IElementType RESOURCE = new ApexElementType("RESOURCE");
+  IElementType RESOURCES = new ApexElementType("RESOURCES");
+  IElementType RESOURCE_SPECIFICATION = new ApexElementType("RESOURCE_SPECIFICATION");
   IElementType RIGHT_ASSOC_EXPR = new ApexElementType("RIGHT_ASSOC_EXPR");
-  IElementType SIMPLE_REF_EXPR = new ApexElementType("SIMPLE_REF_EXPR");
   IElementType STATEMENT = new ApexElementType("STATEMENT");
   IElementType STATEMENT_EXPRESSION = new ApexElementType("STATEMENT_EXPRESSION");
   IElementType STRING_LITERAL = new ApexElementType("STRING_LITERAL");
@@ -82,7 +118,6 @@ public interface ApexTypes {
   IElementType VARIABLE_DECLARATOR = new ApexElementType("VARIABLE_DECLARATOR");
   IElementType VARIABLE_DECLARATORS = new ApexElementType("VARIABLE_DECLARATORS");
   IElementType VARIABLE_DECLARATOR_ID = new ApexElementType("VARIABLE_DECLARATOR_ID");
-  IElementType VARIABLE_DECLARATOR_TYPE = new ApexElementType("VARIABLE_DECLARATOR_TYPE");
   IElementType VARIABLE_INITIALIZER = new ApexElementType("VARIABLE_INITIALIZER");
   IElementType VARIABLE_MODIFIER = new ApexElementType("VARIABLE_MODIFIER");
 
@@ -95,6 +130,7 @@ public interface ApexTypes {
   IElementType APEXDOC_COMMENT_START = new ApexTokenType("^/**");
   IElementType APEX_WITHOUT_SHARING = new ApexTokenType("without sharing");
   IElementType APEX_WITH_SHARING = new ApexTokenType("with sharing");
+  IElementType ARRAY_DEFINE = new ApexTokenType("ARRAY_DEFINE");
   IElementType ASSIGN = new ApexTokenType("=");
   IElementType BANG = new ApexTokenType("!");
   IElementType BITAND = new ApexTokenType("&");
@@ -164,7 +200,6 @@ public interface ApexTypes {
   IElementType RSHIFT_ASSIGN = new ApexTokenType(">>=");
   IElementType RUNAS = new ApexTokenType("runas");
   IElementType SEMI = new ApexTokenType(";");
-  IElementType SINGLEQUOTESTRINGLITERAL = new ApexTokenType("singlequotestringliteral");
   IElementType STATIC = new ApexTokenType("static");
   IElementType STRING = new ApexTokenType("string");
   IElementType SUB = new ApexTokenType("-");
@@ -188,8 +223,29 @@ public interface ApexTypes {
       if (type == ANNOTATION) {
         return new ApexAnnotationImpl(node);
       }
+      else if (type == ANNOTATION_CONSTANT_REST) {
+        return new ApexAnnotationConstantRestImpl(node);
+      }
+      else if (type == ANNOTATION_METHOD_OR_CONSTANT_REST) {
+        return new ApexAnnotationMethodOrConstantRestImpl(node);
+      }
+      else if (type == ANNOTATION_METHOD_REST) {
+        return new ApexAnnotationMethodRestImpl(node);
+      }
       else if (type == ANNOTATION_NAME) {
         return new ApexAnnotationNameImpl(node);
+      }
+      else if (type == ANNOTATION_TYPE_BODY) {
+        return new ApexAnnotationTypeBodyImpl(node);
+      }
+      else if (type == ANNOTATION_TYPE_DECLARATION) {
+        return new ApexAnnotationTypeDeclarationImpl(node);
+      }
+      else if (type == ANNOTATION_TYPE_ELEMENT_DECLARATION) {
+        return new ApexAnnotationTypeElementDeclarationImpl(node);
+      }
+      else if (type == ANNOTATION_TYPE_ELEMENT_REST) {
+        return new ApexAnnotationTypeElementRestImpl(node);
       }
       else if (type == APEX_DB_EXPRESSION) {
         return new ApexApexDbExpressionImpl(node);
@@ -209,6 +265,12 @@ public interface ApexTypes {
       else if (type == BLOCK_STATEMENT) {
         return new ApexBlockStatementImpl(node);
       }
+      else if (type == CATCH_CLAUSE) {
+        return new ApexCatchClauseImpl(node);
+      }
+      else if (type == CATCH_TYPE) {
+        return new ApexCatchTypeImpl(node);
+      }
       else if (type == CLASS_BODY) {
         return new ApexClassBodyImpl(node);
       }
@@ -224,6 +286,24 @@ public interface ApexTypes {
       else if (type == CLASS_OR_INTERFACE_TYPE) {
         return new ApexClassOrInterfaceTypeImpl(node);
       }
+      else if (type == COMPILATION_UNIT) {
+        return new ApexCompilationUnitImpl(node);
+      }
+      else if (type == CONSTANT_DECLARATOR) {
+        return new ApexConstantDeclaratorImpl(node);
+      }
+      else if (type == CONSTRUCTOR_BODY) {
+        return new ApexConstructorBodyImpl(node);
+      }
+      else if (type == CONSTRUCTOR_DECLARATION) {
+        return new ApexConstructorDeclarationImpl(node);
+      }
+      else if (type == CONST_DECLARATION) {
+        return new ApexConstDeclarationImpl(node);
+      }
+      else if (type == DEFAULT_VALUE) {
+        return new ApexDefaultValueImpl(node);
+      }
       else if (type == ELEMENT_VALUE) {
         return new ApexElementValueImpl(node);
       }
@@ -236,11 +316,29 @@ public interface ApexTypes {
       else if (type == ELEMENT_VALUE_PAIRS) {
         return new ApexElementValuePairsImpl(node);
       }
+      else if (type == ENHANCED_FOR_CONTROL) {
+        return new ApexEnhancedForControlImpl(node);
+      }
+      else if (type == ENUM_BODY_DECLARATIONS) {
+        return new ApexEnumBodyDeclarationsImpl(node);
+      }
+      else if (type == ENUM_CONSTANT) {
+        return new ApexEnumConstantImpl(node);
+      }
+      else if (type == ENUM_CONSTANTS) {
+        return new ApexEnumConstantsImpl(node);
+      }
+      else if (type == ENUM_DECLARATION) {
+        return new ApexEnumDeclarationImpl(node);
+      }
       else if (type == EXPLICIT_GENERIC_INVOCATION) {
         return new ApexExplicitGenericInvocationImpl(node);
       }
       else if (type == EXPLICIT_GENERIC_INVOCATION_SUFFIX) {
         return new ApexExplicitGenericInvocationSuffixImpl(node);
+      }
+      else if (type == EXPR) {
+        return new ApexExprImpl(node);
       }
       else if (type == EXPRESSION) {
         return new ApexExpressionImpl(node);
@@ -257,6 +355,9 @@ public interface ApexTypes {
       else if (type == FIELD_DECLARATION) {
         return new ApexFieldDeclarationImpl(node);
       }
+      else if (type == FINALLY_BLOCK) {
+        return new ApexFinallyBlockImpl(node);
+      }
       else if (type == FLOATING_POINT_LITERAL) {
         return new ApexFloatingPointLiteralImpl(node);
       }
@@ -269,6 +370,27 @@ public interface ApexTypes {
       else if (type == FORMAL_PARAMETER_LIST) {
         return new ApexFormalParameterListImpl(node);
       }
+      else if (type == FOR_CONTROL) {
+        return new ApexForControlImpl(node);
+      }
+      else if (type == FOR_INIT) {
+        return new ApexForInitImpl(node);
+      }
+      else if (type == FOR_STATEMENT) {
+        return new ApexForStatementImpl(node);
+      }
+      else if (type == FOR_UPDATE) {
+        return new ApexForUpdateImpl(node);
+      }
+      else if (type == GENERIC_CONSTRUCTOR_DECLARATION) {
+        return new ApexGenericConstructorDeclarationImpl(node);
+      }
+      else if (type == GENERIC_INTERFACE_METHOD_DECLARATION) {
+        return new ApexGenericInterfaceMethodDeclarationImpl(node);
+      }
+      else if (type == GENERIC_METHOD_DECLARATION) {
+        return new ApexGenericMethodDeclarationImpl(node);
+      }
       else if (type == GENE_INVOCATION_EXPR) {
         return new ApexGeneInvocationExprImpl(node);
       }
@@ -280,6 +402,21 @@ public interface ApexTypes {
       }
       else if (type == INTEGER_LITERAL) {
         return new ApexIntegerLiteralImpl(node);
+      }
+      else if (type == INTERFACE_BODY) {
+        return new ApexInterfaceBodyImpl(node);
+      }
+      else if (type == INTERFACE_BODY_DECLARATION) {
+        return new ApexInterfaceBodyDeclarationImpl(node);
+      }
+      else if (type == INTERFACE_DECLARATION) {
+        return new ApexInterfaceDeclarationImpl(node);
+      }
+      else if (type == INTERFACE_MEMBER_DECLARATION) {
+        return new ApexInterfaceMemberDeclarationImpl(node);
+      }
+      else if (type == INTERFACE_METHOD_DECLARATION) {
+        return new ApexInterfaceMethodDeclarationImpl(node);
       }
       else if (type == LAST_FORMAL_PARAMETER) {
         return new ApexLastFormalParameterImpl(node);
@@ -317,6 +454,9 @@ public interface ApexTypes {
       else if (type == PAREN_EXPR) {
         return new ApexParenExprImpl(node);
       }
+      else if (type == PAR_EXPRESSION) {
+        return new ApexParExpressionImpl(node);
+      }
       else if (type == PLUS_MINUS_EXPR) {
         return new ApexPlusMinusExprImpl(node);
       }
@@ -338,11 +478,17 @@ public interface ApexTypes {
       else if (type == QUALIFIED_NAME_LIST) {
         return new ApexQualifiedNameListImpl(node);
       }
+      else if (type == RESOURCE) {
+        return new ApexResourceImpl(node);
+      }
+      else if (type == RESOURCES) {
+        return new ApexResourcesImpl(node);
+      }
+      else if (type == RESOURCE_SPECIFICATION) {
+        return new ApexResourceSpecificationImpl(node);
+      }
       else if (type == RIGHT_ASSOC_EXPR) {
         return new ApexRightAssocExprImpl(node);
-      }
-      else if (type == SIMPLE_REF_EXPR) {
-        return new ApexSimpleRefExprImpl(node);
       }
       else if (type == STATEMENT) {
         return new ApexStatementImpl(node);
@@ -397,9 +543,6 @@ public interface ApexTypes {
       }
       else if (type == VARIABLE_DECLARATOR_ID) {
         return new ApexVariableDeclaratorIdImpl(node);
-      }
-      else if (type == VARIABLE_DECLARATOR_TYPE) {
-        return new ApexVariableDeclaratorTypeImpl(node);
       }
       else if (type == VARIABLE_INITIALIZER) {
         return new ApexVariableInitializerImpl(node);

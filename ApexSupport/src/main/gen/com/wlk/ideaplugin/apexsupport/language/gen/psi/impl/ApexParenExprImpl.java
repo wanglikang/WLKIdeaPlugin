@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexTypes.*;
 import com.wlk.ideaplugin.apexsupport.language.gen.psi.*;
+import com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexPsiImplUtil;
 
 public class ApexParenExprImpl extends ApexExprImpl implements ApexParenExpr {
 
@@ -28,9 +29,9 @@ public class ApexParenExprImpl extends ApexExprImpl implements ApexParenExpr {
   }
 
   @Override
-  @Nullable
+  @NotNull
   public ApexExpr getExpr() {
-    return findChildByClass(ApexExpr.class);
+    return findNotNullChildByClass(ApexExpr.class);
   }
 
 }

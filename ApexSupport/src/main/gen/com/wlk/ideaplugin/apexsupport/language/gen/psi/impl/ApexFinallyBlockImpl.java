@@ -8,17 +8,18 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.wlk.ideaplugin.apexsupport.language.gen.psi.*;
+import com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexPsiImplUtil;
 
-public class ApexSimpleRefExprImpl extends ApexExprImpl implements ApexSimpleRefExpr {
+public class ApexFinallyBlockImpl extends ASTWrapperPsiElement implements ApexFinallyBlock {
 
-  public ApexSimpleRefExprImpl(@NotNull ASTNode node) {
+  public ApexFinallyBlockImpl(@NotNull ASTNode node) {
     super(node);
   }
 
-  @Override
   public void accept(@NotNull ApexVisitor visitor) {
-    visitor.visitSimpleRefExpr(this);
+    visitor.visitFinallyBlock(this);
   }
 
   @Override
@@ -29,8 +30,8 @@ public class ApexSimpleRefExprImpl extends ApexExprImpl implements ApexSimpleRef
 
   @Override
   @NotNull
-  public PsiElement getIdentifier() {
-    return findNotNullChildByType(IDENTIFIER);
+  public ApexBlock getBlock() {
+    return findNotNullChildByClass(ApexBlock.class);
   }
 
 }

@@ -8,6 +8,6 @@ import com.intellij.psi.PsiElement;
 public interface ApexStringLiteral extends PsiElement {
 
   @NotNull
-  PsiElement getSinglequotestringliteral();
+  PsiElement getString();
 
 }

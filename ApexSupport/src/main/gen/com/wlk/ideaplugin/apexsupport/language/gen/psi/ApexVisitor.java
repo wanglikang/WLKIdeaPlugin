@@ -23,7 +23,35 @@ public class ApexVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitAnnotationConstantRest(@NotNull ApexAnnotationConstantRest o) {
+    visitPsiElement(o);
+  }
+
+  public void visitAnnotationMethodOrConstantRest(@NotNull ApexAnnotationMethodOrConstantRest o) {
+    visitPsiElement(o);
+  }
+
+  public void visitAnnotationMethodRest(@NotNull ApexAnnotationMethodRest o) {
+    visitPsiElement(o);
+  }
+
   public void visitAnnotationName(@NotNull ApexAnnotationName o) {
+    visitPsiElement(o);
+  }
+
+  public void visitAnnotationTypeBody(@NotNull ApexAnnotationTypeBody o) {
+    visitPsiElement(o);
+  }
+
+  public void visitAnnotationTypeDeclaration(@NotNull ApexAnnotationTypeDeclaration o) {
+    visitPsiElement(o);
+  }
+
+  public void visitAnnotationTypeElementDeclaration(@NotNull ApexAnnotationTypeElementDeclaration o) {
+    visitPsiElement(o);
+  }
+
+  public void visitAnnotationTypeElementRest(@NotNull ApexAnnotationTypeElementRest o) {
     visitPsiElement(o);
   }
 
@@ -51,6 +79,14 @@ public class ApexVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitCatchClause(@NotNull ApexCatchClause o) {
+    visitPsiElement(o);
+  }
+
+  public void visitCatchType(@NotNull ApexCatchType o) {
+    visitPsiElement(o);
+  }
+
   public void visitClassBody(@NotNull ApexClassBody o) {
     visitPsiElement(o);
   }
@@ -71,6 +107,30 @@ public class ApexVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitCompilationUnit(@NotNull ApexCompilationUnit o) {
+    visitPsiElement(o);
+  }
+
+  public void visitConstDeclaration(@NotNull ApexConstDeclaration o) {
+    visitPsiElement(o);
+  }
+
+  public void visitConstantDeclarator(@NotNull ApexConstantDeclarator o) {
+    visitPsiElement(o);
+  }
+
+  public void visitConstructorBody(@NotNull ApexConstructorBody o) {
+    visitPsiElement(o);
+  }
+
+  public void visitConstructorDeclaration(@NotNull ApexConstructorDeclaration o) {
+    visitPsiElement(o);
+  }
+
+  public void visitDefaultValue(@NotNull ApexDefaultValue o) {
+    visitPsiElement(o);
+  }
+
   public void visitElementValue(@NotNull ApexElementValue o) {
     visitPsiElement(o);
   }
@@ -84,6 +144,26 @@ public class ApexVisitor extends PsiElementVisitor {
   }
 
   public void visitElementValuePairs(@NotNull ApexElementValuePairs o) {
+    visitPsiElement(o);
+  }
+
+  public void visitEnhancedForControl(@NotNull ApexEnhancedForControl o) {
+    visitPsiElement(o);
+  }
+
+  public void visitEnumBodyDeclarations(@NotNull ApexEnumBodyDeclarations o) {
+    visitPsiElement(o);
+  }
+
+  public void visitEnumConstant(@NotNull ApexEnumConstant o) {
+    visitPsiElement(o);
+  }
+
+  public void visitEnumConstants(@NotNull ApexEnumConstants o) {
+    visitPsiElement(o);
+  }
+
+  public void visitEnumDeclaration(@NotNull ApexEnumDeclaration o) {
     visitPsiElement(o);
   }
 
@@ -119,6 +199,26 @@ public class ApexVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitFinallyBlock(@NotNull ApexFinallyBlock o) {
+    visitPsiElement(o);
+  }
+
+  public void visitForControl(@NotNull ApexForControl o) {
+    visitPsiElement(o);
+  }
+
+  public void visitForInit(@NotNull ApexForInit o) {
+    visitPsiElement(o);
+  }
+
+  public void visitForStatement(@NotNull ApexForStatement o) {
+    visitPsiElement(o);
+  }
+
+  public void visitForUpdate(@NotNull ApexForUpdate o) {
+    visitPsiElement(o);
+  }
+
   public void visitFormalParameter(@NotNull ApexFormalParameter o) {
     visitPsiElement(o);
   }
@@ -135,11 +235,43 @@ public class ApexVisitor extends PsiElementVisitor {
     visitExpr(o);
   }
 
+  public void visitGenericConstructorDeclaration(@NotNull ApexGenericConstructorDeclaration o) {
+    visitPsiElement(o);
+  }
+
+  public void visitGenericInterfaceMethodDeclaration(@NotNull ApexGenericInterfaceMethodDeclaration o) {
+    visitPsiElement(o);
+  }
+
+  public void visitGenericMethodDeclaration(@NotNull ApexGenericMethodDeclaration o) {
+    visitPsiElement(o);
+  }
+
   public void visitIfElseExpr(@NotNull ApexIfElseExpr o) {
     visitExpr(o);
   }
 
   public void visitImportDeclaration(@NotNull ApexImportDeclaration o) {
+    visitPsiElement(o);
+  }
+
+  public void visitInterfaceBody(@NotNull ApexInterfaceBody o) {
+    visitPsiElement(o);
+  }
+
+  public void visitInterfaceBodyDeclaration(@NotNull ApexInterfaceBodyDeclaration o) {
+    visitPsiElement(o);
+  }
+
+  public void visitInterfaceDeclaration(@NotNull ApexInterfaceDeclaration o) {
+    visitPsiElement(o);
+  }
+
+  public void visitInterfaceMemberDeclaration(@NotNull ApexInterfaceMemberDeclaration o) {
+    visitPsiElement(o);
+  }
+
+  public void visitInterfaceMethodDeclaration(@NotNull ApexInterfaceMethodDeclaration o) {
     visitPsiElement(o);
   }
 
@@ -187,6 +319,10 @@ public class ApexVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitParExpression(@NotNull ApexParExpression o) {
+    visitPsiElement(o);
+  }
+
   public void visitParenExpr(@NotNull ApexParenExpr o) {
     visitExpr(o);
   }
@@ -219,11 +355,19 @@ public class ApexVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitRightAssocExpr(@NotNull ApexRightAssocExpr o) {
-    visitExpr(o);
+  public void visitResource(@NotNull ApexResource o) {
+    visitPsiElement(o);
   }
 
-  public void visitSimpleRefExpr(@NotNull ApexSimpleRefExpr o) {
+  public void visitResourceSpecification(@NotNull ApexResourceSpecification o) {
+    visitPsiElement(o);
+  }
+
+  public void visitResources(@NotNull ApexResources o) {
+    visitPsiElement(o);
+  }
+
+  public void visitRightAssocExpr(@NotNull ApexRightAssocExpr o) {
     visitExpr(o);
   }
 
@@ -288,10 +432,6 @@ public class ApexVisitor extends PsiElementVisitor {
   }
 
   public void visitVariableDeclaratorId(@NotNull ApexVariableDeclaratorId o) {
-    visitPsiElement(o);
-  }
-
-  public void visitVariableDeclaratorType(@NotNull ApexVariableDeclaratorType o) {
     visitPsiElement(o);
   }
 

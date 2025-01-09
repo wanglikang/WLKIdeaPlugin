@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement;
 
 public interface ApexParenExpr extends ApexExpr {
 
-  @Nullable
+  @NotNull
   ApexExpr getExpr();
 
 }

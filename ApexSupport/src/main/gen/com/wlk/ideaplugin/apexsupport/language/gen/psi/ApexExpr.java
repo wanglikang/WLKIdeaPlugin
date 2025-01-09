@@ -7,4 +7,10 @@ import com.intellij.psi.PsiElement;
 
 public interface ApexExpr extends PsiElement {
 
+  @Nullable
+  ApexExpr getExpr();
+
+  @Nullable
+  PsiElement getIdentifier();
+
 }

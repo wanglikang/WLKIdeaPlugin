@@ -10,6 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.wlk.ideaplugin.apexsupport.language.gen.psi.*;
+import com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexPsiImplUtil;
 
 public class ApexExpressionImpl extends ASTWrapperPsiElement implements ApexExpression {
 

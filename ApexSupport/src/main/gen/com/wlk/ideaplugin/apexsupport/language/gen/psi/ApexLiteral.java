@@ -16,4 +16,7 @@ public interface ApexLiteral extends PsiElement {
   @Nullable
   ApexStringLiteral getStringLiteral();
 
+  @Nullable
+  PsiElement getNumber();
+
 }

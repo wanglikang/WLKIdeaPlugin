@@ -8,6 +8,6 @@ import com.intellij.psi.PsiElement;
 public interface ApexExprArrIndexExpr extends ApexExpr {
 
   @NotNull
-  List<ApexExpr> getExprList();
+  List<ApexExpression> getExpressionList();
 
 }

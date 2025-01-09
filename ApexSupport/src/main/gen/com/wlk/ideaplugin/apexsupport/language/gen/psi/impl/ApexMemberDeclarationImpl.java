@@ -10,6 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.wlk.ideaplugin.apexsupport.language.gen.psi.*;
+import com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexPsiImplUtil;
 
 public class ApexMemberDeclarationImpl extends ASTWrapperPsiElement implements ApexMemberDeclaration {
 
@@ -35,8 +36,32 @@ public class ApexMemberDeclarationImpl extends ASTWrapperPsiElement implements A
 
   @Override
   @Nullable
+  public ApexConstructorDeclaration getConstructorDeclaration() {
+    return findChildByClass(ApexConstructorDeclaration.class);
+  }
+
+  @Override
+  @Nullable
   public ApexFieldDeclaration getFieldDeclaration() {
     return findChildByClass(ApexFieldDeclaration.class);
+  }
+
+  @Override
+  @Nullable
+  public ApexGenericConstructorDeclaration getGenericConstructorDeclaration() {
+    return findChildByClass(ApexGenericConstructorDeclaration.class);
+  }
+
+  @Override
+  @Nullable
+  public ApexGenericMethodDeclaration getGenericMethodDeclaration() {
+    return findChildByClass(ApexGenericMethodDeclaration.class);
+  }
+
+  @Override
+  @Nullable
+  public ApexInterfaceDeclaration getInterfaceDeclaration() {
+    return findChildByClass(ApexInterfaceDeclaration.class);
   }
 
   @Override

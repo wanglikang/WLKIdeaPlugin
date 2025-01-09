@@ -10,6 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.wlk.ideaplugin.apexsupport.language.gen.psi.*;
+import com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexPsiImplUtil;
 
 public class ApexStringLiteralImpl extends ASTWrapperPsiElement implements ApexStringLiteral {
 
@@ -29,8 +30,8 @@ public class ApexStringLiteralImpl extends ASTWrapperPsiElement implements ApexS
 
   @Override
   @NotNull
-  public PsiElement getSinglequotestringliteral() {
-    return findNotNullChildByType(SINGLEQUOTESTRINGLITERAL);
+  public PsiElement getString() {
+    return findNotNullChildByType(STRING);
   }
 
 }

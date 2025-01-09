@@ -11,7 +11,19 @@ public interface ApexMemberDeclaration extends PsiElement {
   ApexClassDeclaration getClassDeclaration();
 
   @Nullable
+  ApexConstructorDeclaration getConstructorDeclaration();
+
+  @Nullable
   ApexFieldDeclaration getFieldDeclaration();
+
+  @Nullable
+  ApexGenericConstructorDeclaration getGenericConstructorDeclaration();
+
+  @Nullable
+  ApexGenericMethodDeclaration getGenericMethodDeclaration();
+
+  @Nullable
+  ApexInterfaceDeclaration getInterfaceDeclaration();
 
   @Nullable
   ApexMethodDeclaration getMethodDeclaration();

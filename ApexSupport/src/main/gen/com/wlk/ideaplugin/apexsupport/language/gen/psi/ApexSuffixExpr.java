@@ -7,10 +7,7 @@ import com.intellij.psi.PsiElement;
 
 public interface ApexSuffixExpr extends ApexExpr {
 
-  @Nullable
-  ApexExpr getExpr();
-
-  @Nullable
+  @NotNull
   ApexExpression getExpression();
 
   @Nullable

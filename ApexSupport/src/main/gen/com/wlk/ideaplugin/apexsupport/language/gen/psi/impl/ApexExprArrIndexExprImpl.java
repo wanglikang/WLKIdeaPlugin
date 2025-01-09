@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexTypes.*;
 import com.wlk.ideaplugin.apexsupport.language.gen.psi.*;
+import com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexPsiImplUtil;
 
 public class ApexExprArrIndexExprImpl extends ApexExprImpl implements ApexExprArrIndexExpr {
 
@@ -29,8 +30,8 @@ public class ApexExprArrIndexExprImpl extends ApexExprImpl implements ApexExprAr
 
   @Override
   @NotNull
-  public List<ApexExpr> getExprList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, ApexExpr.class);
+  public List<ApexExpression> getExpressionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ApexExpression.class);
   }
 
 }

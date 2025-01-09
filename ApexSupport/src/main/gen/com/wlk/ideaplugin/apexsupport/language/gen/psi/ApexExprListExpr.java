@@ -8,6 +8,9 @@ import com.intellij.psi.PsiElement;
 public interface ApexExprListExpr extends ApexExpr {
 
   @NotNull
-  List<ApexExpr> getExprList();
+  ApexExpr getExpr();
+
+  @Nullable
+  ApexExpressionList getExpressionList();
 
 }
