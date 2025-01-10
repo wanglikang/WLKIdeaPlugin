@@ -27,5 +27,10 @@
     <lang.syntaxHighlighterFactory language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.SpexSyntaxHighlighterFactory"/>
     <colorSettingsPage implementation="com.wlk.ideaplugin.apexsupport.ApexColorSettingsPage"/>
 
+<!--     自动补全的配置-->
+    <completion.contributor language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.language.ApexCompletionContributor"/>
+<!--    自动补全的另一种实现方式-->
+    <psi.referenceContributor language="Apex" implementation="com.wlk.ideaplugin.apexsupport.language.ApexReferenceContributor"/>
+
   </extensions>
 </idea-plugin>

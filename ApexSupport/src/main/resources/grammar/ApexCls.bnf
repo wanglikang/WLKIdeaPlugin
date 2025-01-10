@@ -1,6 +1,6 @@
 // Copyright 2000-2022 JetBrains s.r.o. and other contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 {
-  classHeader="//自动生成的语法分析器"
+//  classHeader="//自动生成的语法分析器"
   parserClass="com.wlk.ideaplugin.apexsupport.language.parser.ApexParser"
   parserUtilClass="com.wlk.ideaplugin.apexsupport.language.parser.ApexParserUtil"
   // 在此文件中，运行 【Generate Parse Util】 后，会自动生成一个ApexParserUtil  放到和 parserClass 同一个文件夹下，
@@ -26,7 +26,12 @@
 
 // psiImplUtilClass 暂不知道是干什么的
   psiImplUtilClass="com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexPsiImplUtil"
-  extends(".*expr")=expr
+//  extends(".*expr")=expr
+//  extends(".*Name")='NamedElement'
+  mixin(".*Name")="com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexCommonNamedElementImpl"
+  implements(".*Name")="com.wlk.ideaplugin.apexsupport.language.psi.ApexNamedElement"
+  methods(".*Name")=[getKey getValue getName setName getNameIdentifier getPresentation]
+
   tokens=[
     // 有几个内置的flex 变量可以用，参考【Grammar-kit】项目中的：org.intellij.grammar.actions.BnfGenerateLexerAction#text2JFlex
     // [:letter:]、[:digit:]、[:lowercase:]、[:uppercase:]、([:letter:]|[:digit:])、[\x00-\x7F]
@@ -159,17 +164,9 @@
   ]
 }
 
-//identifier::= identifierPattern {
-//    mixin="com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexNamedElementImpl"
-//    implements=" com.wlk.ideaplugin.apexsupport.language.psi.ApexNamedElement"
-//    methods=[getKey getValue getName setName getNameIdentifier getPresentation]
-//}
 apexFile::= compilationUnit
 
-compilationUnit ::= packageDeclaration? importDeclaration* typeDeclaration*
-
-packageDeclaration::=  annotation* "PACKAGE" qualifiedName ';'
-
+compilationUnit ::=  importDeclaration* typeDeclaration*
 
 importDeclaration::= "IMPORT" "STATIC"? qualifiedName ('.' '*')? ';'
 
@@ -177,7 +174,10 @@ typeDeclaration ::= classOrInterfaceModifier* classDeclaration
     | ';'
 
 
-classOrInterfaceModifier::= annotation           // class or interface
+classOrInterfaceModifier::=
+     "with sharing"    // class only
+    | "without sharing" //class only
+//	| annotation           // class or interface
     | "PUBLIC"               // class or interface
     | "PROTECTED"            // class or interface
     | "PRIVATE"              // class or interface
@@ -189,10 +189,10 @@ classOrInterfaceModifier::= annotation           // class or interface
     | "OVERRIDE"             // method only
     | "VIRTUAL"              // method only
     | "TESTMETHOD"           // method only
-    | "with sharing"    // class only
-    | "without sharing" //class only
 
-classDeclaration::= "CLASS" identifier typeParameters? ("EXTENDS" type_)? ("IMPLEMENTS" typeList)? classBody
+
+className::= identifier
+left classDeclaration::= "CLASS" className typeParameters? ("EXTENDS" type_)? ("IMPLEMENTS" typeList)? classBody
 
 
 typeParameters::= '<' typeParameter (',' typeParameter)* '>'
@@ -203,382 +203,29 @@ typeParameter::= identifier ("EXTENDS" typeBound)?
 
 typeBound::= type_ ('&' type_)*
 
-classBody ::= '{' classBodyDeclaration* '}'
+classBody ::= '{' '}'
 
-classBodyDeclaration ::= ';'
-    | "STATIC"? block
-    | modifier* memberDeclaration
+left qualifiedName::= identifier ('.' identifier)*
 
-memberDeclaration::= methodDeclaration
-    | genericMethodDeclaration
-    | fieldDeclaration
-    | constructorDeclaration
-    | genericConstructorDeclaration
-    | interfaceDeclaration
-//    | annotationTypeDeclaration
-    | classDeclaration
-//    | enumDeclaration
-//    | propertyDeclaration
 
-
-interfaceDeclaration::= "INTERFACE" identifier typeParameters? ("EXTENDS" typeList)? interfaceBody
-
-interfaceBody::= '{' interfaceBodyDeclaration* '}'
-
-interfaceBodyDeclaration::= modifier* interfaceMemberDeclaration
-    | ';'
-interfaceMemberDeclaration::= constDeclaration
-    | interfaceMethodDeclaration
-    | genericInterfaceMethodDeclaration
-    | interfaceDeclaration
-    | annotationTypeDeclaration
-    | classDeclaration
-    | enumDeclaration
-
-genericInterfaceMethodDeclaration::= typeParameters interfaceMethodDeclaration
-
-annotationTypeDeclaration::= '@' "INTERFACE" identifier annotationTypeBody
-
-annotationTypeBody::= '{' annotationTypeElementDeclaration* '}'
-
-annotationTypeElementDeclaration::= modifier* annotationTypeElementRest
-    | ';' // this is not allowed by the grammar, but apparently allowed by the actual compiler
-
-annotationTypeElementRest::= type_ annotationMethodOrConstantRest ';'
-    | classDeclaration ';'?
-    | interfaceDeclaration ';'?
-    | enumDeclaration ';'?
-    | annotationTypeDeclaration ';'?
-enumDeclaration::= "ENUM" identifier ("IMPLEMENTS" typeList)? '{' enumConstants? ','? enumBodyDeclarations? '}'
-enumConstants::= enumConstant (',' enumConstant)*
-enumConstant::= annotation* identifier arguments? classBody?
-enumBodyDeclarations::= ';' classBodyDeclaration*
-    ;
-
-annotationMethodOrConstantRest::= annotationMethodRest
-    | annotationConstantRest
-    ;
-annotationMethodRest::= identifier '(' ')' defaultValue?
-
-defaultValue::= "DEFAULT" elementValue
-
-annotationConstantRest::= variableDeclarators
-
-
-interfaceMethodDeclaration::= (type_ | "VOID") identifier formalParameters ARRAY_DEFINE ("THROWS" qualifiedNameList)? ';'
-    ;
-
-constDeclaration::= type_ constantDeclarator (',' constantDeclarator)* ';'
-
-constantDeclarator::= identifier ARRAY_DEFINE '=' variableInitializer
-    ;
-
-
-genericConstructorDeclaration::= typeParameters constructorDeclaration
-
-constructorDeclaration::= identifier formalParameters ("THROWS" qualifiedNameList)? constructorBody
-constructorBody::= block
-
-genericMethodDeclaration::= typeParameters methodDeclaration
-
-
-methodDeclaration::= "OVERRIDE"? (type_ | "VOID") identifier formalParameters ('[' ']')* ("THROWS" qualifiedNameList)? (
-        methodBody
-        | ';'
-    )
-
-qualifiedNameList::= qualifiedName (',' qualifiedName)*
-
-methodBody::= block
-
-formalParameters::= '(' formalParameterList? ')'
-
-
-formalParameterList::= formalParameter (',' formalParameter)* (',' lastFormalParameter)?
-    | lastFormalParameter
-
-
-formalParameter::= variableModifier* type_ variableDeclaratorId
-
-lastFormalParameter::= variableModifier* type_ '...' variableDeclaratorId
-
-fieldDeclaration::= type_ variableDeclarators ';'
-
-modifier::= classOrInterfaceModifier
-    | "NATIVE"
-    | "SYNCHRONIZED"
-    | "TRANSIENT"
-
-block ::= '{' blockStatement* '}'
-
-blockStatement ::= localVariableDeclarationStatement
-    | statement
-    | typeDeclaration
-
-localVariableDeclarationStatement ::= localVariableDeclaration ';'
-
-localVariableDeclaration ::= variableModifier* type_ variableDeclarators
-
-variableDeclarators::= variableDeclarator (',' variableDeclarator)*
-
-variableDeclarator::= variableDeclaratorId ('=' variableInitializer)?
-
-
-variableInitializer::= arrayInitializer
-    | expression
-
-arrayInitializer::= '{' (variableInitializer (',' variableInitializer)* ','?)? '}'
-
-
-variableDeclaratorId::= identifier ('[' ']')* {pin=1}
-
-
-variableModifier::= "FINAL"
-    | annotation
-
-
-annotation::= '@' annotationName ('(' ( elementValuePairs | elementValue)? ')')? {pin = 2}
-
-annotationName::= qualifiedName
-
-qualifiedName::= identifier ('.' identifier)*
-
-elementValuePairs ::= elementValuePair (','? elementValuePair)*
-
-
-elementValuePair ::= identifier '=' elementValue
-
-elementValue ::= expression
-    | annotation
-    | elementValueArrayInitializer
-
-elementValueArrayInitializer::= '{' (elementValue (',' elementValue)*)? ','? '}'
-
-////////直接使用示例中的expr的编写方法，开始
-expression ::= expr
-// the root expression rule
-expr ::=
-    primary_group
-    | qualification_expr
-    | suffix_expr
-    | left_recursion_group
-    | right_assoc_expr
-
-suffix_expr::= '(' type_ ')' expression
-    | ('+' | '-' | '++' | '--') expression
-    |  ('~' | '!') expression
-
-qualification_expr ::= expr '?'? '.' identifier
-private primary_group ::= identifier  | paren_expr | primary_expr
-paren_expr::= '(' expr ')'
-primary_expr::= primary
-
-private left_recursion_group ::= expr_list_expr
-    | expr_arr_index_expr
-    | new_expr | this_expr | super_expr
-    | gene_invocation_expr | plus_minus_expr | if_else_expr
-
-// 左递归的内容，得一个一个的去声明
-new_expr::=expr '.' "NEW"
-this_expr::=expr '.' "THIS"
-super_expr::=expr '.' "SUPER" superSuffix
-gene_invocation_expr::= expr '.' explicitGenericInvocation
-expr_arr_index_expr::= expression '[' expression? ']'
-expr_list_expr::=expr '(' expressionList? ')'
-plus_minus_expr::= expr ('++' | '--')
-if_else_expr::= expr '?' expr ':' expr
-
-// 右关联的子表达式，先单独声明一下试试
-right_assoc_expr::= expr ('=' | '+=' | '-=' | '*=' | '/=' | '&=' | '|=' | '^=' | '>>=' | '>>>=' | '<<=' | '%=' )
-    expr { rightAssociative=true }
-
-//fake ref_expr ::= expr? '.' identifier
-//simple_ref_expr ::= identifier {extends=ref_expr elementType=ref_expr}
-//qualification_expr ::= expr '?'? '.' identifier {extends=ref_expr elementType=ref_expr}
-
-//simple_ref_expr ::= identifier
-
-////////直接使用示例中的expr的编写方法，结束
-
-
-
-
-//    | expression '.' "GET" '(' expressionList? ')'
-//    | expression '.' "SET" '(' expressionList? ')'
-//    | expression '?'? '.' identifier
-//      | expressionRecursionidentifier
-//      |  qualification_expr
-//    | expression '.' "THIS"
-//    | expression '.' "NEW"
-//    | expression '.' ("DB_INSERT" | "DB_UPSERT" | "DB_UPDATE" | "DB_DELETE" | "DB_UNDELETE")
-//    | expression '.' "SUPER" superSuffix
-//    | expression '.' explicitGenericInvocation
-//    | expression '[' expression ']'
-//     | expression '(' expressionList? ')'//        消除左递归
-//    | expressionRecursionList
-
-////    | "NEW" creator
-//    | '(' type_ ')' expression
-//    | expression ('++' | '--')
-//    | ('+' | '-' | '++' | '--') expression
-//    | ('~' | '!') expression
-//    | expression ('*' | '/' | '%') expression
-//    | expression ('+' | '-') expression
-//    | expression ('<' '<' | '>' '>' '>' | '>' '>') expression
-//    | expression ('<=' | '>=' | '>' | '<') expression
-//    | expression "INSTANCEOF" type_
-//    | expression ('==' | '!=' | '<>') expression
-//    | expression '&' expression
-//    | expression '^' expression
-//    | expression '|' expression
-//    | expression '&&' expression
-//    | expression '||' expression
-//    | expression '?' expression ':' expression
-//    | <assoc = right> expression (
-//        '='
-//        | '+='
-//        | '-='
-//        | '*='
-//        | '/='
-//        | '&='
-//        | '|='
-//        | '^='
-//        | '>>='
-//        | '>>>='
-//        | '<<='
-//        | '%='
-//    ) expression
-
-primary::= "THIS"
-    | "SUPER"
-    | identifier
-    | literal
-    | type_ '.' "CLASS"
-    | "VOID" '.' "CLASS"
-    | nonWildcardTypeArguments (explicitGenericInvocationSuffix | "THIS" arguments)
-//    | SoqlLiteral
-
-literal::=
-    number
-	| StringLiteral
-    | IntegerLiteral
-    | FloatingPointLiteral
-//    | CharacterLiteral
-//    | BooleanLiteral
-    | "NULL"
-
-StringLiteral::=  string
-
-IntegerLiteral::= DecIntegerLiteral
-    |   DecLongLiteral
-    |   HexIntegerLiteral
-    |   HexLongLiteral
-    |   OctIntegerLiteral
-    |   OctLongLiteral
-    ;
-FloatingPointLiteral::= FloatLiteral
-    |   DoubleLiteral
-
-
-
-nonWildcardTypeArguments::= '<' typeList '>'
-    ;
 typeList::= type_ (',' type_)*
-    ;
+
 type_::= classOrInterfaceType ARRAY_DEFINE
     | primitiveType ARRAY_DEFINE
-    ;
+
 classOrInterfaceType ::= identifier typeArguments? ('.' identifier typeArguments?)
     | "SET" typeArguments // 'set <' has to be defined explisitly, otherwise it clashes with SET of property setter
     | "MAP" typeArguments // 'set <' has to be defined explisitly, otherwise it clashes with SET of property setter
-    ;
 
 typeArguments
     ::= '<' typeArgument (',' typeArgument)* '>'
-    ;
+
 typeArgument::= type_
     | '?' (("EXTENDS" | "SUPER") type_)?
-    ;
+
 primitiveType::= "CHAR"
     | "BYTE"
     | "SHORT"
     | "INT"
     | "FLOAT"
-    ;
-
-explicitGenericInvocationSuffix::= "SUPER" superSuffix
-    | identifier arguments
-    ;
-superSuffix::= arguments
-    | '.' identifier arguments?
-    ;
-arguments::= '(' expressionList? ')'
-    ;
-expressionList::= expression (',' expression)*
-    ;
-explicitGenericInvocation::= nonWildcardTypeArguments explicitGenericInvocationSuffix
-    ;
-
-forStatement ::= FOR '(' forControl ')' statement {
-	pin=2
-//    mixin="com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexNamedElementImpl"
-//    implements="com.intellij.psi.PsiNameIdentifierOwner"
-//    methods=[getKey getValue getName setName getNameIdentifier getPresentation]
-}
-//private forStatement_recover ::= !(':')
-statement::= block
-    | "IF" parExpression statement ("ELSE" statement)?
-    | forStatement
-    | "WHILE" parExpression statement
-    | "DO" statement "WHILE" parExpression ';'
-    | "RUNAS" '(' expression ')' statement
-    | "TRY" block (catchClause+ finallyBlock? | finallyBlock)
-    | "TRY" resourceSpecification block catchClause* finallyBlock?
-    | "RETURN" expression? ';'
-    | "THROW" expression ';'
-    | "BREAK" identifier? ';'
-    | "CONTINUE" identifier? ';'
-    | ';'
-    | statementExpression ';'
-    | identifier ':' statement
-    | apexDbExpression ';'
-
-resourceSpecification::= '(' resources ';'? ')'
-
-resources::= resource (';' resource)*
-    ;
-
-resource::= variableModifier* classOrInterfaceType variableDeclaratorId '=' expression
-    ;
-
-
-finallyBlock::= "FINALLY" block
-    ;
-catchClause::= "CATCH" '(' variableModifier* catchType identifier ')' block
-    ;
-
-catchType::= qualifiedName ('|' qualifiedName)*
-    ;
-
-
-forControl::= forInit? ';' expression? ';' forUpdate?
-	| enhancedForControl
-
-
-forInit::= localVariableDeclaration
-    | expressionList
-
-forUpdate::= expressionList
-
-enhancedForControl ::= variableModifier* type_ variableDeclaratorId ':' expression
-
-parExpression::= '(' expression ')'
-
-statementExpression::= expression
-
-apexDbExpression::= ("DB_INSERT" | "DB_UPDATE" | "DB_DELETE" | "DB_UNDELETE") expression
-    | apexDbUpsertExpression
-
-
-apexDbUpsertExpression::= "DB_UPSERT" expression expression*
 

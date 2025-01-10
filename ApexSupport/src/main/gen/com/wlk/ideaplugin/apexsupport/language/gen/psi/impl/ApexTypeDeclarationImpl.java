@@ -1,4 +1,4 @@
-//自动生成的语法分析器
+// This is a generated file. Not intended for manual editing.
 package com.wlk.ideaplugin.apexsupport.language.gen.psi.impl;
 
 import java.util.List;
@@ -32,12 +32,6 @@ public class ApexTypeDeclarationImpl extends ASTWrapperPsiElement implements Ape
   @Nullable
   public ApexClassDeclaration getClassDeclaration() {
     return findChildByClass(ApexClassDeclaration.class);
-  }
-
-  @Override
-  @NotNull
-  public List<ApexClassOrInterfaceModifier> getClassOrInterfaceModifierList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, ApexClassOrInterfaceModifier.class);
   }
 
 }

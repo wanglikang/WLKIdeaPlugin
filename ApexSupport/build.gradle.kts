@@ -37,7 +37,8 @@ intellij {
   version.set("2024.2.3")
   type.set("IC") // Target IDE Platform
 
-  plugins.set(listOf(/* Plugin Dependencies */))
+  // 添加idea 对java的支持，用于实现 自定义语言的引用
+  plugins.set(listOf("com.intellij.java"))
 }
 
 tasks {

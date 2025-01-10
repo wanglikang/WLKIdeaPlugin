@@ -1,4 +1,4 @@
-//自动生成的语法分析器
+// This is a generated file. Not intended for manual editing.
 package com.wlk.ideaplugin.apexsupport.language.gen.psi;
 
 import java.util.List;
@@ -11,6 +11,21 @@ public interface ApexClassDeclaration extends PsiElement {
   ApexClassBody getClassBody();
 
   @Nullable
+  ApexClassDeclaration getClassDeclaration();
+
+  @NotNull
+  ApexClassName getClassName();
+
+  @Nullable
+  ApexClassOrInterfaceModifier getClassOrInterfaceModifier();
+
+  @Nullable
+  ApexImportDeclaration getImportDeclaration();
+
+  @Nullable
+  ApexTypeDeclaration getTypeDeclaration();
+
+  @Nullable
   ApexTypeList getTypeList();
 
   @Nullable
@@ -18,8 +33,5 @@ public interface ApexClassDeclaration extends PsiElement {
 
   @Nullable
   ApexType_ getType_();
-
-  @NotNull
-  PsiElement getIdentifier();
 
 }

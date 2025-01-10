@@ -1,4 +1,4 @@
-//自动生成的语法分析器
+// This is a generated file. Not intended for manual editing.
 package com.wlk.ideaplugin.apexsupport.language.gen.psi.impl;
 
 import java.util.List;
@@ -26,12 +26,6 @@ public class ApexClassBodyImpl extends ASTWrapperPsiElement implements ApexClass
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof ApexVisitor) accept((ApexVisitor)visitor);
     else super.accept(visitor);
-  }
-
-  @Override
-  @NotNull
-  public List<ApexClassBodyDeclaration> getClassBodyDeclarationList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, ApexClassBodyDeclaration.class);
   }
 
 }

@@ -1,4 +1,4 @@
-//自动生成的语法分析器
+// This is a generated file. Not intended for manual editing.
 package com.wlk.ideaplugin.apexsupport.language.gen.psi.impl;
 
 import java.util.List;
@@ -36,6 +36,36 @@ public class ApexClassDeclarationImpl extends ASTWrapperPsiElement implements Ap
 
   @Override
   @Nullable
+  public ApexClassDeclaration getClassDeclaration() {
+    return findChildByClass(ApexClassDeclaration.class);
+  }
+
+  @Override
+  @NotNull
+  public ApexClassName getClassName() {
+    return findNotNullChildByClass(ApexClassName.class);
+  }
+
+  @Override
+  @Nullable
+  public ApexClassOrInterfaceModifier getClassOrInterfaceModifier() {
+    return findChildByClass(ApexClassOrInterfaceModifier.class);
+  }
+
+  @Override
+  @Nullable
+  public ApexImportDeclaration getImportDeclaration() {
+    return findChildByClass(ApexImportDeclaration.class);
+  }
+
+  @Override
+  @Nullable
+  public ApexTypeDeclaration getTypeDeclaration() {
+    return findChildByClass(ApexTypeDeclaration.class);
+  }
+
+  @Override
+  @Nullable
   public ApexTypeList getTypeList() {
     return findChildByClass(ApexTypeList.class);
   }
@@ -50,12 +80,6 @@ public class ApexClassDeclarationImpl extends ASTWrapperPsiElement implements Ap
   @Nullable
   public ApexType_ getType_() {
     return findChildByClass(ApexType_.class);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getIdentifier() {
-    return findNotNullChildByType(IDENTIFIER);
   }
 
 }

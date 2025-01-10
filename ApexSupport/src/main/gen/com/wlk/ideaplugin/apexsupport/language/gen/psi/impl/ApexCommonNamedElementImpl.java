@@ -5,13 +5,14 @@ import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
+import com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexNamedElementImpl;
 import com.wlk.ideaplugin.apexsupport.language.gen.psi.*;
 import com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexPsiImplUtil;
 import com.intellij.navigation.ItemPresentation;
 
-public class ApexQualifiedNameImpl extends ApexCommonNamedElementImpl implements ApexQualifiedName {
+public class ApexCommonNamedElementImpl extends ApexNamedElementImpl implements ApexQualifiedName {
 
-  public ApexQualifiedNameImpl(ASTNode node) {
+  public ApexCommonNamedElementImpl(@NotNull ASTNode node) {
     super(node);
   }
 
