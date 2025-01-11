@@ -38,8 +38,7 @@ public class _ApexLexer implements FlexLexer {
   private static final int [] ZZ_CMAP_TOP = zzUnpackcmap_top();
 
   private static final String ZZ_CMAP_TOP_PACKED_0 =
-    "\1\0\25\u0100\1\u0200\11\u0100\1\u0300\17\u0100\1\u0400\247\u0100"+
-    "\10\u0500\u1020\u0100";
+    "\1\0\37\u0100\1\u0200\267\u0100\10\u0300\u1020\u0100";
 
   private static int [] zzUnpackcmap_top() {
     int [] result = new int[4352];
@@ -76,12 +75,11 @@ public class _ApexLexer implements FlexLexer {
     "\1\50\1\51\1\52\1\53\1\54\1\55\1\56\1\37"+
     "\1\57\1\60\1\61\1\62\1\63\1\64\1\37\1\65"+
     "\1\66\1\67\1\70\1\71\1\72\1\41\1\73\1\37"+
-    "\1\74\1\75\1\76\1\77\6\0\1\3\32\0\1\1"+
-    "\u01df\0\1\1\177\0\13\1\35\0\2\3\5\0\1\1"+
-    "\57\0\1\1\240\0\1\1\377\0\u0100\100";
+    "\1\74\1\75\1\76\1\77\6\0\1\100\u01a2\0\2\100"+
+    "\326\0\u0100\100";
 
   private static int [] zzUnpackcmap_blocks() {
-    int [] result = new int[1536];
+    int [] result = new int[1024];
     int offset = 0;
     offset = zzUnpackcmap_blocks(ZZ_CMAP_BLOCKS_PACKED_0, offset, result);
     return result;

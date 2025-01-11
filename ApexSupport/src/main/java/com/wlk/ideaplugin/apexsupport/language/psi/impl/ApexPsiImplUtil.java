@@ -14,12 +14,10 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 public class ApexPsiImplUtil {
-//
-    public static String getKey(ApexQualifiedName element) {
 
-        ASTNode keyNode = element.getNode().findChildByType(ApexTypes.QUALIFIED_NAME);
+    public static String getKey(ApexQualifiedName element) {
+        ASTNode keyNode = element.getNode().findChildByType(ApexTypes.IDENTIFIER);
         if (keyNode != null) {
-            // IMPORTANT: Convert embedded escaped spaces to Apex spaces
             return keyNode.getText().replaceAll("\\\\ ", " ");
         } else {
             return null;
@@ -27,19 +25,19 @@ public class ApexPsiImplUtil {
     }
 
     public static String getValue(ApexQualifiedName element) {
-        ASTNode valueNode = element.getNode().findChildByType(ApexTypes.QUALIFIED_NAME);
+        ASTNode valueNode = element.getNode().findChildByType(ApexTypes.IDENTIFIER);
         if (valueNode != null) {
             return valueNode.getText();
         } else {
             return null;
         }
     }
-//
+
     public static String getName(ApexQualifiedName element) {
         return getKey(element);
     }
     public static PsiElement setName(ApexQualifiedName element, String newName) {
-        ASTNode keyNode = element.getNode().findChildByType(ApexTypes.QUALIFIED_NAME);
+        ASTNode keyNode = element.getNode().findChildByType(ApexTypes.IDENTIFIER);
         if (keyNode != null) {
             ApexNamedElement property = ApexElementFactory.createProperty(element.getProject(), newName);
             ASTNode newKeyNode = property.getFirstChild().getNode();
@@ -48,7 +46,7 @@ public class ApexPsiImplUtil {
         return element;
     }
     public static PsiElement getNameIdentifier(ApexNamedElement element) {
-        ASTNode keyNode = element.getNode().findChildByType(ApexTypes.QUALIFIED_NAME);
+        ASTNode keyNode = element.getNode().findChildByType(ApexTypes.IDENTIFIER);
         if (keyNode != null) {
             return keyNode.getPsi();
         } else {

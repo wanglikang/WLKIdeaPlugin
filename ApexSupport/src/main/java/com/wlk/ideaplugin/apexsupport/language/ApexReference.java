@@ -19,6 +19,7 @@ public class ApexReference extends PsiReferenceBase<PsiElement> implements PsiPo
 
     ApexReference(@NotNull PsiElement element, TextRange textRange) {
         super(element, textRange);
+        System.out.println("ApexReference constructor:"+element.getText()+";"+textRange.toString());
         key = element.getText().substring(textRange.getStartOffset(), textRange.getEndOffset());
     }
 

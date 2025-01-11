@@ -10,7 +10,8 @@ import org.jetbrains.annotations.NotNull;
 public class ApexCompletionContributor extends CompletionContributor {
 
     ApexCompletionContributor() {
-        extend(CompletionType.BASIC, PlatformPatterns.psiElement(ApexTypes.QUALIFIED_NAME),
+
+        extend(CompletionType.BASIC, PlatformPatterns.psiElement(ApexTypes.IDENTIFIER), //  这里的psiElement 应该是最底层的标识符那种的element
                 new CompletionProvider<>() {
                     public void addCompletions(@NotNull CompletionParameters parameters,
                                                @NotNull ProcessingContext context,

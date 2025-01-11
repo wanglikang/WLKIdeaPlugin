@@ -5,32 +5,23 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 import com.wlk.ideaplugin.apexsupport.language.psi.ApexNamedElement;
+import com.intellij.navigation.ItemPresentation;
 
 public interface ApexClassName extends ApexNamedElement {
 
   @NotNull
   PsiElement getIdentifier();
 
-  //WARNING: getKey(...) is skipped
-  //matching getKey(ApexClassName, ...)
-  //methods are not found in ApexPsiImplUtil
+  String getKey();
 
-  //WARNING: getValue(...) is skipped
-  //matching getValue(ApexClassName, ...)
-  //methods are not found in ApexPsiImplUtil
+  String getValue();
 
-  //WARNING: getName(...) is skipped
-  //matching getName(ApexClassName, ...)
-  //methods are not found in ApexPsiImplUtil
+  String getName();
 
-  //WARNING: setName(...) is skipped
-  //matching setName(ApexClassName, ...)
-  //methods are not found in ApexPsiImplUtil
+  PsiElement setName(String newName);
 
   PsiElement getNameIdentifier();
 
-  //WARNING: getPresentation(...) is skipped
-  //matching getPresentation(ApexClassName, ...)
-  //methods are not found in ApexPsiImplUtil
+  ItemPresentation getPresentation();
 
 }
