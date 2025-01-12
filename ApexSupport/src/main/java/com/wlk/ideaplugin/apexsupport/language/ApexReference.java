@@ -26,7 +26,7 @@ public class ApexReference extends PsiReferenceBase<PsiElement> implements PsiPo
     @Override
     public ResolveResult @NotNull [] multiResolve(boolean incompleteCode) {
         Project project = myElement.getProject();
-        final List<ApexNamedElement> properties = SimpleUtil.findProperties(project, key);
+        final List<ApexNamedElement> properties = ApexUtil.findProperties(project, key);
         List<ResolveResult> results = new ArrayList<>();
         for (ApexNamedElement property : properties) {
             results.add(new PsiElementResolveResult(property));
@@ -44,16 +44,16 @@ public class ApexReference extends PsiReferenceBase<PsiElement> implements PsiPo
     @Override
     public Object @NotNull [] getVariants() {
         Project project = myElement.getProject();
-        List<ApexQualifiedName> properties = SimpleUtil.findProperties(project);
+        List<ApexQualifiedName> properties = ApexUtil.findProperties(project);
         List<LookupElement> variants = new ArrayList<>();
-        for (final ApexQualifiedName namedElement : properties) {
-            if (namedElement.getKey() != null && !namedElement.getKey().isEmpty()) {
-                variants.add(LookupElementBuilder
-                        .create(namedElement).withIcon(ApexIcon.FILE)
-                        .withTypeText(namedElement.getContainingFile().getName())
-                );
-            }
-        }
+//        for (final ApexQualifiedName namedElement : properties) {
+//            if (namedElement.getKey() != null && !namedElement.getKey().isEmpty()) {
+//                variants.add(LookupElementBuilder
+//                        .create(namedElement).withIcon(ApexIcon.FILE)
+//                        .withTypeText(namedElement.getContainingFile().getName())
+//                );
+//            }
+//        }
         return variants.toArray();
     }
 

@@ -8,6 +8,6 @@ import com.intellij.psi.PsiElement;
 public interface ApexTypeList extends PsiElement {
 
   @NotNull
-  List<ApexType_> getType_List();
+  List<ApexTypeRef> getTypeRefList();
 
 }

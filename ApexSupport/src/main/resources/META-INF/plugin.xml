@@ -28,14 +28,14 @@
     <colorSettingsPage implementation="com.wlk.ideaplugin.apexsupport.ApexColorSettingsPage"/>
 
 <!--     自动补全的配置-->
-    <completion.contributor language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.language.ApexCompletionContributor"/>
+<!--    <completion.contributor language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.language.ApexCompletionContributor"/>-->
 <!--    引用的配置，可以在不同语言之间引用？？？
         配置里的language  应该是指可以在其他什么语言中被引用的意思吧
  -->
-    <psi.referenceContributor language="JAVA" implementation="com.wlk.ideaplugin.apexsupport.language.ApexReferenceContributor"/>
+<!--    <psi.referenceContributor language="JAVA" implementation="com.wlk.ideaplugin.apexsupport.language.ApexReferenceContributor"/>-->
 
 <!--定义Find Usage 的功能-->
-    <lang.findUsagesProvider language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.language.ApexFindUsagesProvider"/>
+<!--    <lang.findUsagesProvider language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.language.ApexFindUsagesProvider"/>-->
 
   </extensions>
 </idea-plugin>

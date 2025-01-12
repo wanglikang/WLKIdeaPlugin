@@ -8,13 +8,13 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.wlk.ideaplugin.apexsupport.language.gen.psi.*;
 import com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexPsiImplUtil;
-import com.intellij.navigation.ItemPresentation;
 
-public class ApexQualifiedNameImpl extends ApexCommonNamedElementImpl implements ApexQualifiedName {
+public class ApexQualifiedNameImpl extends ASTWrapperPsiElement implements ApexQualifiedName {
 
-  public ApexQualifiedNameImpl(ASTNode node) {
+  public ApexQualifiedNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 
@@ -29,33 +29,9 @@ public class ApexQualifiedNameImpl extends ApexCommonNamedElementImpl implements
   }
 
   @Override
-  public String getKey() {
-    return ApexPsiImplUtil.getKey(this);
-  }
-
-  @Override
-  public String getValue() {
-    return ApexPsiImplUtil.getValue(this);
-  }
-
-  @Override
-  public String getName() {
-    return ApexPsiImplUtil.getName(this);
-  }
-
-  @Override
-  public PsiElement setName(String newName) {
-    return ApexPsiImplUtil.setName(this, newName);
-  }
-
-  @Override
-  public PsiElement getNameIdentifier() {
-    return ApexPsiImplUtil.getNameIdentifier(this);
-  }
-
-  @Override
-  public ItemPresentation getPresentation() {
-    return ApexPsiImplUtil.getPresentation(this);
+  @NotNull
+  public List<ApexId> getIdList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ApexId.class);
   }
 
 }

@@ -8,6 +8,6 @@ import com.intellij.psi.PsiElement;
 public interface ApexTypeArguments extends PsiElement {
 
   @NotNull
-  List<ApexTypeArgument> getTypeArgumentList();
+  ApexTypeList getTypeList();
 
 }

@@ -30,8 +30,8 @@ public class ApexTypeListImpl extends ASTWrapperPsiElement implements ApexTypeLi
 
   @Override
   @NotNull
-  public List<ApexType_> getType_List() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, ApexType_.class);
+  public List<ApexTypeRef> getTypeRefList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ApexTypeRef.class);
   }
 
 }

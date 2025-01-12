@@ -8,30 +8,12 @@ import com.intellij.psi.PsiElement;
 public interface ApexClassDeclaration extends PsiElement {
 
   @NotNull
-  ApexClassBody getClassBody();
-
-  @Nullable
-  ApexClassDeclaration getClassDeclaration();
-
-  @NotNull
-  ApexClassName getClassName();
-
-  @Nullable
-  ApexClassOrInterfaceModifier getClassOrInterfaceModifier();
-
-  @Nullable
-  ApexImportDeclaration getImportDeclaration();
-
-  @Nullable
-  ApexTypeDeclaration getTypeDeclaration();
+  ApexId getId();
 
   @Nullable
   ApexTypeList getTypeList();
 
   @Nullable
-  ApexTypeParameters getTypeParameters();
-
-  @Nullable
-  ApexType_ getType_();
+  ApexTypeRef getTypeRef();
 
 }

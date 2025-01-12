@@ -28,4 +28,10 @@ public class ApexClassBodyImpl extends ASTWrapperPsiElement implements ApexClass
     else super.accept(visitor);
   }
 
+  @Override
+  @NotNull
+  public List<ApexClassBodyDeclaration> getClassBodyDeclarationList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ApexClassBodyDeclaration.class);
+  }
+
 }

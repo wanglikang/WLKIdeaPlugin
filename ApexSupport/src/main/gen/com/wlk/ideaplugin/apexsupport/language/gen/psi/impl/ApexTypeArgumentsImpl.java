@@ -30,8 +30,8 @@ public class ApexTypeArgumentsImpl extends ASTWrapperPsiElement implements ApexT
 
   @Override
   @NotNull
-  public List<ApexTypeArgument> getTypeArgumentList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, ApexTypeArgument.class);
+  public ApexTypeList getTypeList() {
+    return findNotNullChildByClass(ApexTypeList.class);
   }
 
 }

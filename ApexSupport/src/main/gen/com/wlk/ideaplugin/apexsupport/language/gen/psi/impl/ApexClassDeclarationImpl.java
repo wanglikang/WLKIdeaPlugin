@@ -30,38 +30,8 @@ public class ApexClassDeclarationImpl extends ASTWrapperPsiElement implements Ap
 
   @Override
   @NotNull
-  public ApexClassBody getClassBody() {
-    return findNotNullChildByClass(ApexClassBody.class);
-  }
-
-  @Override
-  @Nullable
-  public ApexClassDeclaration getClassDeclaration() {
-    return findChildByClass(ApexClassDeclaration.class);
-  }
-
-  @Override
-  @NotNull
-  public ApexClassName getClassName() {
-    return findNotNullChildByClass(ApexClassName.class);
-  }
-
-  @Override
-  @Nullable
-  public ApexClassOrInterfaceModifier getClassOrInterfaceModifier() {
-    return findChildByClass(ApexClassOrInterfaceModifier.class);
-  }
-
-  @Override
-  @Nullable
-  public ApexImportDeclaration getImportDeclaration() {
-    return findChildByClass(ApexImportDeclaration.class);
-  }
-
-  @Override
-  @Nullable
-  public ApexTypeDeclaration getTypeDeclaration() {
-    return findChildByClass(ApexTypeDeclaration.class);
+  public ApexId getId() {
+    return findNotNullChildByClass(ApexId.class);
   }
 
   @Override
@@ -72,14 +42,8 @@ public class ApexClassDeclarationImpl extends ASTWrapperPsiElement implements Ap
 
   @Override
   @Nullable
-  public ApexTypeParameters getTypeParameters() {
-    return findChildByClass(ApexTypeParameters.class);
-  }
-
-  @Override
-  @Nullable
-  public ApexType_ getType_() {
-    return findChildByClass(ApexType_.class);
+  public ApexTypeRef getTypeRef() {
+    return findChildByClass(ApexTypeRef.class);
   }
 
 }

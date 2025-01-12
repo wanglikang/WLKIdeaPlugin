@@ -29,9 +29,9 @@ public class ApexTypeDeclarationImpl extends ASTWrapperPsiElement implements Ape
   }
 
   @Override
-  @Nullable
-  public ApexClassDeclaration getClassDeclaration() {
-    return findChildByClass(ApexClassDeclaration.class);
+  @NotNull
+  public List<ApexModifier> getModifierList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ApexModifier.class);
   }
 
 }

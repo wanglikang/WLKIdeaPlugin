@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement;
 
 public interface ApexTypeDeclaration extends PsiElement {
 
-  @Nullable
-  ApexClassDeclaration getClassDeclaration();
+  @NotNull
+  List<ApexModifier> getModifierList();
 
 }

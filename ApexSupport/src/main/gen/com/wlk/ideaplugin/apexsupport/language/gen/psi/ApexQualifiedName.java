@@ -4,21 +4,34 @@ package com.wlk.ideaplugin.apexsupport.language.gen.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.wlk.ideaplugin.apexsupport.language.psi.ApexNamedElement;
-import com.intellij.navigation.ItemPresentation;
 
-public interface ApexQualifiedName extends ApexNamedElement {
+public interface ApexQualifiedName extends PsiElement {
 
-  String getKey();
+  @NotNull
+  List<ApexId> getIdList();
 
-  String getValue();
+  //WARNING: getKey(...) is skipped
+  //matching getKey(ApexQualifiedName, ...)
+  //methods are not found in ApexPsiImplUtil
 
-  String getName();
+  //WARNING: getValue(...) is skipped
+  //matching getValue(ApexQualifiedName, ...)
+  //methods are not found in ApexPsiImplUtil
 
-  PsiElement setName(String newName);
+  //WARNING: getName(...) is skipped
+  //matching getName(ApexQualifiedName, ...)
+  //methods are not found in ApexPsiImplUtil
 
-  PsiElement getNameIdentifier();
+  //WARNING: setName(...) is skipped
+  //matching setName(ApexQualifiedName, ...)
+  //methods are not found in ApexPsiImplUtil
 
-  ItemPresentation getPresentation();
+  //WARNING: getNameIdentifier(...) is skipped
+  //matching getNameIdentifier(ApexQualifiedName, ...)
+  //methods are not found in ApexPsiImplUtil
+
+  //WARNING: getPresentation(...) is skipped
+  //matching getPresentation(ApexQualifiedName, ...)
+  //methods are not found in ApexPsiImplUtil
 
 }
