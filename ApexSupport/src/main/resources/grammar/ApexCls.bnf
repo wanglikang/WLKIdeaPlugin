@@ -19,15 +19,12 @@
   elementTypeHolderClass="com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexTypes"
 
   // 应该是根据name，自动生成token的工厂类,应该还用不到
-//  tokenTypeFactory="com.wlk.ideaplugin.apexsupport.language.psi.ApexTokenType.createTokenType"
-
-
-  elementTypeClass="com.wlk.ideaplugin.apexsupport.language.psi.ApexElementType"
-  tokenTypeClass="com.wlk.ideaplugin.apexsupport.language.psi.ApexTokenType"
+  tokenTypeFactory  ="com.wlk.ideaplugin.apexsupport.language.psi.ApexTokenType.createTokenType"
+  elementTypeClass  ="com.wlk.ideaplugin.apexsupport.language.psi.ApexElementType"
+  tokenTypeClass    ="com.wlk.ideaplugin.apexsupport.language.psi.ApexTokenType"
 
 // psiImplUtilClass 暂不知道是干什么的
   psiImplUtilClass="com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexPsiImplUtil"
-//  extends(".*expr")=expr
 //  extends(".*Name")='NamedElement'
 //  mixin(".*Name")="com.wlk.ideaplugin.apexsupport.language.ApexCommonNamedElementImpl"
 //  implements(".*Name")="com.wlk.ideaplugin.apexsupport.language.psi.ApexNamedElement"
@@ -333,15 +330,21 @@
 	// Additional symbols not defined in the lexical specification
 	ATSIGN	=	"@"
 
-    COMMENT = "regexp:/\*.*?\*/"
-//    APEXDOC_COMMENT = "regexp:/\*([^*]|(\*+[^*/]))*\*+/"
-//    APEXDOC_COMMENT="regexp:/\*(.|\n)*\*/"
-//	COMMENT="regexp:/\*(.|\n)*?\*/"
     LINE_COMMENT = "regexp://[^\r\n]*[\r|\n]?"
     WS = "regexp:\s"
+
+	// 更好的支持多行注释，参考文章：
+	// https://zhuanlan.zhihu.com/p/706946101
+	// http://www.cs.man.ac.uk/~pjj/cs212/ex2_str_comm.html
+
+	// 占位的几个token类型，因为使用bnf自动生成tokenType，可能会自动删掉已有的token，因此，在这里占个位置，后续将尽量少自动生成.flex
+		BLOCK_COMMENT="BLOCK_COMMENT"
+		INNER_BLOCK_DOC_COMMENT="INNER_BLOCK_DOC_COMMENT"
+		OUTER_BLOCK_DOC_COMMENT="OUTER_BLOCK_DOC_COMMENT"
   ]
 }
 
+//COMMENT::= LINE_COMMENT | TRADITIONAL_COMMENT | DOCUMENTATION_COMMENT
 
 
 // 基于 https://github.com/apex-dev-tools/apex-parser    的开源的apex文法来进行适配

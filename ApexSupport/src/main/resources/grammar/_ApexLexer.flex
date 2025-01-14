@@ -15,6 +15,42 @@ import static com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexTypes.*;
   }
 %}
 
+%{
+	/**
+	* '#+' stride demarking start/end of raw string/byte literal
+	*/
+	private int zzShaStride = -1;
+
+	/**
+	* Dedicated storage for starting position of some previously successful
+	* match
+	*/
+	private int zzPostponedMarkedPos = -1;
+
+	/**
+	* Dedicated nested-comment level counter
+	*/
+	private int zzNestedCommentLevel = 0;
+
+	IElementType imbueBlockComment() {
+	    assert(zzNestedCommentLevel == 0);
+	    yybegin(YYINITIAL);
+
+	    zzStartRead = zzPostponedMarkedPos;
+	    zzPostponedMarkedPos = -1;
+
+	    if (yylength() >= 3) {
+	        if (yycharat(2) == '!') {
+	            return INNER_BLOCK_DOC_COMMENT;
+	        } else if (yycharat(2) == '*' && (yylength() == 3 || yycharat(3) != '*' && yycharat(3) != '/')) {
+	            return OUTER_BLOCK_DOC_COMMENT;
+	        }
+	    }
+
+	    return BLOCK_COMMENT;
+	}
+%}
+
 %public
 %class _ApexLexer
 %implements FlexLexer
@@ -33,9 +69,12 @@ DATETIMELITERAL=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]t[0-9][0-9]:[0-9][0-9]
 INTEGERLITERALPATTERN=[0-9]+
 LONGLITERALPATTERN=[0-9]+[lL]
 NUMBERLITERALPATTERN=[0-9]*\.[0-9]+[dD]
-COMMENT="/"\*.*?\*"/"
 LINE_COMMENT="//"[^\r\n]*[\r|\n]?
 WS=[ \t\n\x0B\f\r]
+//TRADITIONAL_COMMENT="/"*[^*]~\*"/"|"/"\*\*+"/"
+//DOCUMENTATION_COMMENT="/"\*\*([^*]|\*+[^/*])*\*+"/"
+
+%s IN_BLOCK_COMMENT
 
 %%
 <YYINITIAL> {
@@ -284,10 +323,34 @@ WS=[ \t\n\x0B\f\r]
   {INTEGERLITERALPATTERN}          { return INTEGERLITERALPATTERN; }
   {LONGLITERALPATTERN}             { return LONGLITERALPATTERN; }
   {NUMBERLITERALPATTERN}           { return NUMBERLITERALPATTERN; }
-  {COMMENT}                        { return COMMENT; }
   {LINE_COMMENT}                   { return LINE_COMMENT; }
   {WS}                             { return WS; }
 
+
+  "/*"                            { yybegin(IN_BLOCK_COMMENT); yypushback(2); }
+
+//  {TRADITIONAL_COMMENT}            { return TRADITIONAL_COMMENT; }
+//  {DOCUMENTATION_COMMENT}          { return DOCUMENTATION_COMMENT; }
+
+}
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Comments
+///////////////////////////////////////////////////////////////////////////////////////////////////
+<IN_BLOCK_COMMENT> {
+  "/*"    { if (zzNestedCommentLevel++ == 0)
+              zzPostponedMarkedPos = zzStartRead;
+          }
+
+  "*/"    { if (--zzNestedCommentLevel == 0)
+              return imbueBlockComment();
+          }
+
+  <<EOF>> { zzNestedCommentLevel = 0; return imbueBlockComment(); }
+
+  [^]     { }
 }
 
 [^] { return BAD_CHARACTER; }

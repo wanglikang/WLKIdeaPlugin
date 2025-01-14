@@ -11,6 +11,10 @@ public interface ApexTokenSets {
 
     TokenSet CLASS = TokenSet.create(ApexTypes.CLASS);
 
-    TokenSet COMMENTS = TokenSet.create(ApexTypes.COMMENT);
+    // 注释 token 类型，可以
+    TokenSet COMMENTS = TokenSet.create(ApexTypes.LINE_COMMENT,
+            ApexTypes.BLOCK_COMMENT,
+            ApexTypes.OUTER_BLOCK_DOC_COMMENT,
+            ApexTypes.INNER_BLOCK_DOC_COMMENT);
 
 }

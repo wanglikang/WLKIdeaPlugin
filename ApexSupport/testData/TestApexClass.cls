@@ -1,3 +1,6 @@
+/**
+* 你好
+*/
 public class AccountTrigger {
     public String Name = 'name';
     public Integer count = 'count';

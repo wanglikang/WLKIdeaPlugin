@@ -31,6 +31,7 @@ public class ApexParserDefinition implements ParserDefinition {
     @Override
     // 注释的token
     public TokenSet getCommentTokens() {
+        // 获取注释的token 类型，可以在文法中忽略这些token
         return ApexTokenSets.COMMENTS;
     }
 
