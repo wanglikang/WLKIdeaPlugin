@@ -2,7 +2,7 @@
 * 你好
 */
 public class AccountTrigger {
-    public String Name = 'name';
+    public String Name = 'hello world';
     public Integer count = 'count';
     AccountTrigger(String n){
         this.n = n;

@@ -22,17 +22,17 @@
   <!-- Extension points defined by the plugin.
        Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
   <extensions defaultExtensionNs="com.intellij">
-    <fileType name="Apex File" implementationClass="com.wlk.ideaplugin.apexsupport.language.ApexFileType" fieldName="INSTANCE" language="Apex" extensions="cls" />
+    <fileType name="Apex File" implementationClass="com.wlk.ideaplugin.apexsupport.language.ApexFileType" fieldName="INSTANCE" language="Apex" extensions="cls;trigger" />
     <lang.parserDefinition language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.language.ApexParserDefinition"/>
-    <lang.syntaxHighlighterFactory language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.SpexSyntaxHighlighterFactory"/>
-    <colorSettingsPage implementation="com.wlk.ideaplugin.apexsupport.ApexColorSettingsPage"/>
+    <lang.syntaxHighlighterFactory language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.feature.highlight.SpexSyntaxHighlighterFactory"/>
+    <colorSettingsPage implementation="com.wlk.ideaplugin.apexsupport.feature.highlight.ApexColorSettingsPage"/>
 
 <!--     自动补全的配置-->
-<!--    <completion.contributor language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.language.ApexCompletionContributor"/>-->
+<!--    <completion.contributor language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.feature.highlight.autocomplete.ApexCompletionContributor"/>-->
 <!--    引用的配置，可以在不同语言之间引用？？？
         配置里的language  应该是指可以在其他什么语言中被引用的意思吧
  -->
-<!--    <psi.referenceContributor language="JAVA" implementation="com.wlk.ideaplugin.apexsupport.language.ApexReferenceContributor"/>-->
+<!--    <psi.referenceContributor language="JAVA" implementation="com.wlk.ideaplugin.apexsupport.feature.autoreference.ApexReferenceContributor"/>-->
 
 <!--定义Find Usage 的功能-->
 <!--    <lang.findUsagesProvider language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.language.ApexFindUsagesProvider"/>-->

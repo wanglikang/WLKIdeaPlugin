@@ -38,7 +38,8 @@
     // 有几个内置的flex 变量可以用，参考【Grammar-kit】项目中的：org.intellij.grammar.actions.BnfGenerateLexerAction#text2JFlex
     // [:letter:]、[:digit:]、[:lowercase:]、[:uppercase:]、([:letter:]|[:digit:])、[\x00-\x7F]
 
-    identifier="regexp:[a-zA-Z_]+[a-zA-Z0-9_]*"
+//[\u4e00-\u9fff]
+    identifier="regexp:[a-zA-Z_]+[a-zA-Z0-9\\u4e00-\\u9fff_]*"
     singlequotestringliteral = "regexp:\\'[a-zA-Z0-9]+\\'"
 
 //    identifier="regexp:\\p\\\{Alpha}(\\p\\\{Alpha})*"

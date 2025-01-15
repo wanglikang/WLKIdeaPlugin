@@ -1,4 +1,4 @@
-package com.wlk.ideaplugin.apexsupport;
+package com.wlk.ideaplugin.apexsupport.feature.highlight;
 
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
@@ -20,6 +20,8 @@ public class ApexSyntaxHighlighter extends SyntaxHighlighterBase {
     public static final TextAttributesKey CLASS = createTextAttributesKey("CLASS", DefaultLanguageHighlighterColors.CLASS_NAME);
     public static final TextAttributesKey KEYWORD = createTextAttributesKey("KEYWORD", DefaultLanguageHighlighterColors.KEYWORD);
     public static final TextAttributesKey STATIC = createTextAttributesKey("STATIC", DefaultLanguageHighlighterColors.STATIC_FIELD);
+    public static final TextAttributesKey INSTANCE_METHOD = createTextAttributesKey("STATIC", DefaultLanguageHighlighterColors.INSTANCE_METHOD);
+    public static final TextAttributesKey IDENTIFIER = createTextAttributesKey("STATIC", DefaultLanguageHighlighterColors.IDENTIFIER);
 
     public static final TextAttributesKey VALUE = createTextAttributesKey("SIMPLE_VALUE", DefaultLanguageHighlighterColors.STRING);
     public static final TextAttributesKey COMMENT = createTextAttributesKey("SIMPLE_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT);
@@ -27,6 +29,8 @@ public class ApexSyntaxHighlighter extends SyntaxHighlighterBase {
 
 
     private static final TextAttributesKey[] STATIC_KEYS = new TextAttributesKey[]{STATIC};
+    private static final TextAttributesKey[] INSTANCE_METHOD_KEYS = new TextAttributesKey[]{INSTANCE_METHOD};
+    private static final TextAttributesKey[] IDENTIFIER_KEYS = new TextAttributesKey[]{IDENTIFIER};
     private static final TextAttributesKey[] BAD_CHAR_KEYS = new TextAttributesKey[]{BAD_CHARACTER};
     private static final TextAttributesKey[] SEPARATOR_KEYS = new TextAttributesKey[]{SEPARATOR};
     private static final TextAttributesKey[] CLASS_KEYS = new TextAttributesKey[]{CLASS};
@@ -44,6 +48,7 @@ public class ApexSyntaxHighlighter extends SyntaxHighlighterBase {
 
     @Override
     public TextAttributesKey @NotNull [] getTokenHighlights(IElementType tokenType) {
+        String t = "";
         if (tokenType.equals(ApexTypes.CLASS)) {
             return CLASS_KEYS;
         }
@@ -52,6 +57,9 @@ public class ApexSyntaxHighlighter extends SyntaxHighlighterBase {
         }
         if (tokenType.equals(ApexTypes.STATIC)) {
             return STATIC_KEYS;
+        }
+        if (tokenType.equals(ApexTypes.TYPE_REF)) {
+            return IDENTIFIER_KEYS;
         }
         if(ApexTokenSets.COMMENTS.contains(tokenType)){
             return COMMENT_KEYS;

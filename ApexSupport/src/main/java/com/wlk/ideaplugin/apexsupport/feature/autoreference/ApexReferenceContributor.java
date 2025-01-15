@@ -1,4 +1,4 @@
-package com.wlk.ideaplugin.apexsupport.language;
+package com.wlk.ideaplugin.apexsupport.feature.autoreference;
 
 import com.intellij.openapi.util.TextRange;
 import com.intellij.patterns.PlatformPatterns;

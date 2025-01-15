@@ -71,7 +71,9 @@ tasks {
 var HOME_PATH = "/Users/wanglikang"
 var PROJECT_PATH = HOME_PATH+"/GithubProjects/WLKIdeaPlugin/ApexSupport"
 tasks.register<JavaExec>("ApexLexerRunTask") {
-  mainClass.set("com.wlk.ideaplugin.apexsupport.language.parser.ApexLexer")
+//  mainClass.set("com.wlk.ideaplugin.apexsupport.language.parser.ApexLexer")
+  mainClass.set("grammar._ApexLexer")
+
   classpath = sourceSets["main"].runtimeClasspath
   // 假设引入的类在包 com.jetbrains.somepackage 中
   classpath += files(HOME_PATH+ "/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/ideaIC/2024.2.3/7005e31eb47174334247f5590dc54933dceddbea/ideaIC-2024.2.3/lib/annotations.jar")
@@ -103,6 +105,6 @@ tasks.register<JavaExec>("ApexLexerRunTask") {
 
 
 
-  args(PROJECT_PATH+"/src/main/java/com/wlk/ideaplugin/apexsupport/grammar/TestApexClass.cls")
+  args(PROJECT_PATH+"/testData/TestApexClass.cls")
 }
 

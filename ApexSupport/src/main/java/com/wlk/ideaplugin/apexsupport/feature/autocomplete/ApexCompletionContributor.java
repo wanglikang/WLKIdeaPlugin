@@ -1,4 +1,4 @@
-package com.wlk.ideaplugin.apexsupport.language;
+package com.wlk.ideaplugin.apexsupport.feature.autocomplete;
 
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;

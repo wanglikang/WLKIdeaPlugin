@@ -1,4 +1,4 @@
-package com.wlk.ideaplugin.apexsupport;
+package com.wlk.ideaplugin.apexsupport.feature.highlight;
 
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
@@ -19,7 +19,9 @@ final class ApexColorSettingsPage implements ColorSettingsPage {
             new AttributesDescriptor("CLASS", ApexSyntaxHighlighter.CLASS),
             new AttributesDescriptor("Separator", ApexSyntaxHighlighter.SEPARATOR),
             new AttributesDescriptor("Value", ApexSyntaxHighlighter.VALUE),
-            new AttributesDescriptor("Bad value", ApexSyntaxHighlighter.BAD_CHARACTER)
+            new AttributesDescriptor("Bad value", ApexSyntaxHighlighter.BAD_CHARACTER),
+            new AttributesDescriptor("Identifier", ApexSyntaxHighlighter.IDENTIFIER),
+            new AttributesDescriptor("Method", ApexSyntaxHighlighter.INSTANCE_METHOD),
     };
 
     @Override
@@ -37,6 +39,7 @@ final class ApexColorSettingsPage implements ColorSettingsPage {
     @Override
     public String getDemoText() {
         return """
+        TODO  NEED UPDATE
         # You are reading the ".cls" entry.
         ! The exclamation mark can also mark text as comments.
         website = https://en.wikipedia.org/

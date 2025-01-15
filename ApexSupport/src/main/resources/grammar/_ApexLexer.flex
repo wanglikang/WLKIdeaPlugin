@@ -16,6 +16,8 @@ import static com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexTypes.*;
 %}
 
 %{
+  StringBuilder string = new StringBuilder();
+
 	/**
 	* '#+' stride demarking start/end of raw string/byte literal
 	*/
@@ -49,6 +51,13 @@ import static com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexTypes.*;
 
 	    return BLOCK_COMMENT;
 	}
+
+      //在这之间，可以定义一些java的中间变量，方法
+      private static String zzToPrintable(CharSequence str) {
+          // jflex 内置的 zzToPrintable 和 yytext 返回的结果不匹配，使用grammar-kit 的插件，会报错
+          // 因此才自定义个本方法，兼容一下
+          return str.toString();
+      }
 %}
 
 %public
@@ -62,7 +71,7 @@ EOL=\R
 WHITE_SPACE=\s+
 
 IDENTIFIER=[a-zA-Z_]+[a-zA-Z0-9_]*
-SINGLEQUOTESTRINGLITERAL=\'[a-zA-Z0-9]+\'
+SINGLEQUOTESTRINGLITERAL=\'[\w\u4e00-\u9fff][\w\u4e00-\u9fff]+\'
 DATELITERAL=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]
 TIMELITERAL=[0-9][0-9]:[0-9][0-9]:[0-9][0-9][\.\d+]?[z|[[+-][0-9]+[:\d+]?]]
 DATETIMELITERAL=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]t[0-9][0-9]:[0-9][0-9]:[0-9][0-9][\.\d+]?[z|[[+-][0-9]+[:\d+]?]]
@@ -74,8 +83,15 @@ WS=[ \t\n\x0B\f\r]
 //TRADITIONAL_COMMENT="/"*[^*]~\*"/"|"/"\*\*+"/"
 //DOCUMENTATION_COMMENT="/"\*\*([^*]|\*+[^/*])*\*+"/"
 
-%s IN_BLOCK_COMMENT
+/* string and character literals */
+StringCharacter = [^\r\n\"\\\']
+SingleCharacter = [^\r\n\'\\]
+LineTerminator = \r|\n|\r\n
 
+%s IN_BLOCK_COMMENT
+%s STRING
+//%s IN_LIFETIME_OR_CHAR
+%debug
 %%
 <YYINITIAL> {
   {WHITE_SPACE}                    { return WHITE_SPACE; }
@@ -329,11 +345,37 @@ WS=[ \t\n\x0B\f\r]
 
   "/*"                            { yybegin(IN_BLOCK_COMMENT); yypushback(2); }
 
+  /* string literal */
+  \'                             { yybegin(STRING); string.setLength(0); }
+
+
 //  {TRADITIONAL_COMMENT}            { return TRADITIONAL_COMMENT; }
 //  {DOCUMENTATION_COMMENT}          { return DOCUMENTATION_COMMENT; }
 
 }
 
+
+
+<STRING> {
+  \'                             { yybegin(YYINITIAL);return SINGLEQUOTESTRINGLITERAL;}
+
+  {StringCharacter}+             { string.append( yytext() );}
+
+  /* escape sequences */
+  "\\b"                          { string.append( '\b' );}
+  "\\t"                          { string.append( '\t' );}
+  "\\n"                          { string.append( '\n' );}
+  "\\f"							 { string.append( '\f' );}
+  "\\r"                          { string.append( '\r' );}
+  "\\\""                         { string.append( '\"' );}
+  "\\'"                          { string.append( '\'' );}
+  "\\\\"                         { string.append( '\\' );}
+  // \\[0-3]?{OctDigit}?{OctDigit}  { char val = (char) Integer.parseInt(yytext().substring(1),8);           string.append( val ); }
+
+  /* error cases */
+  \\.                            { System.out.println("字符串匹配到了特殊字符:\\. error");throw new RuntimeException("Illegal escape sequence \""+yytext()+"\""); }
+  {LineTerminator}               { System.out.println("字符串匹配到了行终结符，error");throw new RuntimeException("Unterminated string at end of line"); }
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -352,5 +394,3 @@ WS=[ \t\n\x0B\f\r]
 
   [^]     { }
 }
-
-[^] { return BAD_CHARACTER; }
