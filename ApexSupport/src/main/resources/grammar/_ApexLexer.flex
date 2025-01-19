@@ -88,6 +88,8 @@ StringCharacter = [^\r\n\"\\\']
 SingleCharacter = [^\r\n\'\\]
 LineTerminator = \r|\n|\r\n
 
+// 忽略关键字的大小写
+%ignorecase
 %s IN_BLOCK_COMMENT
 %s STRING
 //%s IN_LIFETIME_OR_CHAR
@@ -394,3 +396,5 @@ LineTerminator = \r|\n|\r\n
 
   [^]     { }
 }
+
+[^] { return BAD_CHARACTER; }
