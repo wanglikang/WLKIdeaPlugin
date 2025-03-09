@@ -73,7 +73,7 @@ import static com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexTypes.*;
 WHITE_SPACE=\s+
 
 IDENTIFIER=[a-zA-Z_]+[a-zA-Z0-9_]*
-SINGLEQUOTESTRINGLITERAL=\'[\w\u4e00-\u9fff][\w\u4e00-\u9fff]+\'
+//SINGLEQUOTESTRINGLITERAL=\'[\w\u4e00-\u9fff][\w\u4e00-\u9fff]+\'
 // SINGLEQUOTESTRINGLITERAL 无法简单通过正则定义，需要使用状态进行定义，，这里只是占位一下
 
 DATELITERAL=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]
