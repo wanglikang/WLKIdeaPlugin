@@ -1,0 +1,17 @@
+1、先解析下面的结构（ApexClass_V1.bnf)
+
+public without sharing class UserTriggerHandler {
+    public static Boolean isRun = true;
+    public class UserTriggerHandlerException extends Exception {
+    }
+}
+重点了解：left、inner、upper、meta、fake 等关键字的作用
+laxer保持不变
+
+若被private 修饰，则不会在pst树中体现
+
+
+2、在解析 SOQL语句
+	作为一个整体去解析
+	[select xxx from yy where zzzz];
+	上面的语句作为一个整体的token

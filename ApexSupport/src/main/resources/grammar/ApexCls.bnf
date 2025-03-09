@@ -34,13 +34,16 @@
   // 看起来，bnf中，要想解决左递归的错误提醒，需要将所有的左递归的表达式和表达式本身，都声明为expr结尾
   // 并使用 下面的 extends 处理一下才行
   extends(".*expr")=expr
+  implements(".*block")="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"
+
+
   tokens=[
     // 有几个内置的flex 变量可以用，参考【Grammar-kit】项目中的：org.intellij.grammar.actions.BnfGenerateLexerAction#text2JFlex
     // [:letter:]、[:digit:]、[:lowercase:]、[:uppercase:]、([:letter:]|[:digit:])、[\x00-\x7F]
 
 //[\u4e00-\u9fff]
     identifier="regexp:[a-zA-Z_]+[a-zA-Z0-9\\u4e00-\\u9fff_]*"
-    singlequotestringliteral = "regexp:\\'[a-zA-Z0-9]+\\'"
+    singlequotestringliteral = "regexp:\\'[\w\u4e00-\u9fff][\w\u4e00-\u9fff]+\\'"         // 不重要，这个会在flex中单独去配置
 
 //    identifier="regexp:\\p\\\{Alpha}(\\p\\\{Alpha})*"
 	// 对应的词法，有如下几种
@@ -55,6 +58,7 @@
 	// 其他类型的
 
 	// Keywords     // 这些关键字其实不用特定在tokens里定义，因为Grammar-kit 和 antlr不一样，在文法里使用的时候，不能引用，只能使用字面量
+	// 这个定义的keyword，不使用，因为看起来这里定义了之后，大小写就确定了，后续不太方便
 	ABSTRACT	="abstract"
 	AFTER	="after"
 	BEFORE	="before"
@@ -115,12 +119,12 @@
 	MAP	="map"
 
 	// DML keywords
-	SYSTEM	="system"
-	USER	="user"
+//	SYSTEM	="system"
+//	USER	="user"
 
 	// Soql specific keywords
 	SELECT	="select"
-	COUNT	="count"
+//	COUNT	="count"
 	FROM	="from"
 	AS	="as"
 	USING	="using"
@@ -259,9 +263,9 @@
 
 	// SOSL Keywords
 	FIND	="find"
-	EMAIL	="email"
-	NAME	="name"
-	PHONE	="phone"
+//	EMAIL	="email"
+//	NAME	="name"
+//	PHONE	="phone"
 	SIDEBAR	="sidebar"
 	FIELDS	="fields"
 	METADATA	="metadata"
@@ -347,75 +351,95 @@
 
 //COMMENT::= LINE_COMMENT | TRADITIONAL_COMMENT | DOCUMENTATION_COMMENT
 
-
 // 基于 https://github.com/apex-dev-tools/apex-parser    的开源的apex文法来进行适配
 apexFile::= classUnit | triggerUnit
 // entry point for Apex trigger files
-triggerUnit::= "TRIGGER" id "ON" id LPAREN triggerCase (COMMA triggerCase)* RPAREN triggerBlock
-triggerCase::= ("BEFORE"|"AFTER") ("INSERT"|"UPDATE"|"DELETE"|"UNDELETE")
+triggerUnit::= TRIGGER identifier ON identifier LPAREN triggerCase (COMMA triggerCase)* RPAREN triggerBlock {pin=1}
+triggerCase::= (BEFORE | AFTER) ( INSERT | UPDATE | DELETE | UNDELETE )
 triggerBlock::= LBRACE triggerBlockMember* RBRACE
-triggerBlockMember::= modifier* triggerMemberDeclaration | statement
+triggerBlockMember::= modifierDeclaration triggerMemberDeclaration | statement
 triggerMemberDeclaration::= methodDeclaration
-//    | fieldDeclaration
-//    | interfaceDeclaration
-    | classDeclaration
-//    | enumDeclaration
-//    | propertyDeclaration
-
-// entry point for Apex class files
-classUnit::= typeDeclaration
-left typeDeclaration::= modifier* classDeclaration
-upper classDeclaration::= "CLASS" id ("EXTENDS" typeRef)? ("IMPLEMENTS" typeList)? classBody
-upper classBody::= LBRACE classBodyDeclaration* RBRACE
-classBodyDeclaration::= SEMI
-    | "STATIC"? block
-    | modifier* memberDeclaration
-
-modifier::=
-    annotation
-    | "GLOBAL"
-    | "PUBLIC"
-    | "PROTECTED"
-    | "PRIVATE"
-    | "TRANSIENT"
-    | "STATIC"
-    | "ABSTRACT"
-    | "FINAL"
-    | "WEBSERVICE"
-    | "OVERRIDE"
-    | "VIRTUAL"
-    | "TESTMETHOD"
-    | "WITH" "SHARING"
-    | "WITHOUT" "SHARING"
-    | "INHERITED" "SHARING"
-
-memberDeclaration::= methodDeclaration
     | fieldDeclaration
-    | constructorDeclaration
     | interfaceDeclaration
     | classDeclaration
     | enumDeclaration
     | propertyDeclaration
 
-left fieldDeclaration::= typeRef variableDeclarators SEMI
-left constructorDeclaration::= qualifiedName formalParameters block
-left interfaceDeclaration::= "INTERFACE" id ("EXTENDS" typeList)? interfaceBody
+
+
+
+
+// entry point for Apex class files
+classUnit::= modifierDeclaration  typeDeclaration
+upper typeDeclaration::= classDeclaration
+    | enumDeclaration
+    | interfaceDeclaration
+
+upper classDeclaration::= CLASS identifier (EXTENDS typeRef)? (IMPLEMENTS typeList)? classBody {pin=2}
+upper classBody::= LBRACE classBodyDeclaration* RBRACE {pin=1 }
+upper classBodyDeclaration::=  modifierDeclaration memberDeclaration
+modifierDeclaration::=  annotation*  modifier*
+modifier::=
+    GLOBAL
+    | PUBLIC
+    | PROTECTED
+    | PRIVATE
+    | TRANSIENT
+    | STATIC
+    | ABSTRACT
+    | FINAL
+    | WEBSERVICE
+    | OVERRIDE
+    | VIRTUAL
+    | TESTMETHOD
+    | WITH SHARING
+    | WITHOUT SHARING
+    | INHERITED SHARING
+
+upper memberDeclaration::= constructorDeclaration
+	| methodDeclaration
+    | fieldDeclaration
+    | interfaceDeclaration
+    | classDeclaration
+    | enumDeclaration
+    | propertyDeclaration
+    | staticBlock
+
+upper methodDeclaration::= ( typeRef | "VOID") identifier  formalParameters  ( block | SEMI ) {pin=3}
+
+upper staticBlock::= STATIC? LBRACE statement* RBRACE {pin=2 implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
+
+upper fieldDeclaration::= typeRef variableDeclarators SEMI
+
+upper  constructorDeclaration::= qualifiedName formalParameters block {pin=3}
+
+upper interfaceDeclaration::= INTERFACE identifier (EXTENDS typeList)? interfaceBody
+
 interfaceBody::= LBRACE interfaceMethodDeclaration* RBRACE
-interfaceMethodDeclaration::= modifier* (typeRef|"VOID") id formalParameters SEMI
-left enumDeclaration::= ENUM id LBRACE enumConstants? RBRACE
-enumConstants::= id (COMMA id)*
-left propertyDeclaration::= typeRef id LBRACE propertyBlock* RBRACE
-propertyBlock::= modifier* (getter | setter)
-getter::= "GET" (SEMI | block)
-setter::= "SET" (SEMI | block)
 
-upper annotation::= ATSIGN qualifiedName ( LPAREN ( elementValuePairs | elementValue )? RPAREN )?
+interfaceMethodDeclaration::= modifierDeclaration* (typeRef | VOID ) identifier formalParameters SEMI
 
-qualifiedName::= id (DOT id)*
+upper enumDeclaration::= ENUM identifier LBRACE enumConstants? RBRACE
+
+enumConstants::= identifier (COMMA identifier)*
+
+upper propertyDeclaration::= typeRef identifier LBRACE propertyBlock* RBRACE
+
+propertyBlock::= modifierDeclaration* (getter | setter)
+
+getter::= GET (SEMI | block) {pin=1}
+
+setter::= SET (SEMI | block) {pin=1}
+
+upper annotation::= ATSIGN qualifiedName ( LPAREN ( elementValuePairs | elementValue )? RPAREN )? {pin=2}
+
+//qualifiedName::= id (DOT id)*
+upper qualifiedName::= identifier (DOT identifier)*
 
 elementValuePairs::= elementValuePair (COMMA? elementValuePair)*
 
-elementValuePair::= id ASSIGN elementValue
+//elementValuePair::= id ASSIGN elementValue
+elementValuePair::= identifier ASSIGN elementValue {pin=2}
 
 elementValue::= expression
 	| annotation
@@ -424,29 +448,30 @@ elementValue::= expression
 elementValueArrayInitializer::= LBRACE (elementValue (COMMA elementValue)*)? (COMMA)? RBRACE
 
 
-upper methodDeclaration::= ( typeRef | "VOID") id formalParameters ( block | SEMI )
 
 //upper typeRef::= typeName (DOT typeName)* arraySubscripts
 typeRef::= typeName (DOT typeName)* (LBRACK RBRACK)*
 
 
-formalParameters::= LPAREN formalParameterList? RPAREN
+upper formalParameters::= LPAREN formalParameterList? RPAREN {pin=1}
 
 formalParameterList::= formalParameter (COMMA formalParameter)*
 
-formalParameter::= modifier* typeRef id
+formalParameter::= modifierDeclaration typeRef identifier
 
-typeName::= "LIST" typeArguments?
-    | "SET" typeArguments?
-    | "MAP" typeArguments?
+typeName::= LIST typeArguments?
+    | SET typeArguments?
+    | MAP typeArguments?
     | id typeArguments?
+    {pin=1}
 
-typeArguments::= LT typeList GT
+
+typeArguments::= LT typeList GT {pin=1}
 typeList::= typeRef (COMMA typeRef)*
 //arraySubscripts::= (LBRACK RBRACK)*
 
-statement::= block
-    | ifStatement
+left upper statement::=
+     ifStatement
     | switchStatement
     | forStatement
     | whileStatement
@@ -465,72 +490,76 @@ statement::= block
     | runAsStatement
     | localVariableDeclarationStatement
     | expressionStatement
-left whileStatement::= "WHILE" parExpression (statement | SEMI) {pin=1}
-left doWhileStatement::= "DO" block "WHILE" parExpression SEMI {pin=1}
-left tryStatement::= "TRY" block (catchClause+ finallyBlock? | finallyBlock) {pin=1}
-catchClause::= "CATCH" LPAREN modifier* qualifiedName id RPAREN block {pin=1}
-finallyBlock::= "FINALLY" block {pin=1}
-left throwStatement::= "THROW" expression SEMI {pin=1}
-left breakStatement::= "BREAK" SEMI
-left continueStatement::= "CONTINUE" SEMI
-left insertStatement::= "INSERT" accessLevel? expression SEMI
-accessLevel::= "AS" ("SYSTEM" | "USER")
-left updateStatement::= "UPDATE" accessLevel? expression SEMI
-left deleteStatement::= "DELETE" accessLevel? expression SEMI
-left undeleteStatement::= "UNDELETE" accessLevel? expression SEMI
-left upsertStatement::= "UPSERT" accessLevel? expression qualifiedName? SEMI
-left mergeStatement::= "MERGE" accessLevel? expression expression SEMI
+    | block
+    {implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
+
+upper left whileStatement::= WHILE parExpression (statement | SEMI) {pin=1}
+upper left doWhileStatement::= DO block "WHILE" parExpression SEMI {pin=1}
+upper left tryStatement::= TRY block (catchClause+ finallyBlock? | finallyBlock) {pin=1}
+catchClause::= CATCH LPAREN modifier* qualifiedName identifier RPAREN block {pin=2}
+finallyBlock::= FINALLY block {pin=1}
+upper left throwStatement::= THROW expression SEMI {pin=1}
+upper left breakStatement::= BREAK SEMI
+upper left continueStatement::= CONTINUE SEMI
+upper left insertStatement::= INSERT accessLevel? expression SEMI
+accessLevel::= AS (SYSTEM | USER)
+upper left updateStatement::= UPDATE accessLevel? expression SEMI
+upper left deleteStatement::= DELETE accessLevel? expression SEMI
+upper left undeleteStatement::= UNDELETE accessLevel? expression SEMI
+upper left upsertStatement::= UPSERT accessLevel? expression qualifiedName? SEMI
+upper left mergeStatement::= MERGE accessLevel? expression expression SEMI
 //left runAsStatement::= SYSTEMRUNAS LPAREN expressionList? RPAREN block
-left runAsStatement::= "system.runas" LPAREN expressionList? RPAREN block
+upper left runAsStatement::= "system.runas" LPAREN expressionList? RPAREN block
 
 
 
-left switchStatement::= "SWITCH" "ON" expression LBRACE whenControl+ RBRACE {pin=1}
+upper left switchStatement::= "SWITCH" "ON" expression LBRACE whenControl+ RBRACE {pin=1 name="需要switch关键字" implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
 whenControl::= "WHEN" whenValue block
 whenValue::= "ELSE"
     | whenLiteral (COMMA whenLiteral)*
-    | typeRef id
+    | typeRef identifier
+
 whenLiteral::= (SUB|ADD)* IntegerLiteral
     | (SUB|ADD)* LongLiteral
     | StringLiteral
     | NULL
-    | id
+    | identifier
     // Salesforce tolerates paren pairs around each literal,
     // although this is not explicitly documented.
     | LPAREN whenLiteral RPAREN
-    ;
+
 
 upper expressionStatement::= expression SEMI
-upper left forStatement::= "FOR" LPAREN forControl RPAREN (statement | SEMI) {pin=1}
+upper left forStatement::= FOR LPAREN forControl RPAREN (statement | SEMI) {pin=1 implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
 upper forControl::= enhancedForControl | forInit? SEMI expression? SEMI forUpdate?
-left upper enhancedForControl::= typeRef id COLON expression
+left upper enhancedForControl::= typeRef identifier COLON expression
 forInit::= localVariableDeclaration | expressionList
 forUpdate::= expressionList
 
 
 upper localVariableDeclarationStatement::= localVariableDeclaration SEMI
-localVariableDeclaration::= modifier* typeRef variableDeclarators
+localVariableDeclaration::= modifierDeclaration typeRef variableDeclarators
 variableDeclarators::= variableDeclarator (COMMA variableDeclarator)*
 variableDeclarator::= id (ASSIGN expression)?
 
-upper returnStatement::= "RETURN" expression? SEMI
-block::= LBRACE statement* RBRACE
-upper ifStatement::= "IF" parExpression statement ("ELSE" statement)? {pin=1}
-parExpression::= LPAREN expression RPAREN
+upper returnStatement::= RETURN expression? SEMI {pin=1}
+upper block::= LBRACE statement* RBRACE {pin=1 name="block语句" implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
+upper ifStatement::= IF parExpression statement (ELSE statement)? {pin=1 name="匹配到了ifStatement"}
+parExpression::= LPAREN expression RPAREN {implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
 
 /////// 表达式相关的声明，，开始
 // 要想 expression 能解决左递归的报错，需要添加一下 extends(".*expr")=expr
 // 对于expressin 内的元素，除来相同层级的xxx_group,内层的xxx_expr 元素禁 用private，否则还是会被识别为 左递归的
-upper expression::= expr
-expr::= primary_group
-    | right_expression_group
+left expression::= expr
+expr::=
+     right_expression_group
     | left_recursion_group
+    | primary_group
 //      {extraRoot=true}
 
-private primary_group ::= simple_ref_expr   | primary_expr
+private primary_group ::= primary_expr
+//	| simple_ref_expr
 private left_recursion_group ::= dot_expr
-	| paren_typef_expr
-	| paren_expr
 	| inc_dec_expr
 	| brack_expr
 	| mul_div_expr | add_sub_expr
@@ -543,9 +572,14 @@ private left_recursion_group ::= dot_expr
 private right_expression_group::= bang_expression_expr
 	| methodCall_expr
 	| new_creator_expr
+	| paren_typef_expr
+    | paren_expr
 
 paren_typef_expr::= LPAREN typeRef RPAREN expr
 paren_expr::= LPAREN expr RPAREN
+
+// 左递归的内容，得一个一个的去声明
+dot_expr::= expr ( DOT | QUESTIONDOT) ( dotMethodCall | anyId ) {pin=2}
 inc_dec_expr::= expr (INC | DEC)
 brack_expr::= expr LBRACK expr RBRACK
 mul_div_expr::= expr (MUL|DIV) expr
@@ -573,39 +607,41 @@ multi_assign_expr::= expr
       |   RSHIFT_ASSIGN
       |   URSHIFT_ASSIGN
       |   LSHIFT_ASSIGN
-  ) expr  { rightAssociative=true }
+  ) expr  { pin=2 rightAssociative=true }
+
 primary_expr::= primary
-simple_ref_expr ::= identifier
+//simple_ref_expr ::= identifier
 bang_expression_expr::= (TILDE|BANG) expr
-new_creator_expr::= "NEW" creator
+new_creator_expr::= NEW creator
 creator::=  createdName ( LBRACE RBRACE | arguments | arrayCreatorRest | mapCreatorRest | setCreatorRest)
 createdName::= idCreatedNamePair (DOT idCreatedNamePair)*
 idCreatedNamePair::= anyId (LT typeList GT)?
+arguments::= LPAREN expressionList? RPAREN
+arrayCreatorRest::= LBRACK expr RBRACK | LBRACK RBRACK arrayInitializer?
 mapCreatorRest::= LBRACE mapCreatorRestPair (COMMA mapCreatorRestPair )* RBRACE
 setCreatorRest ::= LBRACE expr (COMMA ( expr ))* RBRACE
 mapCreatorRestPair::= expr MAPTO expr
-arguments::= LPAREN expressionList? RPAREN
-arrayCreatorRest::= LBRACK expr RBRACK | LBRACK RBRACK arrayInitializer?
+
+
 arrayInitializer::= LBRACE (expr (COMMA expr)* (COMMA)? )? RBRACE
-// 左递归的内容，得一个一个的去声明
-dot_expr::= expr ( DOT | QUESTIONDOT) ( dotMethodCall | anyId )
-dotMethodCall::= anyId LPAREN expressionList? RPAREN
+
+dotMethodCall::= anyId LPAREN expressionList? RPAREN {pin=2}
 expressionList::= expr (COMMA expr)*
-methodCall_expr::= id LPAREN expressionList? RPAREN
-    | "THIS" LPAREN expressionList? RPAREN
-    | "SUPER" LPAREN expressionList? RPAREN
+methodCall_expr::= (identifier | THIS | SUPER) LPAREN expressionList? RPAREN {pin=2}
 /////// 表达式相关的声明，，结束
-primary::= "THIS"
-    | "SUPER"
+
+primary::= THIS
+    | SUPER
     | literal
-    | typeRef DOT "CLASS"
-    | "VOID" DOT "CLASS"
-    | id
-//    | soqlLiteral
-//    | soslLiteral
+    | typeRef DOT CLASS
+    | VOID DOT CLASS
+//    | id
+	| identifier
+    | soqlLiteral
+//    | soslLiteral //暂时先不支持SOSL ，不知道是个啥，以后用到了再去支持
 
 literal::=
-	 "NULL"
+	 NULL
 	| IntegerLiteral
     | LongLiteral
     | NumberLiteral
@@ -617,360 +653,171 @@ NumberLiteral::= numberliteralpattern
 BooleanLiteral::= ("'TRUE'"|"'FALSE'")
 StringLiteral::=  singlequotestringliteral
 
-// Identifiers
+soqlLiteral::= LBRACK SELECT selectLiteral RBRACK {pin=1 name="匹配到了soqlLiternal"}
 
-// Some keywords can be used as general identifiers, this is likely an over simplification of the actual
-// rules but divining them from playing with Apex is very difficult. We could let any be used but that
-// can significantly impact the parser performance by creating ambiguities.
-id::=  "AFTER"
-    | "BEFORE"
-    | "GET"
-    | "INHERITED"
-    | "INSTANCEOF"
-    | "SET"
-    | "SHARING"
-    | "SWITCH"
-    | "TRANSIENT"
-    | "TRIGGER"
-    | "WHEN"
-    | "WITH"
-    | "WITHOUT"
-    // DML Keywords
-    | "USER"
-    | "SYSTEM"
-    // SOQL Values
-    | "IntegralCurrencyLiteral"
-    // SOQL Specific Keywords
-    | "SELECT"
-    | "COUNT"
-    | "FROM"
-    | "AS"
-    | "USING"
-    | "SCOPE"
-    | "WHERE"
-    | "ORDER"
-    | "BY"
-    | "LIMIT"
-    | "SOQLAND"
-    | "SOQLOR"
-    | "NOT"
-    | "AVG"
-    | "COUNT_DISTINCT"
-    | "MIN"
-    | "MAX"
-    | "SUM"
-    | "TYPEOF"
-    | "END"
-    | "THEN"
-    | "LIKE"
-    | "IN"
-    | "INCLUDES"
-    | "EXCLUDES"
-    | "ASC"
-    | "DESC"
-    | "NULLS"
-    | "FIRST"
-    | "LAST"
-    | "GROUP"
-    | "ALL"
-    | "ROWS"
-    | "VIEW"
-    | "HAVING"
-    | "ROLLUP"
-    | "TOLABEL"
-    | "OFFSET"
-    | "DATA"
-    | "CATEGORY"
-    | "AT"
-    | "ABOVE"
-    | "BELOW"
-    | "ABOVE_OR_BELOW"
-    | "SECURITY_ENFORCED"
-    | "USER_MODE"
-    | "SYSTEM_MODE"
-    | "REFERENCE"
-    | "CUBE"
-    | "FORMAT"
-    | "TRACKING"
-    | "VIEWSTAT"
-    | "STANDARD"
-    | "CUSTOM"
-    | "DISTANCE"
-    | "GEOLOCATION"
-    | "GROUPING"
-    | "CONVERT_CURRENCY"
-    // SOQL date functions
-    | "CALENDAR_MONTH"
-    | "CALENDAR_QUARTER"
-    | "CALENDAR_YEAR"
-    | "DAY_IN_MONTH"
-    | "DAY_IN_WEEK"
-    | "DAY_IN_YEAR"
-    | "DAY_ONLY"
-    | "FISCAL_MONTH"
-    | "FISCAL_QUARTER"
-    | "FISCAL_YEAR"
-    | "HOUR_IN_DAY"
-    | "WEEK_IN_MONTH"
-    | "WEEK_IN_YEAR"
-    | "CONVERT_TIMEZONE"
-    // SOQL date formulas
-    | "YESTERDAY"
-    | "TODAY"
-    | "TOMORROW"
-    | "LAST_WEEK"
-    | "THIS_WEEK"
-    | "NEXT_WEEK"
-    | "LAST_MONTH"
-    | "THIS_MONTH"
-    | "NEXT_MONTH"
-    | "LAST_90_DAYS"
-    | "NEXT_90_DAYS"
-    | "LAST_N_DAYS_N"
-    | "NEXT_N_DAYS_N"
-    | "N_DAYS_AGO_N"
-    | "NEXT_N_WEEKS_N"
-    | "LAST_N_WEEKS_N"
-    | "N_WEEKS_AGO_N"
-    | "NEXT_N_MONTHS_N"
-    | "LAST_N_MONTHS_N"
-    | "N_MONTHS_AGO_N"
-    | "THIS_QUARTER"
-    | "LAST_QUARTER"
-    | "NEXT_QUARTER"
-    | "NEXT_N_QUARTERS_N"
-    | "LAST_N_QUARTERS_N"
-    | "N_QUARTERS_AGO_N"
-    | "THIS_YEAR"
-    | "LAST_YEAR"
-    | "NEXT_YEAR"
-    | "NEXT_N_YEARS_N"
-    | "LAST_N_YEARS_N"
-    | "N_YEARS_AGO_N"
-    | "THIS_FISCAL_QUARTER"
-    | "LAST_FISCAL_QUARTER"
-    | "NEXT_FISCAL_QUARTER"
-    | "NEXT_N_FISCAL_QUARTERS_N"
-    | "LAST_N_FISCAL_QUARTERS_N"
-    | "N_FISCAL_QUARTERS_AGO_N"
-    | "THIS_FISCAL_YEAR"
-    | "LAST_FISCAL_YEAR"
-    | "NEXT_FISCAL_YEAR"
-    | "NEXT_N_FISCAL_YEARS_N"
-    | "LAST_N_FISCAL_YEARS_N"
-    | "N_FISCAL_YEARS_AGO_N"
-    // SOSL Keywords
-    | "FIND"
-    | "EMAIL"
-    | "NAME"
-    | "PHONE"
-    | "SIDEBAR"
-    | "FIELDS"
-    | "METADATA"
-    | "PRICEBOOKID"
-    | "NETWORK"
-    | "SNIPPET"
-    | "TARGET_LENGTH"
-    | "DIVISION"
-    | "RETURNING"
-    | "LISTVIEW"
-    | identifier
+selectLiteral::= (SelectRestNoInnerBrackets | SelectRestAllowingInnerBrackets)*?
 
-// In dot expressions we, can use a wider set of of identifiers, apparently any of them althogh I have excluding VOID
-// in the interests of reducing ambiguity
-anyId::=
-    // Apex Keywords
-    "ABSTRACT"
-    | "AFTER"
-    | "BEFORE"
-    | "BREAK"
-    | "CATCH"
-    | "CLASS"
-    | "CONTINUE"
-    | "DELETE"
-    | "DO"
-    | "ELSE"
-    | "ENUM"
-    | "EXTENDS"
-    | "FINAL"
-    | "FINALLY"
-    | "FOR"
-    | "GET"
-    | "GLOBAL"
-    | "IF"
-    | "IMPLEMENTS"
-    | "INHERITED"
-    | "INSERT"
-    | "INSTANCEOF"
-    | "INTERFACE"
-    | "LIST"
-    | "MAP"
-    | "MERGE"
-    | "NEW"
-    | "NULL"
-    | "ON"
-    | "OVERRIDE"
-    | "PRIVATE"
-    | "PROTECTED"
-    | "PUBLIC"
-    | "RETURN"
-    | "SET"
-    | "SHARING"
-    | "STATIC"
-    | "SUPER"
-    | "SWITCH"
-    | "TESTMETHOD"
-    | "THIS"
-    | "THROW"
-    | "TRANSIENT"
-    | "TRIGGER"
-    | "TRY"
-    | "UNDELETE"
-    | "UPDATE"
-    | "UPSERT"
-    | "VIRTUAL"
-    | "WEBSERVICE"
-    | "WHEN"
-    | "WHILE"
-    | "WITH"
-    | "WITHOUT"
-    // DML Keywords
-    | "USER"
-    | "SYSTEM"
-    // SOQL Values
-    | "IntegralCurrencyLiteral"
-    // SOQL Specific Keywords
-    | "SELECT"
-    | "COUNT"
-    | "FROM"
-    | "AS"
-    | "USING"
-    | "SCOPE"
-    | "WHERE"
-    | "ORDER"
-    | "BY"
-    | "LIMIT"
-    | "SOQLAND"
-    | "SOQLOR"
-    | "NOT"
-    | "AVG"
-    | "COUNT_DISTINCT"
-    | "MIN"
-    | "MAX"
-    | "SUM"
-    | "TYPEOF"
-    | "END"
-    | "THEN"
-    | "LIKE"
-    | "IN"
-    | "INCLUDES"
-    | "EXCLUDES"
-    | "ASC"
-    | "DESC"
-    | "NULLS"
-    | "FIRST"
-    | "LAST"
-    | "GROUP"
-    | "ALL"
-    | "ROWS"
-    | "VIEW"
-    | "HAVING"
-    | "ROLLUP"
-    | "TOLABEL"
-    | "OFFSET"
-    | "DATA"
-    | "CATEGORY"
-    | "AT"
-    | "ABOVE"
-    | "BELOW"
-    | "ABOVE_OR_BELOW"
-    | "SECURITY_ENFORCED"
-    | "SYSTEM_MODE"
-    | "USER_MODE"
-    | "REFERENCE"
-    | "CUBE"
-    | "FORMAT"
-    | "TRACKING"
-    | "VIEWSTAT"
-    | "STANDARD"
-    | "CUSTOM"
-    | "DISTANCE"
-    | "GEOLOCATION"
-    | "GROUPING"
-    | "CONVERT_CURRENCY"
-    // SOQL date functions
-    | "CALENDAR_MONTH"
-    | "CALENDAR_QUARTER"
-    | "CALENDAR_YEAR"
-    | "DAY_IN_MONTH"
-    | "DAY_IN_WEEK"
-    | "DAY_IN_YEAR"
-    | "DAY_ONLY"
-    | "FISCAL_MONTH"
-    | "FISCAL_QUARTER"
-    | "FISCAL_YEAR"
-    | "HOUR_IN_DAY"
-    | "WEEK_IN_MONTH"
-    | "WEEK_IN_YEAR"
-    | "CONVERT_TIMEZONE"
-    // SOQL date formulas
-    | "YESTERDAY"
-    | "TODAY"
-    | "TOMORROW"
-    | "LAST_WEEK"
-    | "THIS_WEEK"
-    | "NEXT_WEEK"
-    | "LAST_MONTH"
-    | "THIS_MONTH"
-    | "NEXT_MONTH"
-    | "LAST_90_DAYS"
-    | "NEXT_90_DAYS"
-    | "LAST_N_DAYS_N"
-    | "NEXT_N_DAYS_N"
-    | "N_DAYS_AGO_N"
-    | "NEXT_N_WEEKS_N"
-    | "LAST_N_WEEKS_N"
-    | "N_WEEKS_AGO_N"
-    | "NEXT_N_MONTHS_N"
-    | "LAST_N_MONTHS_N"
-    | "N_MONTHS_AGO_N"
-    | "THIS_QUARTER"
-    | "LAST_QUARTER"
-    | "NEXT_QUARTER"
-    | "NEXT_N_QUARTERS_N"
-    | "LAST_N_QUARTERS_N"
-    | "N_QUARTERS_AGO_N"
-    | "THIS_YEAR"
-    | "LAST_YEAR"
-    | "NEXT_YEAR"
-    | "NEXT_N_YEARS_N"
-    | "LAST_N_YEARS_N"
-    | "N_YEARS_AGO_N"
-    | "THIS_FISCAL_QUARTER"
-    | "LAST_FISCAL_QUARTER"
-    | "NEXT_FISCAL_QUARTER"
-    | "NEXT_N_FISCAL_QUARTERS_N"
-    | "LAST_N_FISCAL_QUARTERS_N"
-    | "N_FISCAL_QUARTERS_AGO_N"
-    | "THIS_FISCAL_YEAR"
-    | "LAST_FISCAL_YEAR"
-    | "NEXT_FISCAL_YEAR"
-    | "NEXT_N_FISCAL_YEARS_N"
-    | "LAST_N_FISCAL_YEARS_N"
-    | "N_FISCAL_YEARS_AGO_N"
-    // SOSL Keywords
-    | "FIND"
-    | "EMAIL"
-    | "NAME"
-    | "PHONE"
-    | "SIDEBAR"
-    | "FIELDS"
-    | "METADATA"
-    | "PRICEBOOKID"
-    | "NETWORK"
-    | "SNIPPET"
-    | "TARGET_LENGTH"
-    | "DIVISION"
-    | "RETURNING"
-    | "LISTVIEW"
-    | identifier
+query::= SELECT selectList
+        FROM fromNameList
+        usingScope?
+        whereClause?
+        withClause?
+        groupByClause?
+        orderByClause?
+        limitClause?
+        offsetClause?
+        allRowsClause?
+        forClauses
+        (UPDATE updateList)?
+        {pin=1 recoverWhile=query_recover name="需要SELECT ..."}
+
+private query_recover::= !RBRACK
+
+usingScope::= USING SCOPE soqlId {pin=2}
+withClause::= WITH  withClauseEntry {pin=1}
+withClauseEntry::= DATA CATEGORY filteringExpression
+	| SECURITY_ENFORCED
+	| SYSTEM_MODE
+	| USER_MODE
+	| logicalExpression
+
+groupByClause::= GROUP BY groupByClauseEntry {pin=2}
+
+groupByClauseEntry::= selectList (HAVING logicalExpression)?
+	| ROLLUP LPAREN fieldName (COMMA fieldName)* RPAREN
+	| CUBE LPAREN fieldName (COMMA fieldName)* RPAREN
+
+orderByClause::= ORDER BY fieldOrderList     {pin=1}
+limitClause::= LIMIT IntegerLiteral | LIMIT boundExpression     {pin=1}
+offsetClause::= OFFSET IntegerLiteral
+    | OFFSET boundExpression
+    {pin=1}
+allRowsClause::= ALL ROWS     {pin=1}
+forClauses::= forClausesEntry*
+forClausesEntry::= FOR (VIEW | UPDATE | REFERENCE) {pin=1}
+
+updateList::= updateType (COMMA updateList)?
+updateType::= TRACKING | VIEWSTAT
+
+fieldOrderList::= fieldOrder (COMMA fieldOrder)*
+fieldOrder::= fieldName (ASC | DESC)? (NULLS (FIRST|LAST))?
+    | soqlFunction (ASC | DESC)? (NULLS (FIRST|LAST))?
+
+filteringExpression::= dataCategorySelection (AND dataCategorySelection)*
+dataCategorySelection::= soqlId filteringSelector dataCategoryName
+dataCategoryName::= soqlId
+    | LPAREN soqlId (COMMA soqlId)* LPAREN
+
+filteringSelector::= AT | ABOVE | BELOW | ABOVE_OR_BELOW
+
+subQuery::= SELECT subFieldList
+        FROM fromNameList
+        whereClause?
+        orderByClause?
+        limitClause?
+        forClauses
+        (UPDATE updateList)?
+        {pin=1}
+
+whereClause::= WHERE logicalExpression {pin=1}
+logicalExpression::= conditionalExpression (SOQLAND conditionalExpression)*
+    | conditionalExpression (SOQLOR conditionalExpression)*
+    | NOT conditionalExpression
+
+conditionalExpression::= LPAREN logicalExpression RPAREN
+    | fieldExpression
+
+fieldExpression::= fieldName comparisonOperator value
+    | soqlFunction comparisonOperator value
+
+comparisonOperator::= ASSIGN | NOTEQUAL | LT | GT | LT ASSIGN | GT ASSIGN | LESSANDGREATER | LIKE | IN | NOT IN | INCLUDES | EXCLUDES
+
+value::= NULL
+    | BooleanLiteral
+    | signedNumber
+    | StringLiteral
+//    | DateLiteral
+//    | TimeLiteral
+//    | DateTimeLiteral
+//    | dateFormula
+//    | IntegralCurrencyLiteral (DOT IntegerLiteral?)?
+    | LPAREN subQuery RPAREN
+    | valueList
+    | boundExpression
+
+valueList::= LPAREN value (COMMA value)* RPAREN
+
+
+fromNameList::= fieldName soqlId? (COMMA fieldName soqlId?)* {pin=1}
+
+subFieldList::= subFieldEntry (COMMA subFieldEntry)*
+subFieldEntry::= fieldName soqlId?
+    | soqlFunction soqlId?
+    | LPAREN subQuery RPAREN soqlId?
+    | typeOf
+typeOf::= TYPEOF fieldName whenClause+ elseClause? END
+whenClause::= WHEN fieldName THEN fieldNameList
+elseClause::= ELSE fieldNameList
+fieldNameList::= fieldName (COMMA fieldName)*
+
+selectList::= selectEntry (COMMA selectEntry)* {name="需要一个 selectList ..." }
+selectEntry::= fieldName soqlId?
+    | soqlFunction soqlId?
+    | LPAREN subQuery RPAREN soqlId?
+    | typeOf
+    {name="需要一个 selectEntry ..."}
+
+
+fieldName::= soqlId (DOT soqlId)* {pin=1 name="标识符"}
+//fieldName::= soqlId (DOT soqlId)* {pin=1}
+soqlId::= identifier
+
+soqlFunction::= AVG LPAREN fieldName RPAREN
+    | COUNT LPAREN RPAREN
+    | COUNT LPAREN fieldName RPAREN
+    | COUNT_DISTINCT LPAREN fieldName RPAREN
+    | MIN LPAREN fieldName RPAREN
+    | MAX LPAREN fieldName RPAREN
+    | SUM LPAREN fieldName RPAREN
+    | TOLABEL LPAREN fieldName RPAREN
+    | FORMAT LPAREN ( fieldName | soqlFunction ) RPAREN
+    | CALENDAR_MONTH LPAREN dateFieldName RPAREN
+    | CALENDAR_QUARTER LPAREN dateFieldName RPAREN
+    | CALENDAR_YEAR LPAREN dateFieldName RPAREN
+    | DAY_IN_MONTH LPAREN dateFieldName RPAREN
+    | DAY_IN_WEEK LPAREN dateFieldName RPAREN
+    | DAY_IN_YEAR LPAREN dateFieldName RPAREN
+    | DAY_ONLY LPAREN dateFieldName RPAREN
+    | FISCAL_MONTH LPAREN dateFieldName RPAREN
+    | FISCAL_QUARTER LPAREN dateFieldName RPAREN
+    | FISCAL_YEAR LPAREN dateFieldName RPAREN
+    | HOUR_IN_DAY LPAREN dateFieldName RPAREN
+    | WEEK_IN_MONTH LPAREN dateFieldName RPAREN
+    | WEEK_IN_YEAR LPAREN dateFieldName RPAREN
+    | FIELDS LPAREN soqlFieldsParameter RPAREN
+    | DISTANCE LPAREN locationValue COMMA locationValue COMMA StringLiteral RPAREN
+    | GROUPING LPAREN fieldName RPAREN
+    | CONVERT_CURRENCY LPAREN fieldName RPAREN
+
+dateFieldName::= "CONVERTTIMEZONE" LPAREN fieldName RPAREN
+    | fieldName
+
+soqlFieldsParameter::= "ALL" | "CUSTOM" | "STANDARD"
+locationValue::= fieldName
+    | boundExpression
+    | GEOLOCATION LPAREN coordinateValue COMMA coordinateValue  RPAREN
+
+coordinateValue::= signedNumber | boundExpression
+
+boundExpression::= COLON expression
+
+// TODO: NumberLiteral has trailing [dD]?, SOQL does not support this but a fix would need wider changes
+signedNumber::= (ADD | SUB)? (IntegerLiteral | NumberLiteral)
+
+
+id::=  identifier
+
+anyId::= identifier
+
+
+

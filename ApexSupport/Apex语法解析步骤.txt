@@ -4,10 +4,7 @@ public without sharing class UserTriggerHandler {
     public static Boolean isRun = true;
     public class UserTriggerHandlerException extends Exception {
     }
-
 }
-
-
 
 2、要想测试Lexer，需要额外添加一下代码，来兼容grammar-kit生成的_ApexLexer
 
@@ -32,13 +29,16 @@ public without sharing class UserTriggerHandler {
 
 
 3、同时，在main里，还需要重置一下lexer的输入
-
+	3.1 找到下面的一行语句
+	 scanner = new _ApexLexer(reader);
+	 替换为下面的代码
 
 BufferedReader bufferedReader = new BufferedReader(reader);
 StringBuilder sb = new StringBuilder();
+char[] buff = new char[1024];
 String newLine ;
-while((newLine = bufferedReader.readLine()) != null) {
-sb.append(newLine);
+while(bufferedReader.read(buff)>0){
+sb.append(buff);
 }
 scanner = new _ApexLexer(reader);
 scanner.reset(sb,0,sb.length(),YYINITIAL);

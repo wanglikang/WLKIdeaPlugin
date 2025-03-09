@@ -67,12 +67,12 @@ tasks {
   }
 }
 
-//var HOME_PATH = "/Users/bytedance"
-var HOME_PATH = "/Users/wanglikang"
+var HOME_PATH = "/Users/bytedance"
+//var HOME_PATH = "/Users/wanglikang"
 var PROJECT_PATH = HOME_PATH+"/GithubProjects/WLKIdeaPlugin/ApexSupport"
 tasks.register<JavaExec>("ApexLexerRunTask") {
 //  mainClass.set("com.wlk.ideaplugin.apexsupport.language.parser.ApexLexer")
-  mainClass.set("grammar._ApexLexer")
+  mainClass.set("com.wlk.ideaplugin.apexsupport.language.parser._ApexLexer")
 
   classpath = sourceSets["main"].runtimeClasspath
   // 假设引入的类在包 com.jetbrains.somepackage 中

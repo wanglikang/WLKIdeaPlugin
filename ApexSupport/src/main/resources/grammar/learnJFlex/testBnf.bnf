@@ -1,0 +1,26 @@
+
+
+// 规则X 的 Follow 集合：某个规则后续应该接什么终结符，包含所有可能的父规则中的 “后”一个终结符
+// 下面的是个示例
+//
+{
+    parserClass="test.com.wlk.ideaplugin.apexsupport.language.gen.parser.ApexParser"
+	elementTypeHolderClass="test.com.wlk.ideaplugin.apexsupport.language.gen.psi.TestTypes"
+	tokens=[
+		WS="regexp:\s+"
+//		FROM="from"
+		KEY="key"
+	]
+}
+root::=AA*
+AA::= "(" BB ")"     {pin=1 recoverWhile="#auto" name="need something"}
+BB::= FIRST  "SECOUND"  | THRID CC {pin=1 recoverWhile="#auto" }
+CC::= "[" FOUR DD "]"   {pin=1 recoverWhile="#auto" name="need four"}
+DD::= "USER" "NAME"* id KEY
+id::=  "fromIter" | "FROM"
+
+//recoverWhile 的含义，是指当pin匹配到的时候，如果后续没有正确匹配到，则弱遇到了 匹配 recoverWhile 的字符，就认为 recoverWhile 之前的内容就是错误批判了，recoverWhile 之后的，就是下一个规则了，和当前错误的、未匹配的规则无关了
+//name 的含义是，若应该匹配到pin对应的字符，但是连pin对应的token都没有匹配，就报错，报错的内容，是name里的字符串
+//若name没有声明，则会使用当前规则的规则名来展示
+
+// 注意，声明了的关键字Token 和 通过identifier 识别到的表示符，在文法规则中，是不同的元素，无法同等对待
