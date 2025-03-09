@@ -11,7 +11,7 @@ import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexQualifiedName;
+//import com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexQualifiedName;
 import com.wlk.ideaplugin.apexsupport.language.psi.ApexFile;
 import com.wlk.ideaplugin.apexsupport.language.psi.ApexNamedElement;
 import org.jetbrains.annotations.NotNull;
@@ -46,21 +46,21 @@ public class ApexUtil {
         return result;
     }
 
-    public static List<ApexQualifiedName> findProperties(Project project) {
-        List<ApexQualifiedName> result = new ArrayList<>();
-        Collection<VirtualFile> virtualFiles =
-                FileTypeIndex.getFiles(ApexFileType.INSTANCE, GlobalSearchScope.allScope(project));
-        for (VirtualFile virtualFile : virtualFiles) {
-            ApexFile apexFile = (ApexFile) PsiManager.getInstance(project).findFile(virtualFile);
-            if (apexFile != null) {
-                ApexQualifiedName[] properties = PsiTreeUtil.getChildrenOfType(apexFile, ApexQualifiedName.class);
-                if (properties != null) {
-                    Collections.addAll(result, properties);
-                }
-            }
-        }
-        return result;
-    }
+//    public static List<ApexQualifiedName> findProperties(Project project) {
+//        List<ApexQualifiedName> result = new ArrayList<>();
+//        Collection<VirtualFile> virtualFiles =
+//                FileTypeIndex.getFiles(ApexFileType.INSTANCE, GlobalSearchScope.allScope(project));
+//        for (VirtualFile virtualFile : virtualFiles) {
+//            ApexFile apexFile = (ApexFile) PsiManager.getInstance(project).findFile(virtualFile);
+//            if (apexFile != null) {
+//                ApexQualifiedName[] properties = PsiTreeUtil.getChildrenOfType(apexFile, ApexQualifiedName.class);
+//                if (properties != null) {
+//                    Collections.addAll(result, properties);
+//                }
+//            }
+//        }
+//        return result;
+//    }
 
     /**
      * Attempts to collect any comment elements above the Simple key/value pair.

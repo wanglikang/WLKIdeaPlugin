@@ -10,4 +10,9 @@ public class ApexLanguage extends Language {
         super("Apex");
     }
 
+
+    @Override
+    public boolean isCaseSensitive() {
+        return false;
+    }
 }

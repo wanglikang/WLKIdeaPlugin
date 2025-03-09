@@ -1,20 +1,24 @@
 package com.wlk.ideaplugin.apexsupport.feature.fold;
 
+import com.google.common.collect.Sets;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.folding.FoldingBuilderEx;
 import com.intellij.lang.folding.FoldingDescriptor;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.JavaRecursiveElementWalkingVisitor;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiLiteralExpression;
+import com.intellij.psi.*;
 import com.intellij.psi.util.PsiLiteralUtil;
 import com.intellij.util.containers.ContainerUtil;
 import com.wlk.ideaplugin.apexsupport.language.ApexUtil;
+//import com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexBlock;
+import com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexVisitor;
 import com.wlk.ideaplugin.apexsupport.language.psi.ApexNamedElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,50 +29,41 @@ import java.util.List;
 
 public class ApexFoldingBuilder extends FoldingBuilderEx implements DumbAware {
 
-    public static String SIMPLE_PREFIX_STR = "SomeThingsBody";
+    public static String MethodBlockKey = "SomeThingsBody";
     public static String SIMPLE_SEPARATOR_STR = ":";
 
     @Override
     public FoldingDescriptor @NotNull [] buildFoldRegions(@NotNull PsiElement root,
                                                           @NotNull Document document,
                                                           boolean quick) {
+        // 传进来的root，是文件的最顶级的psi元素
+
         // Initialize the group of folding regions that will expand/collapse together.
-        FoldingGroup group = FoldingGroup.newGroup(SIMPLE_PREFIX_STR);
+        FoldingGroup group = FoldingGroup.newGroup(MethodBlockKey);
         // Initialize the list of folding regions
         List<FoldingDescriptor> descriptors = new ArrayList<>();
-
-        root.accept(new JavaRecursiveElementWalkingVisitor() {
-
+        System.out.println("buildFoldRegions:"+root.getOriginalElement()+" => "+root.getText());
+        PsiRecursiveElementVisitor psiRecursiveElementVisitor = new PsiRecursiveElementVisitor() {
             @Override
-            public void visitLiteralExpression(@NotNull PsiLiteralExpression literalExpression) {
-                super.visitLiteralExpression(literalExpression);
-                System.out.println("visitLiteralExpression:"+literalExpression.getText());
+            public void visitElement(@NotNull PsiElement element) {
+                super.visitElement(element);
+                if(element instanceof  FoldAble block){
+                    System.out.println("visited block:"+block.getText());
+                    TextRange textRange = block.getTextRange();
+                    descriptors.add(new FoldingDescriptor(block.getNode(),textRange, group, Sets.newHashSet()));
 
-                String value = PsiLiteralUtil.getStringLiteralContent(literalExpression);
-//                if (value != null && value.startsWith(SIMPLE_PREFIX_STR + SIMPLE_SEPARATOR_STR)) {
-                    Project project = literalExpression.getProject();
-//                    String key = value.substring(SIMPLE_PREFIX_STR.length() + SIMPLE_SEPARATOR_STR.length());
-
-                    String key = value;
-                    // find SimpleProperty for the given key in the project
-                    ApexNamedElement simpleProperty = ContainerUtil.getOnlyItem(ApexUtil.findProperties(project, key));
-                    if (simpleProperty != null) {
-                        // Add a folding descriptor for the literal expression at this node.
-                        descriptors.add(
-                                new FoldingDescriptor(
-                                    literalExpression.getNode(),
-                                    new TextRange(literalExpression.getTextRange().getStartOffset() + 1, literalExpression.getTextRange().getEndOffset() - 1),
-                                    group,
-                                    Collections.singleton(simpleProperty)
-                                )
-                        );
-                    }
-//                }
+                    Class<? extends PsiElement> aClass = element.getOriginalElement().getClass();
+//                    Notification notification = new Notification("ApexNotification", "代码块"+ aClass.getSimpleName() +"折叠", "折叠了："+block.getText(), NotificationType.INFORMATION);
+//                    Notifications.Bus.notify(notification);
+                }
             }
-        });
+        };
 
+        root.accept(psiRecursiveElementVisitor);
         return descriptors.toArray(FoldingDescriptor.EMPTY_ARRAY);
     }
+
+
 
     /**
      * Gets the Simple Language 'value' string corresponding to the 'key'
@@ -80,34 +75,9 @@ public class ApexFoldingBuilder extends FoldingBuilderEx implements DumbAware {
     @Nullable
     @Override
     public String getPlaceholderText(@NotNull ASTNode node) {
-        if (node.getPsi() instanceof PsiLiteralExpression psiLiteralExpression) {
-            String text = PsiLiteralUtil.getStringLiteralContent(psiLiteralExpression);
-            if (text == null) {
-                return null;
-            }
-
-            String key = text.substring(SIMPLE_PREFIX_STR.length() +
-                    SIMPLE_SEPARATOR_STR.length());
-
-            ApexNamedElement simpleProperty = ContainerUtil.getOnlyItem(
-                    ApexUtil.findProperties(psiLiteralExpression.getProject(), key)
-            );
-            if (simpleProperty == null) {
-                return StringUtil.THREE_DOTS;
-            }
-
-            String propertyValue = simpleProperty.getText();
-            // IMPORTANT: keys can come with no values, so a test for null is needed
-            // IMPORTANT: Convert embedded \n to backslash n, so that the string will look
-            // like it has LF embedded in it and embedded " to escaped "
-            if (propertyValue == null) {
-                return StringUtil.THREE_DOTS;
-            }
-
-            return propertyValue
-                    .replaceAll("\n", "\\n")
-                    .replaceAll("\"", "\\\\\"");
-        }
+//        if (node.getPsi() instanceof ApexBlock apexBlock) {
+//            return "{...}";
+//        }
 
         return null;
     }

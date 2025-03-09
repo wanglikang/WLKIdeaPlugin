@@ -20,9 +20,9 @@ public class ApexSyntaxHighlighter extends SyntaxHighlighterBase {
     public static final TextAttributesKey CLASS = createTextAttributesKey("CLASS", DefaultLanguageHighlighterColors.CLASS_NAME);
     public static final TextAttributesKey KEYWORD = createTextAttributesKey("KEYWORD", DefaultLanguageHighlighterColors.KEYWORD);
     public static final TextAttributesKey STATIC = createTextAttributesKey("STATIC", DefaultLanguageHighlighterColors.STATIC_FIELD);
-    public static final TextAttributesKey INSTANCE_METHOD = createTextAttributesKey("STATIC", DefaultLanguageHighlighterColors.INSTANCE_METHOD);
-    public static final TextAttributesKey IDENTIFIER = createTextAttributesKey("STATIC", DefaultLanguageHighlighterColors.IDENTIFIER);
-
+    public static final TextAttributesKey INSTANCE_METHOD = createTextAttributesKey("INSTANCE_METHOD", DefaultLanguageHighlighterColors.INSTANCE_METHOD);
+    public static final TextAttributesKey IDENTIFIER = createTextAttributesKey("IDENTIFIER", DefaultLanguageHighlighterColors.IDENTIFIER);
+    public static final TextAttributesKey TYPENAME = createTextAttributesKey("TYPENAME", DefaultLanguageHighlighterColors.CLASS_NAME);
     public static final TextAttributesKey VALUE = createTextAttributesKey("SIMPLE_VALUE", DefaultLanguageHighlighterColors.STRING);
     public static final TextAttributesKey COMMENT = createTextAttributesKey("SIMPLE_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT);
     public static final TextAttributesKey BAD_CHARACTER = createTextAttributesKey("SIMPLE_BAD_CHARACTER", HighlighterColors.BAD_CHARACTER);
@@ -35,6 +35,7 @@ public class ApexSyntaxHighlighter extends SyntaxHighlighterBase {
     private static final TextAttributesKey[] SEPARATOR_KEYS = new TextAttributesKey[]{SEPARATOR};
     private static final TextAttributesKey[] CLASS_KEYS = new TextAttributesKey[]{CLASS};
     private static final TextAttributesKey[] KEYWORD_KEYS = new TextAttributesKey[]{KEYWORD};
+    private static final TextAttributesKey[] TYPENAME_KEYS = new TextAttributesKey[]{TYPENAME};
 
     private static final TextAttributesKey[] VALUE_KEYS = new TextAttributesKey[]{VALUE};
     private static final TextAttributesKey[] COMMENT_KEYS = new TextAttributesKey[]{COMMENT};
@@ -58,7 +59,7 @@ public class ApexSyntaxHighlighter extends SyntaxHighlighterBase {
         if (tokenType.equals(ApexTypes.STATIC)) {
             return STATIC_KEYS;
         }
-        if (tokenType.equals(ApexTypes.TYPE_REF)) {
+        if (tokenType.equals(ApexTypes.TYPE_NAME)) {
             return IDENTIFIER_KEYS;
         }
         if(ApexTokenSets.COMMENTS.contains(tokenType)){

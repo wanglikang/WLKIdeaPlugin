@@ -38,7 +38,7 @@ public class ApexParserDefinition implements ParserDefinition {
     @NotNull
     @Override
     public TokenSet getStringLiteralElements() {
-        return TokenSet.EMPTY;
+        return ApexTokenSets.STRING_ITERNAL_TOKENS;
     }
 
     @NotNull

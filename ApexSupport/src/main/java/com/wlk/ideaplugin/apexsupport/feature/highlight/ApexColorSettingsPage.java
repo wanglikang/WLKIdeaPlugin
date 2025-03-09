@@ -22,6 +22,7 @@ final class ApexColorSettingsPage implements ColorSettingsPage {
             new AttributesDescriptor("Bad value", ApexSyntaxHighlighter.BAD_CHARACTER),
             new AttributesDescriptor("Identifier", ApexSyntaxHighlighter.IDENTIFIER),
             new AttributesDescriptor("Method", ApexSyntaxHighlighter.INSTANCE_METHOD),
+            new AttributesDescriptor("TypeName", ApexSyntaxHighlighter.TYPENAME),
     };
 
     @Override
@@ -39,19 +40,18 @@ final class ApexColorSettingsPage implements ColorSettingsPage {
     @Override
     public String getDemoText() {
         return """
-        TODO  NEED UPDATE
-        # You are reading the ".cls" entry.
-        ! The exclamation mark can also mark text as comments.
-        website = https://en.wikipedia.org/
-        language = English
-        # The backslash below tells the application to continue reading
-        # the value onto the next line.
-        message = Welcome to \\
-                  Wikipedia!
-        # Add spaces to the key
-        key\\ with\\ spaces = This is the value that could be looked up with the key "key with spaces".
-        # Unicode
-        tab : \\u0009""";
+            public class UserOtherClass {
+                // 2023/8/1: 合并为【公海】
+                private final static String INDIVIDUAL_POOL_NAME = '个人客户公海';
+                public static Boolean isIndividualPoolUser(Id userId) {
+                    return getIndividualPoolUser().Id == userId;
+                }
+                public String key ;
+                UserOtherClass(String k){
+                    this.key = k;
+                }
+            }
+        """;
     }
 
     @Nullable

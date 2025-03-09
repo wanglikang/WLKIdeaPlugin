@@ -5,7 +5,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
 import com.wlk.ideaplugin.apexsupport.language.ApexUtil;
-import com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexQualifiedName;
 import com.wlk.ideaplugin.apexsupport.language.psi.ApexNamedElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +43,7 @@ public class ApexReference extends PsiReferenceBase<PsiElement> implements PsiPo
     @Override
     public Object @NotNull [] getVariants() {
         Project project = myElement.getProject();
-        List<ApexQualifiedName> properties = ApexUtil.findProperties(project);
+//        List<ApexQualifiedName> properties = ApexUtil.findProperties(project);
         List<LookupElement> variants = new ArrayList<>();
 //        for (final ApexQualifiedName namedElement : properties) {
 //            if (namedElement.getKey() != null && !namedElement.getKey().isEmpty()) {
