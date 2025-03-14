@@ -106,12 +106,17 @@ LINE_COMMENT = "//" {InputCharacter}* {LineTerminator}?
 // 用于解析SOQL的词法状态
 %s SOQL_START_STATUS
 %s SOQL_STATUS
+
+// 由于 数组下标和 SOQL都是以 [ 开头的，因此，新加一个状态用以区分
+%s ARRAY_INDEX_STATUS
+
 //%s IN_LIFETIME_OR_CHAR
 %debug
 %%
 <YYINITIAL> {
   {WHITE_SPACE}                    { return WHITE_SPACE; }
 
+  "select"                       { return SELECT;}
   "abstract"                       { return ABSTRACT; }
   "after"                          { return AFTER; }
   "before"                         { return BEFORE; }
@@ -173,7 +178,8 @@ LINE_COMMENT = "//" {InputCharacter}* {LineTerminator}?
   ")"                              { return RPAREN; }
   "{"                              { return LBRACE; }
   "}"                              { return RBRACE; }
-  "["								{ yybegin(SOQL_START_STATUS);}
+  "["								{ return LBRACK;}
+//  "["								{ yybegin(SOQL_START_STATUS);}	            // SOQL 的开始关键词
   "]"								{ return RBRACK; }
   ";"                              { return SEMI; }
   ","                              { return COMMA; }
@@ -216,7 +222,7 @@ LINE_COMMENT = "//" {InputCharacter}* {LineTerminator}?
   ">>>="                           { return URSHIFT_ASSIGN; }
   "@"                              { return ATSIGN; }
 
-  {IDENTIFIER}                     { return IDENTIFIER; }
+
   {DATELITERAL}                    { return DATELITERAL; }
   {BOOLEAN_LITERNAL}                    { return BOOLEAN_LITERAL; }
   {TIMELITERAL}                    { return TIMELITERAL; }
@@ -226,7 +232,7 @@ LINE_COMMENT = "//" {InputCharacter}* {LineTerminator}?
   {NUMBERLITERALPATTERN}           { return NUMBERLITERALPATTERN; }
   {LINE_COMMENT}                   { return LINE_COMMENT; }
   {WS}                             { return WS; }
-
+  {IDENTIFIER}                     { return IDENTIFIER; }
 
   "/*"                            { yybegin(IN_BLOCK_COMMENT); yypushback(2); }
 
@@ -280,16 +286,17 @@ LINE_COMMENT = "//" {InputCharacter}* {LineTerminator}?
   [^]     { }
 }
 
-<SOQL_START_STATUS>  {
-    {WHITE_SPACE}                    { }
-	"select" 	{ yybegin(SOQL_STATUS);}
-     [^] 		{	yybegin(YYINITIAL); return LBRACK; }
-}
-
-<SOQL_STATUS>  {
-	"]" 		{ yybegin(YYINITIAL); return SOQL_LITERAL; }
-	[^]   		{ SOQL_SB.append(yytext());}
-}
+//<SOQL_START_STATUS>  {
+//	//  需要考虑数组下标的情况
+//    {WHITE_SPACE}                    { }
+//	"select" 	{ yybegin(SOQL_STATUS);}	// 只有select 开头的，才认为是SOQL语句
+//     [^] 		{	yybegin(YYINITIAL); yypushback(yytext().length()); }
+//}
+//
+//<SOQL_STATUS>  {
+//	"]" 		{ yybegin(YYINITIAL); return SOQL_LITERAL; }
+//	[^]   		{ SOQL_SB.append(yytext());}
+//}
 
 
 
