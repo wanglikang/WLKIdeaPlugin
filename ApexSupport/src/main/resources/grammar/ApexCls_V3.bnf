@@ -110,6 +110,7 @@
 	WHILE	="while"
 	WITH	="with"
 	WITHOUT	="without"
+	SELECT = "select"
 
 	// Apex generic types, Set is defined above for properties
 	LIST	="list"
@@ -120,7 +121,7 @@
 //	USER	="user"
 
 	// SOQL literal （此处不重要，有个定义就行，，会使用jflex去进行词法解析）
-	SOQL_LITERAL = "SOQL_Literal"
+//	SOQL_LITERAL = "SOQL_Literal"
 
 
 	// §3.11 Separators
@@ -281,7 +282,7 @@ private tryStatement::= "TRY" block (catchClause+ finallyBlock? | finallyBlock) 
 private catchClause::= "CATCH" "(" modifier* qualifiedName identifier ")" block {pin=2}
 private finallyBlock::= "FINALLY" block {pin=1}
 private throwStatement::= "THROW" expression SEMI {pin=1}
-private breakStatement::= BREAK SEMI
+private breakStatement::= "BREAK" SEMI
 private continueStatement::= "CONTINUE" SEMI
 private insertStatement::= "INSERT" accessLevel? expression SEMI
 accessLevel::= AS (SYSTEM | USER)
@@ -296,7 +297,7 @@ private runAsStatement::= "system.runas" "(" expressionList? ")" block
 
 
 switchStatement::= "SWITCH" "ON" expression "{" whenControl+ "}"
-	//{pin=2 name="需要switch关键字" implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
+	{pin=2 name="需要switch关键字" implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
 whenControl::= "WHEN" whenValue block
 whenValue::= "ELSE"
     | whenLiteral ("," whenLiteral)*
@@ -313,7 +314,7 @@ whenLiteral::= ("-"|"+")* integerliteralpattern
 
 
 expressionStatement::= expression SEMI
-forStatement::= FOR "(" forControl ")" (statement | SEMI) {pin=1 implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
+forStatement::= FOR "(" forControl ")" (statement | SEMI) {pin=2 implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
 forControl::= enhancedForControl | forInit? SEMI expression? SEMI forUpdate?
 enhancedForControl::= typeRef identifier ":" expression
 forInit::= localVariableDeclaration | expressionList
@@ -323,10 +324,12 @@ forUpdate::= expressionList
 localVariableDeclarationStatement::= localVariableDeclaration SEMI
 localVariableDeclaration::= modifier* typeRef variableDeclarators
 
-returnStatement::= "RETURN" expression? SEMI {pin=1}
-block::= "{" statement* "}" {pin=1 name="block语句" implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
+returnStatement::= "RETURN" expression? ";" {pin=1 }
+block::= "{" statement* "}" {pin=1 name="block语句" implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble" }
+//private blockRecoverWhile::=!('}')
+
 ifStatement::= IF parExpression statement ("ELSE" statement)? {pin=1 name="匹配到了ifStatement"}
-parExpression::= "(" expression ")" {implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
+parExpression::= "(" expression ")" {pin=1 implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
 
 
 
@@ -351,7 +354,8 @@ elementValue::= expression
 elementValueArrayInitializer::= "{" (elementValue ("," elementValue)*)? (",")? "}"
 
 
-private typeRef::= typeName ("." typeName)* ("[" "]")*
+private typeRef::= typeName ("." typeName)* arraySubscripts
+arraySubscripts::= (LBRACK RBRACK)*
 typeName::= typeNameType typeArguments?
 typeNameType::= identifier | LIST | SET | MAP
 typeArguments::= "<" typeList ">" {pin=1 name='类型参数'}
@@ -381,38 +385,64 @@ private sharingModifier::= ("with" | "without" ) "sharing"
 // 对于expressin 内的元素，除来相同层级的xxx_group,内层的xxx_expr 元素禁 用private，否则还是会被识别为 左递归的
 expression::= expr
 expr::=
-     right_expression_group
-    | left_recursion_group
-    | primary_group
-//      {extraRoot=true}
-
-private primary_group ::= primary_expr
-//	| simple_ref_expr
-private left_recursion_group ::= dot_expr
-	| inc_dec_expr
-	| brack_expr
-	| mul_div_expr | add_sub_expr
-	| lt_gt_expr | lt_gt_assi_expr
-	| instance_expr
-	| logic_expr
-	| bit_and_expr | caret_expr | bitor_expr | and_expr | or_expr | coal_expr
-	| question_expr  | multi_assign_expr
-
-private right_expression_group::= bang_expression_expr
+     primary_expr
+//    | right_expression_group
+	| neg_expression_expr
 	| methodCall_expr
 	| new_creator_expr
 	| paren_typef_expr
     | paren_expr
+//    | left_recursion_group
+	| question_expr
+	| dot_expr
+	| array_expr
+	| inc_dec_expr
+	| mul_div_expr
+	| add_sub_expr
+	| lt_gt_expr
+	| lt_gt_assi_expr
+	| instance_expr
+	| logic_expr
+	| bit_and_expr
+	| caret_expr
+	| bitor_expr
+	| and_expr
+	| or_expr
+	| coal_expr
+
+	| multi_assign_expr
+	{recoverWhile=cemaRw}
+private cemaRw::=!(':')
+
+//      {extraRoot=true}
+
+//private primary_group ::= primary_expr
+//	| simple_ref_expr
+//private left_recursion_group ::= dot_expr
+//	| array_expr
+//	| inc_dec_expr
+//	| mul_div_expr | add_sub_expr
+//	| lt_gt_expr | lt_gt_assi_expr
+//	| instance_expr
+//	| logic_expr
+//	| bit_and_expr | caret_expr | bitor_expr | and_expr | or_expr | coal_expr
+//	| question_expr  | multi_assign_expr
+
+//private right_expression_group::= neg_expression_expr
+//	| methodCall_expr
+//	| new_creator_expr
+//	| paren_typef_expr
+//    | paren_expr
 
 paren_typef_expr::= "(" typeRef ")" expr
 paren_expr::= "(" expr ")"
 
 // 左递归的内容，得一个一个的去声明
-dot_expr::= expr ( "." | QUESTIONDOT) ( dotMethodCall | anyId ) {pin=2}
-inc_dec_expr::= expr (INC | DEC)
-brack_expr::= expr "[" expr "]"
+dot_expr::= expr ( "." | "?.") ( dotMethodCall | anyId )  {pin=2 name='dotExpression'}
+inc_dec_expr::= expr ("++" | "--")
+array_expr::= expr "[" expr "]"
 mul_div_expr::= expr ("*"|"/") expr
-add_sub_expr::= expr (ADD|SUB) expr
+add_sub_expr::= expr ("+"|"-") expr
 lt_gt_expr::= expr ("<<" | ">>>" | ">>") expr
 lt_gt_assi_expr::=  expr (">" | "<") ASSIGN? expr
 instance_expr::= expr "INSTANCEOF" typeRef
@@ -422,8 +452,8 @@ caret_expr::= expr "^" expr
 bitor_expr::= expr "|" expr
 and_expr::= expr "&&" expr
 or_expr::= expr "||" expr
-coal_expr::= expr "??" expr
-question_expr::= expr "?" expr ":" expr   { rightAssociative=true }
+coal_expr::= expr "??" expr {pin=2}
+question_expr::= expr "?" expr ":" expr   { pin=4 rightAssociative=true }
 multi_assign_expr::= expr
   (   ASSIGN
       |   ADD_ASSIGN
@@ -440,8 +470,8 @@ multi_assign_expr::= expr
 
 primary_expr::= primary
 //simple_ref_expr ::= identifier
-bang_expression_expr::= (TILDE|BANG) expr
-new_creator_expr::= NEW creator
+neg_expression_expr::= (TILDE|BANG) expr
+new_creator_expr::= NEW creator {pin=1}
 creator::=  createdName ( "{" "}" | arguments | arrayCreatorRest | mapCreatorRest | setCreatorRest)
 createdName::= idCreatedNamePair ("." idCreatedNamePair)*
 idCreatedNamePair::= anyId ("<" typeList ">")?
@@ -455,17 +485,18 @@ mapCreatorRestPair::= expr "=>" expr
 arrayInitializer::= "{" (expr ("," expr)* (",")? )? "}"
 
 dotMethodCall::= identifier "(" expressionList? ")" {pin=2}
-expressionList::= expr ("," expr)*
+expressionList::= expression ("," expression)*
 methodCall_expr::= (identifier | "THIS" | "SUPER") "(" expressionList? ")" {pin=2}
 /////// 表达式相关的声明，，结束
 
 
 private primary::= "THIS"
     | "SUPER"
+    | typeRef "." CLASS
+    | "VOID" "." CLASS
+    | identifier
     | literal
-    | typeRef "." "CLASS"
-    | "VOID" "." "CLASS"
-	| identifier
+
 
 literal::=
 	 "NULL"
@@ -474,9 +505,10 @@ literal::=
     | numberliteralpattern
     | SINGLEQUOTESTRINGLITERAL
     | BooleanLiteral
-    | SOQL_LITERAL
-
-BooleanLiteral::= ("'TRUE'"|"'FALSE'")
+//    | SOQL_LITERAL
+	| soqlBlock
+soqlBlock::="[" "SELECT" identifier* "]"{pin = 3}
+BooleanLiteral::= ('TRUE'|'FALSE')
 
 
 anyId::=   SET | MAP | LIST |  identifier
