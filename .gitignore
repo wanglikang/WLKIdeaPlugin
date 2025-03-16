@@ -16,3 +16,4 @@
 
 # Ignore Gradle build output directory
 build
+/ApexSupport/src/main/gen/com/wlk/ideaplugin/apexsupport/language/gen

@@ -39,8 +39,40 @@
 
 
 
+# 关于表达式 语法结构的坑
+  对于 函数调用的表达式
+```text
+if(xyz)
+    xxx(yy);
+```
+若把标识符的定义，放到表达式方法调用的最后
+像下面这样
+```text
+expr::=
+    other_expr
+    | methodCall_expr
+    | primary_expr
+```
 
+则会导致 在 methodCall_expr 这里一直组左递归，进而引起栈溢出
 
+即 if( <函数调用的一部分> <函数调用的一部分> <函数调用的一部分> <函数调用的一部分> <函数调用的一部分> )
 
+若把标识符的定义，放到表达式方法调用 的前面
+像下面这样
+```text
+expr::=
+    other_expr
+    | primary_expr
+    | methodCall_expr
+```
 
+则会导致 在 函数调用的方法名，被独自识别为一个 标识符 ，而不是一个 函数调用 的一部分
+
+即
+
+```text
+if(xyz)
+    identity(yy);
+```
 

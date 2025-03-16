@@ -33,7 +33,7 @@
 //  mixin(".*Name")="com.wlk.ideaplugin.apexsupport.language.ApexCommonNamedElementImpl"
 //  implements(".*Name")="com.wlk.ideaplugin.apexsupport.language.psi.ApexNamedElement"
   // 会给对应节点的接口里，加伤对应的
-  methods(".*Name")=[getKey getValue getName setName getNameIdentifier getPresentation]
+//  methods(".*Name")=[getKey getValue getName setName getNameIdentifier getPresentation]
 
   // 看起来，bnf中，要想解决左递归的错误提醒，需要将所有的左递归的表达式和表达式本身，都声明为expr结尾
   // 并使用 下面的 extends 处理一下才行
@@ -71,7 +71,7 @@
 	FINAL	="final"
 	FINALLY	="finally"
 	FOR	="for"
-	GET	="get"
+//	GET	="get"
 	GLOBAL	="global"
 	IF	="if"
 	IMPLEMENTS	="implements"
@@ -89,13 +89,13 @@
 	PUBLIC	="public"
 	RETURN	="return"
 	SYSTEMRUNAS	="system.runas"
-	SET	="set"
+//	SET	="set"
 	SHARING	="sharing"
 	STATIC	="static"
-	SUPER	="super"
+//	SUPER	="super"
 	SWITCH	="switch"
 	TESTMETHOD	="testmethod"
-	THIS	="this"
+//	THIS	="this"
 	THROW	="throw"
 	TRANSIENT	="transient"
 	TRIGGER	="trigger"
@@ -113,8 +113,8 @@
 	SELECT = "select"
 
 	// Apex generic types, Set is defined above for properties
-	LIST	="list"
-	MAP	="map"
+//	LIST	="list"
+//	MAP	="map"
 
 	// DML keywords
 //	SYSTEM	="system"
@@ -241,7 +241,7 @@ classDeclaration::= "CLASS" identifier
 
 classBody::= "{" classBodyDeclaration* "}" {pin=1}
 classBodyDeclaration::=  modifier* memberDeclaration
-memberDeclaration::= constructorDeclaration
+memberDeclaration::= <<use_for_debug "开始：匹配成员声明">> constructorDeclaration
 	| fieldDeclaration
 	| methodDeclaration
 //    | interfaceDeclaration
@@ -250,12 +250,11 @@ memberDeclaration::= constructorDeclaration
 //    | propertyDeclaration
 //    | staticBlock
 
-constructorDeclaration::= qualifiedName formalParameters block
-methodDeclaration::= ( typeRef | "VOID") identifier  formalParameters  ( block | SEMI )
+constructorDeclaration::= <<use_for_debug "开始匹配：构造器">> qualifiedName formalParameters block
+methodDeclaration::= (  "VOID" | typeRef ) identifier formalParameters  ( block | SEMI ) <<use_for_debug "匹配成功:方法">>
 
 statement::=
-     block
-    | ifStatement
+    ifStatement
     | switchStatement
     | forStatement
     | whileStatement
@@ -272,6 +271,7 @@ statement::=
     | upsertStatement
     | mergeStatement
     | runAsStatement
+    | block
     | localVariableDeclarationStatement
     | expressionStatement
     {implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
@@ -282,17 +282,17 @@ private tryStatement::= "TRY" block (catchClause+ finallyBlock? | finallyBlock) 
 private catchClause::= "CATCH" "(" modifier* qualifiedName identifier ")" block {pin=2}
 private finallyBlock::= "FINALLY" block {pin=1}
 private throwStatement::= "THROW" expression SEMI {pin=1}
-private breakStatement::= "BREAK" SEMI
-private continueStatement::= "CONTINUE" SEMI
-private insertStatement::= "INSERT" accessLevel? expression SEMI
+private breakStatement::= "BREAK" SEMI  {pin=1}
+private continueStatement::= "CONTINUE" SEMI  {pin=1}
+private insertStatement::= "INSERT" accessLevel? expression SEMI {pin=1}
 accessLevel::= AS (SYSTEM | USER)
-private updateStatement::= "UPDATE" accessLevel? expression SEMI
-private deleteStatement::= "DELETE" accessLevel? expression SEMI
-private undeleteStatement::= "UNDELETE" accessLevel? expression SEMI
-private upsertStatement::= "UPSERT" accessLevel? expression qualifiedName? SEMI
-private mergeStatement::= "MERGE" accessLevel? expression expression SEMI
+private updateStatement::= "UPDATE" accessLevel? expression SEMI {pin=1}
+private deleteStatement::= "DELETE" accessLevel? expression SEMI {pin=1}
+private undeleteStatement::= "UNDELETE" accessLevel? expression SEMI {pin=1}
+private upsertStatement::= "UPSERT" accessLevel? expression qualifiedName? SEMI {pin=1}
+private mergeStatement::= "MERGE" accessLevel? expression expression SEMI {pin=1}
 //left runAsStatement::= SYSTEMRUNAS "(" expressionList? ")" block
-private runAsStatement::= "system.runas" "(" expressionList? ")" block
+private runAsStatement::= "system.runas" "(" expressionList? ")" block {pin=1}
 
 
 
@@ -313,40 +313,47 @@ whenLiteral::= ("-"|"+")* integerliteralpattern
     | "(" whenLiteral ")"
 
 
-expressionStatement::= expression SEMI
-forStatement::= FOR "(" forControl ")" (statement | SEMI) {pin=2 implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
+
+expressionStatement::= <<use_for_debug "开始：表达式声明">>  expression SEMI <<use_for_debug "匹配成功：表达式语句">>
+forStatement::= "FOR" "(" forControl ")" (statement | SEMI) {pin=2 implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
 forControl::= enhancedForControl | forInit? SEMI expression? SEMI forUpdate?
 enhancedForControl::= typeRef identifier ":" expression
 forInit::= localVariableDeclaration | expressionList
 forUpdate::= expressionList
 
 
-localVariableDeclarationStatement::= localVariableDeclaration SEMI
+localVariableDeclarationStatement::= <<use_for_debug "开始：本地变量声明">> localVariableDeclaration SEMI <<use_for_debug "匹配成功：本地变量声明">>
 localVariableDeclaration::= modifier* typeRef variableDeclarators
 
-returnStatement::= "RETURN" expression? ";" {pin=1 }
-block::= "{" statement* "}" {pin=1 name="block语句" implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble" }
-//private blockRecoverWhile::=!('}')
+returnStatement::= <<use_for_debug "开始:return语句">> "RETURN" expression? ";" {pin=2 }
+block::=  <<use_for_debug "开始:普通语句块">> "{" statement* "}" <<use_for_debug "匹配成功：语句块">> {
+	// pin=1
+	name="block语句"
+	implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"
+//	recoverWhile=blockRecoverWhile
+	}
+//private blockRecoverWhile::=('}')
 
-ifStatement::= IF parExpression statement ("ELSE" statement)? {pin=1 name="匹配到了ifStatement"}
-parExpression::= "(" expression ")" {pin=1 implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
+ifStatement::= <<use_for_debug "开始：匹配If语句">> "IF" parExpression  <<use_for_debug "开始：if的statement">> statement ("ELSE" statement)?   <<use_for_debug "匹配成功：if语句">> {pin=2 name="匹配到了ifStatement"}
+parExpression::= "(" expression ")"  <<use_for_debug "匹配成功：if语句的条件">> {implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
 
 
 
 fieldDeclaration::= typeRef variableDeclarators SEMI {name='字段声明'}
 
-formalParameters::= "(" formalParameterList? ")"
-formalParameterList::= formalParameter ("," formalParameter)*
-formalParameter::= modifier* typeRef identifier
+formalParameters::= <<use_for_debug "开始:公式参数们">> "(" formalParameterList? ")" <<use_for_debug "匹配成功:公式参数们">>
+formalParameterList::= <<use_for_debug "开始:公式参数项">> formalParameter ("," formalParameter)*
+formalParameter::= <<use_for_debug "开始:公式参数">> modifier* typeRef identifier
 
-variableDeclarators::= variableDeclarator ("," variableDeclarator)*
-variableDeclarator::= variableDeclaratorId (ASSIGN expression)?
-variableDeclaratorId::= identifier ('[' ']')*
+variableDeclarators::= <<use_for_debug "开始：变量声明">> variableDeclarator ("," variableDeclarator)* {pin=2}
+//variableDeclarator::= variableDeclaratorId (ASSIGN expression)?
+variableDeclarator::= variableDeclaratorId ("=" expression)? {pin=2}
+variableDeclaratorId::= identifier ('[' ']')* <<use_for_debug "匹配成功：变量声明left">>
 
 annotation::= "@" qualifiedName ( "(" ( elementValuePairs | elementValue )? ")" )? {pin=2}
 qualifiedName::= identifier ("." identifier)*
 elementValuePairs::= elementValuePair (","? elementValuePair)*
-elementValuePair::= identifier ASSIGN elementValue {pin=2}
+elementValuePair::= identifier "=" elementValue
 
 elementValue::= expression
 	| annotation
@@ -354,10 +361,11 @@ elementValue::= expression
 elementValueArrayInitializer::= "{" (elementValue ("," elementValue)*)? (",")? "}"
 
 
-private typeRef::= typeName ("." typeName)* arraySubscripts
+private typeRef::= <<use_for_debug "开始：类型声明">> typeName ("." typeName)* arraySubscripts
 arraySubscripts::= (LBRACK RBRACK)*
-typeName::= typeNameType typeArguments?
-typeNameType::= identifier | LIST | SET | MAP
+typeName::= <<use_for_debug "tryTypeName">> typeNameType typeArguments?
+typeNameType::= identifier {name='参数的类型'}
+//| LIST | SET | MAP
 typeArguments::= "<" typeList ">" {pin=1 name='类型参数'}
 typeList::= typeRef ("," typeRef)*
 modifier::=
@@ -383,62 +391,54 @@ private sharingModifier::= ("with" | "without" ) "sharing"
 /////// 表达式相关的声明，，开始
 // 要想 expression 能解决左递归的报错，需要添加一下 extends(".*expr")=expr
 // 对于expressin 内的元素，除来相同层级的xxx_group,内层的xxx_expr 元素禁 用private，否则还是会被识别为 左递归的
-expression::= expr
+// 使用 !("}") 提前预测，剪枝 if  statement else statement 中 statemen的 } 和 之后的语句无法匹配，造成死循环的问题
+expression::= <<use_for_debug "开始:表达式">> !("}" | ")" | "," | ";" | ".") expr <<use_for_debug "匹配成功：表达式">>
 expr::=
-     primary_expr
-//    | right_expression_group
-	| neg_expression_expr
-	| methodCall_expr
-	| new_creator_expr
-	| paren_typef_expr
-    | paren_expr
-//    | left_recursion_group
-	| question_expr
-	| dot_expr
-	| array_expr
-	| inc_dec_expr
-	| mul_div_expr
-	| add_sub_expr
-	| lt_gt_expr
-	| lt_gt_assi_expr
-	| instance_expr
-	| logic_expr
-	| bit_and_expr
-	| caret_expr
-	| bitor_expr
-	| and_expr
-	| or_expr
-	| coal_expr
 
-	| multi_assign_expr
-	{recoverWhile=cemaRw}
-private cemaRw::=!(':')
+	 neg_expression_expr   // ~a    !a
+	| dot_expr              // a.x   ,如：a.b      a.b()
+							// aaa().x   = 函数调用.dot调用
+	| methodCall_expr       // xxx(a,b,c)   this(a,b,c)     super(a,b,c)
+	| new_creator_expr      // new a()  new a(exp,exp)  new a{} new a[1,2,3]    new a{ exp => exp,,}    new a{1,2,3}
+	| cast_expr             // (a)b         类型转换表达式
+    | sub_expr              // (a)
+
+	| question_expr         // a ? b : c
+	| multi_assign_expr     // a = b    a+=b    a-=b    a*=b... a>>=b   a>>>=b  a<<=b
+
+	| array_expr            // a[b]
+	| inc_dec_expr          // a++  b--
+	| mul_div_expr          // a*b       a/b
+	| add_sub_expr          // a+b       a-b
+	| lt_gt_expr            // a << b       a <<< b     a >> b
+	| lt_gt_assi_expr       // a <= b       a >= b
+	| instance_expr         // a instanceof b
+	| logic_expr            // a === b  a!==b   a==b    a!=b    a<>b
+	| bit_and_expr          // a&b
+	| caret_expr            // a&b
+	| bitor_expr            // a|b
+	| and_expr              // a&&b
+	| or_expr               // a||b
+	| coal_expr             // a??b
+	| literal_expr            //  xxxx 'xx' 123 this super  void.class       xxx.class  字面量，不可能是函数调用、方法调用、下标调用的内容
+//	| primary_expr
+//	{recoverWhile=cemaRw}
+//private cemaRw::=!(':')
 
 //      {extraRoot=true}
 
-//private primary_group ::= primary_expr
-//	| simple_ref_expr
-//private left_recursion_group ::= dot_expr
-//	| array_expr
-//	| inc_dec_expr
-//	| mul_div_expr | add_sub_expr
-//	| lt_gt_expr | lt_gt_assi_expr
-//	| instance_expr
-//	| logic_expr
-//	| bit_and_expr | caret_expr | bitor_expr | and_expr | or_expr | coal_expr
-//	| question_expr  | multi_assign_expr
-
-//private right_expression_group::= neg_expression_expr
-//	| methodCall_expr
-//	| new_creator_expr
-//	| paren_typef_expr
-//    | paren_expr
-
-paren_typef_expr::= "(" typeRef ")" expr
-paren_expr::= "(" expr ")"
+cast_expr::= "(" typeRef ")" expr
+sub_expr::= "(" expr ")"
 
 // 左递归的内容，得一个一个的去声明
-dot_expr::= expr ( "." | "?.") ( dotMethodCall | anyId )  {pin=2 name='dotExpression'}
+//  使用 (identifier | expr) 提前命中 xxx(yy   的情况，避免左递归一直死循环
+dot_expr::=<<use_for_debug "开始：.调用表达式" >>
+identifier  ( "." | "?.")  (expression |  anyId )*   <<use_for_debug "成功匹配：.调用表达式" >>  { name='dotExpression'}
+//dotMethodCall::= <<use_for_debug "开始：.调用的后半段">> identifier "(" expressionList? ")"
+
+// methodCall_expr::= (identifier | "THIS" | "SUPER") "(" expressionList? ")" {pin=2 name="函数调用"}
+methodCall_expr::=<<use_for_debug "开始：函数调用">>  identifier "("  <<use_for_debug "函数调用的参数们">> expressionList? ")" expression? {pin=3 name="函数调用"}
+
 inc_dec_expr::= expr ("++" | "--")
 array_expr::= expr "[" expr "]"
 mul_div_expr::= expr ("*"|"/") expr
@@ -446,69 +446,67 @@ add_sub_expr::= expr ("+"|"-") expr
 lt_gt_expr::= expr ("<<" | ">>>" | ">>") expr
 lt_gt_assi_expr::=  expr (">" | "<") ASSIGN? expr
 instance_expr::= expr "INSTANCEOF" typeRef
-logic_expr::= expr ("===" | "!==" | "==" | "!=" | LESSANDGREATER ) expr
+logic_expr::= expr ("===" | "!==" | "==" | "!=" | "<>" ) expr
 bit_and_expr::= expr "&" expr
 caret_expr::= expr "^" expr
 bitor_expr::= expr "|" expr
 and_expr::= expr "&&" expr
 or_expr::= expr "||" expr
-coal_expr::= expr "??" expr {pin=2}
+coal_expr::= expr "??" expr { pin=2 }
 question_expr::= expr "?" expr ":" expr   { pin=4 rightAssociative=true }
-multi_assign_expr::= expr
-  (   ASSIGN
-      |   ADD_ASSIGN
-      |   SUB_ASSIGN
-      |   MUL_ASSIGN
-      |   DIV_ASSIGN
-      |   AND_ASSIGN
-      |   OR_ASSIGN
-      |   XOR_ASSIGN
-      |   RSHIFT_ASSIGN
-      |   URSHIFT_ASSIGN
-      |   LSHIFT_ASSIGN
-  ) expr  { pin=2 rightAssociative=true }
+//TODO 这里也可能有递归调用的问题
+multi_assign_expr::= <<use_for_debug "开始匹配：赋值语句">> expr
+  (   "="
+      |   "+="
+      |   "-="
+      |   "*="
+      |   "/="
+      |   "&="
+      |   "!="
+      |   "^="
+      |   ">>="
+      |   ">>>="
+      |   "<<="
+  ) expr  {rightAssociative=true }
 
-primary_expr::= primary
+//primary_expr::= <<use_for_debug "尝试匹配基本元素">> identifier
+
 //simple_ref_expr ::= identifier
-neg_expression_expr::= (TILDE|BANG) expr
-new_creator_expr::= NEW creator {pin=1}
+neg_expression_expr::= ("~"|"!") expr
+new_creator_expr::= "NEW" creator {pin=1}
 creator::=  createdName ( "{" "}" | arguments | arrayCreatorRest | mapCreatorRest | setCreatorRest)
-createdName::= idCreatedNamePair ("." idCreatedNamePair)*
+createdName::= idCreatedNamePair ("." idCreatedNamePair)* {pin(".*")=1}
 idCreatedNamePair::= anyId ("<" typeList ">")?
 arguments::= "(" expressionList? ")"
 arrayCreatorRest::= "[" expr "]" | "[]" arrayInitializer?
 mapCreatorRest::= "{" mapCreatorRestPair ("," mapCreatorRestPair )* "}"
 setCreatorRest ::= "{" expr ("," ( expr ))* "}"
-mapCreatorRestPair::= expr "=>" expr
+mapCreatorRestPair::=  expr "=>" expr
 
 
 arrayInitializer::= "{" (expr ("," expr)* (",")? )? "}"
 
-dotMethodCall::= identifier "(" expressionList? ")" {pin=2}
-expressionList::= expression ("," expression)*
-methodCall_expr::= (identifier | "THIS" | "SUPER") "(" expressionList? ")" {pin=2}
+
+expressionList::=  <<use_for_debug "尝试匹配函数调用的参数们">> expression (<<use_for_debug "尝试匹配函数调用的不定参数">> "," expression)* {pin(".*")=3}
+
 /////// 表达式相关的声明，，结束
 
 
-private primary::= "THIS"
-    | "SUPER"
-    | typeRef "." CLASS
-    | "VOID" "." CLASS
-    | identifier
-    | literal
+//private primary::= identifier
 
 
-literal::=
-	 "NULL"
-	| integerliteralpattern
-    | longliteralpattern
-    | numberliteralpattern
-    | SINGLEQUOTESTRINGLITERAL
-    | BooleanLiteral
-//    | SOQL_LITERAL
-	| soqlBlock
-soqlBlock::="[" "SELECT" identifier* "]"{pin = 3}
+literal_expr::= identifier | literal | classSomeThing <<use_for_debug "匹配成功：字面量">>
+private classSomeThing::= <<use_for_debug "开始：class类型">> ("VOID" | typeRef ) "." CLASS
+
+literal::= soqlBlock | simpleLiteral
+
+private simpleLiteral::= "NULL"
+                       	| integerliteralpattern
+                           | longliteralpattern
+                           | numberliteralpattern
+                           | SINGLEQUOTESTRINGLITERAL
+                           | BooleanLiteral
 BooleanLiteral::= ('TRUE'|'FALSE')
 
-
-anyId::=   SET | MAP | LIST |  identifier
+soqlBlock::="[" "SELECT" (identifier | "," | "(" | ")" | "{" | "}" | "<" | ">" | "=" | ":" | "." | "NEW" | simpleLiteral)* "]"{pin = 2}
+anyId::=  identifier | "CLASS"

@@ -37,11 +37,11 @@ public class ApexParser implements PsiParser, LightPsiParser {
 
   public static final TokenSet[] EXTENDS_SETS_ = new TokenSet[] {
     create_token_set_(ADD_SUB_EXPR, AND_EXPR, ARRAY_EXPR, BITOR_EXPR,
-      BIT_AND_EXPR, CARET_EXPR, COAL_EXPR, DOT_EXPR,
-      EXPR, INC_DEC_EXPR, INSTANCE_EXPR, LOGIC_EXPR,
-      LT_GT_ASSI_EXPR, LT_GT_EXPR, METHOD_CALL_EXPR, MULTI_ASSIGN_EXPR,
-      MUL_DIV_EXPR, NEG_EXPRESSION_EXPR, NEW_CREATOR_EXPR, OR_EXPR,
-      PAREN_EXPR, PAREN_TYPEF_EXPR, PRIMARY_EXPR, QUESTION_EXPR),
+      BIT_AND_EXPR, CARET_EXPR, CAST_EXPR, COAL_EXPR,
+      DOT_EXPR, EXPR, INC_DEC_EXPR, INSTANCE_EXPR,
+      LITERAL_EXPR, LOGIC_EXPR, LT_GT_ASSI_EXPR, LT_GT_EXPR,
+      METHOD_CALL_EXPR, MULTI_ASSIGN_EXPR, MUL_DIV_EXPR, NEG_EXPRESSION_EXPR,
+      NEW_CREATOR_EXPR, OR_EXPR, QUESTION_EXPR, SUB_EXPR),
   };
 
   /* ********************************************************** */
@@ -129,15 +129,13 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // SET | MAP | LIST |  identifier
+  // identifier | "CLASS"
   public static boolean anyId(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "anyId")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, ANY_ID, "<any id>");
-    r = consumeToken(b, SET);
-    if (!r) r = consumeToken(b, MAP);
-    if (!r) r = consumeToken(b, LIST);
-    if (!r) r = consumeToken(b, IDENTIFIER);
+    r = consumeToken(b, IDENTIFIER);
+    if (!r) r = consumeToken(b, "CLASS");
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -298,27 +296,27 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // "{" statement* "}"
+  // <<use_for_debug "开始:普通语句块">> "{" statement* "}" <<use_for_debug "匹配成功：语句块">>
   public static boolean block(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "block")) return false;
-    if (!nextTokenIs(b, "<block语句>", LBRACE)) return false;
-    boolean r, p;
+    boolean r;
     Marker m = enter_section_(b, l, _NONE_, BLOCK, "<block语句>");
-    r = consumeToken(b, LBRACE);
-    p = r; // pin = 1
-    r = r && report_error_(b, block_1(b, l + 1));
-    r = p && consumeToken(b, RBRACE) && r;
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
+    r = use_for_debug(b, l + 1, "开始:普通语句块");
+    r = r && consumeToken(b, LBRACE);
+    r = r && block_2(b, l + 1);
+    r = r && consumeToken(b, RBRACE);
+    r = r && use_for_debug(b, l + 1, "匹配成功：语句块");
+    exit_section_(b, l, m, r, false, null);
+    return r;
   }
 
   // statement*
-  private static boolean block_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "block_1")) return false;
+  private static boolean block_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "block_2")) return false;
     while (true) {
       int c = current_position_(b);
       if (!statement(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "block_1", c)) break;
+      if (!empty_element_parsed_guard_(b, "block_2", c)) break;
     }
     return true;
   }
@@ -327,12 +325,13 @@ public class ApexParser implements PsiParser, LightPsiParser {
   // "BREAK" SEMI
   static boolean breakStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "breakStatement")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
     r = consumeToken(b, "BREAK");
+    p = r; // pin = 1
     r = r && consumeToken(b, SEMI);
-    exit_section_(b, m, null, r);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
@@ -361,17 +360,6 @@ public class ApexParser implements PsiParser, LightPsiParser {
       if (!empty_element_parsed_guard_(b, "catchClause_2", c)) break;
     }
     return true;
-  }
-
-  /* ********************************************************** */
-  // !(':')
-  static boolean cemaRw(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "cemaRw")) return false;
-    boolean r;
-    Marker m = enter_section_(b, l, _NOT_);
-    r = !consumeToken(b, COLON);
-    exit_section_(b, l, m, r, false, null);
-    return r;
   }
 
   /* ********************************************************** */
@@ -479,6 +467,28 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // <<use_for_debug "开始：class类型">> ("VOID" | typeRef ) "." CLASS
+  static boolean classSomeThing(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "classSomeThing")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = use_for_debug(b, l + 1, "开始：class类型");
+    r = r && classSomeThing_1(b, l + 1);
+    r = r && consumeTokens(b, 0, DOT, CLASS);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // "VOID" | typeRef
+  private static boolean classSomeThing_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "classSomeThing_1")) return false;
+    boolean r;
+    r = consumeToken(b, "VOID");
+    if (!r) r = typeRef(b, l + 1);
+    return r;
+  }
+
+  /* ********************************************************** */
   // modifier*  typeDeclaration
   public static boolean classUnit(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "classUnit")) return false;
@@ -502,16 +512,16 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // qualifiedName formalParameters block
+  // <<use_for_debug "开始匹配：构造器">> qualifiedName formalParameters block
   public static boolean constructorDeclaration(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "constructorDeclaration")) return false;
-    if (!nextTokenIs(b, IDENTIFIER)) return false;
     boolean r;
-    Marker m = enter_section_(b);
-    r = qualifiedName(b, l + 1);
+    Marker m = enter_section_(b, l, _NONE_, CONSTRUCTOR_DECLARATION, "<constructor declaration>");
+    r = use_for_debug(b, l + 1, "开始匹配：构造器");
+    r = r && qualifiedName(b, l + 1);
     r = r && formalParameters(b, l + 1);
     r = r && block(b, l + 1);
-    exit_section_(b, m, CONSTRUCTOR_DECLARATION, r);
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 
@@ -519,24 +529,26 @@ public class ApexParser implements PsiParser, LightPsiParser {
   // "CONTINUE" SEMI
   static boolean continueStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "continueStatement")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
     r = consumeToken(b, "CONTINUE");
+    p = r; // pin = 1
     r = r && consumeToken(b, SEMI);
-    exit_section_(b, m, null, r);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
   // idCreatedNamePair ("." idCreatedNamePair)*
   public static boolean createdName(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "createdName")) return false;
-    boolean r;
+    boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, CREATED_NAME, "<created name>");
     r = idCreatedNamePair(b, l + 1);
+    p = r; // pin = 1
     r = r && createdName_1(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // ("." idCreatedNamePair)*
@@ -553,12 +565,13 @@ public class ApexParser implements PsiParser, LightPsiParser {
   // "." idCreatedNamePair
   private static boolean createdName_1_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "createdName_1_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
     r = consumeToken(b, DOT);
+    p = r; // pin = 1
     r = r && idCreatedNamePair(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
@@ -591,14 +604,15 @@ public class ApexParser implements PsiParser, LightPsiParser {
   // "DELETE" accessLevel? expression SEMI
   static boolean deleteStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "deleteStatement")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
     r = consumeToken(b, "DELETE");
-    r = r && deleteStatement_1(b, l + 1);
-    r = r && expression(b, l + 1);
-    r = r && consumeToken(b, SEMI);
-    exit_section_(b, m, null, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, deleteStatement_1(b, l + 1));
+    r = p && report_error_(b, expression(b, l + 1)) && r;
+    r = p && consumeToken(b, SEMI) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // accessLevel?
@@ -622,28 +636,6 @@ public class ApexParser implements PsiParser, LightPsiParser {
     r = p && consumeToken(b, SEMI) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
-  }
-
-  /* ********************************************************** */
-  // identifier "(" expressionList? ")"
-  public static boolean dotMethodCall(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "dotMethodCall")) return false;
-    if (!nextTokenIs(b, IDENTIFIER)) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, DOT_METHOD_CALL, null);
-    r = consumeTokens(b, 2, IDENTIFIER, LPAREN);
-    p = r; // pin = 2
-    r = r && report_error_(b, dotMethodCall_2(b, l + 1));
-    r = p && consumeToken(b, RPAREN) && r;
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
-  }
-
-  // expressionList?
-  private static boolean dotMethodCall_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "dotMethodCall_2")) return false;
-    expressionList(b, l + 1);
-    return true;
   }
 
   /* ********************************************************** */
@@ -724,17 +716,16 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // identifier ASSIGN elementValue
+  // identifier "=" elementValue
   public static boolean elementValuePair(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "elementValuePair")) return false;
     if (!nextTokenIs(b, IDENTIFIER)) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, ELEMENT_VALUE_PAIR, null);
-    r = consumeTokens(b, 2, IDENTIFIER, ASSIGN);
-    p = r; // pin = 2
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeTokens(b, 0, IDENTIFIER, ASSIGN);
     r = r && elementValue(b, l + 1);
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
+    exit_section_(b, m, ELEMENT_VALUE_PAIR, r);
+    return r;
   }
 
   /* ********************************************************** */
@@ -793,58 +784,87 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // expr
+  // <<use_for_debug "开始:表达式">> !("}" | ")" | "," | ";" | ".") expr <<use_for_debug "匹配成功：表达式">>
   public static boolean expression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "expression")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, EXPRESSION, "<expression>");
-    r = expr(b, l + 1, -1);
+    r = use_for_debug(b, l + 1, "开始:表达式");
+    r = r && expression_1(b, l + 1);
+    r = r && expr(b, l + 1, -1);
+    r = r && use_for_debug(b, l + 1, "匹配成功：表达式");
     exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // !("}" | ")" | "," | ";" | ".")
+  private static boolean expression_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "expression_1")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NOT_);
+    r = !expression_1_0(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // "}" | ")" | "," | ";" | "."
+  private static boolean expression_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "expression_1_0")) return false;
+    boolean r;
+    r = consumeToken(b, RBRACE);
+    if (!r) r = consumeToken(b, RPAREN);
+    if (!r) r = consumeToken(b, COMMA);
+    if (!r) r = consumeToken(b, SEMI);
+    if (!r) r = consumeToken(b, DOT);
     return r;
   }
 
   /* ********************************************************** */
-  // expression ("," expression)*
+  // <<use_for_debug "尝试匹配函数调用的参数们">> expression (<<use_for_debug "尝试匹配函数调用的不定参数">> "," expression)*
   public static boolean expressionList(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "expressionList")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, EXPRESSION_LIST, "<expression list>");
-    r = expression(b, l + 1);
-    r = r && expressionList_1(b, l + 1);
+    r = use_for_debug(b, l + 1, "尝试匹配函数调用的参数们");
+    r = r && expression(b, l + 1);
+    r = r && expressionList_2(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
 
-  // ("," expression)*
-  private static boolean expressionList_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "expressionList_1")) return false;
+  // (<<use_for_debug "尝试匹配函数调用的不定参数">> "," expression)*
+  private static boolean expressionList_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "expressionList_2")) return false;
     while (true) {
       int c = current_position_(b);
-      if (!expressionList_1_0(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "expressionList_1", c)) break;
+      if (!expressionList_2_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "expressionList_2", c)) break;
     }
     return true;
   }
 
-  // "," expression
-  private static boolean expressionList_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "expressionList_1_0")) return false;
+  // <<use_for_debug "尝试匹配函数调用的不定参数">> "," expression
+  private static boolean expressionList_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "expressionList_2_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeToken(b, COMMA);
+    r = use_for_debug(b, l + 1, "尝试匹配函数调用的不定参数");
+    r = r && consumeToken(b, COMMA);
     r = r && expression(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
   /* ********************************************************** */
-  // expression SEMI
+  // <<use_for_debug "开始：表达式声明">>  expression SEMI <<use_for_debug "匹配成功：表达式语句">>
   public static boolean expressionStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "expressionStatement")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, EXPRESSION_STATEMENT, "<expression statement>");
-    r = expression(b, l + 1);
+    r = use_for_debug(b, l + 1, "开始：表达式声明");
+    r = r && expression(b, l + 1);
     r = r && consumeToken(b, SEMI);
+    r = r && use_for_debug(b, l + 1, "匹配成功：表达式语句");
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -935,13 +955,13 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // FOR "(" forControl ")" (statement | SEMI)
+  // "FOR" "(" forControl ")" (statement | SEMI)
   public static boolean forStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "forStatement")) return false;
-    if (!nextTokenIs(b, FOR)) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, FOR_STATEMENT, null);
-    r = consumeTokens(b, 2, FOR, LPAREN);
+    Marker m = enter_section_(b, l, _NONE_, FOR_STATEMENT, "<for statement>");
+    r = consumeToken(b, "FOR");
+    r = r && consumeToken(b, LPAREN);
     p = r; // pin = 2
     r = r && report_error_(b, forControl(b, l + 1));
     r = p && report_error_(b, consumeToken(b, RPAREN)) && r;
@@ -971,12 +991,13 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // modifier* typeRef identifier
+  // <<use_for_debug "开始:公式参数">> modifier* typeRef identifier
   public static boolean formalParameter(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "formalParameter")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, FORMAL_PARAMETER, "<formal parameter>");
-    r = formalParameter_0(b, l + 1);
+    r = use_for_debug(b, l + 1, "开始:公式参数");
+    r = r && formalParameter_1(b, l + 1);
     r = r && typeRef(b, l + 1);
     r = r && consumeToken(b, IDENTIFIER);
     exit_section_(b, l, m, r, false, null);
@@ -984,42 +1005,43 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   // modifier*
-  private static boolean formalParameter_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "formalParameter_0")) return false;
+  private static boolean formalParameter_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "formalParameter_1")) return false;
     while (true) {
       int c = current_position_(b);
       if (!modifier(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "formalParameter_0", c)) break;
+      if (!empty_element_parsed_guard_(b, "formalParameter_1", c)) break;
     }
     return true;
   }
 
   /* ********************************************************** */
-  // formalParameter ("," formalParameter)*
+  // <<use_for_debug "开始:公式参数项">> formalParameter ("," formalParameter)*
   public static boolean formalParameterList(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "formalParameterList")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, FORMAL_PARAMETER_LIST, "<formal parameter list>");
-    r = formalParameter(b, l + 1);
-    r = r && formalParameterList_1(b, l + 1);
+    r = use_for_debug(b, l + 1, "开始:公式参数项");
+    r = r && formalParameter(b, l + 1);
+    r = r && formalParameterList_2(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
 
   // ("," formalParameter)*
-  private static boolean formalParameterList_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "formalParameterList_1")) return false;
+  private static boolean formalParameterList_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "formalParameterList_2")) return false;
     while (true) {
       int c = current_position_(b);
-      if (!formalParameterList_1_0(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "formalParameterList_1", c)) break;
+      if (!formalParameterList_2_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "formalParameterList_2", c)) break;
     }
     return true;
   }
 
   // "," formalParameter
-  private static boolean formalParameterList_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "formalParameterList_1_0")) return false;
+  private static boolean formalParameterList_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "formalParameterList_2_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, COMMA);
@@ -1029,22 +1051,23 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // "(" formalParameterList? ")"
+  // <<use_for_debug "开始:公式参数们">> "(" formalParameterList? ")" <<use_for_debug "匹配成功:公式参数们">>
   public static boolean formalParameters(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "formalParameters")) return false;
-    if (!nextTokenIs(b, LPAREN)) return false;
     boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, LPAREN);
-    r = r && formalParameters_1(b, l + 1);
+    Marker m = enter_section_(b, l, _NONE_, FORMAL_PARAMETERS, "<formal parameters>");
+    r = use_for_debug(b, l + 1, "开始:公式参数们");
+    r = r && consumeToken(b, LPAREN);
+    r = r && formalParameters_2(b, l + 1);
     r = r && consumeToken(b, RPAREN);
-    exit_section_(b, m, FORMAL_PARAMETERS, r);
+    r = r && use_for_debug(b, l + 1, "匹配成功:公式参数们");
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 
   // formalParameterList?
-  private static boolean formalParameters_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "formalParameters_1")) return false;
+  private static boolean formalParameters_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "formalParameters_2")) return false;
     formalParameterList(b, l + 1);
     return true;
   }
@@ -1081,31 +1104,33 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // IF parExpression statement ("ELSE" statement)?
+  // <<use_for_debug "开始：匹配If语句">> "IF" parExpression  <<use_for_debug "开始：if的statement">> statement ("ELSE" statement)?   <<use_for_debug "匹配成功：if语句">>
   public static boolean ifStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ifStatement")) return false;
-    if (!nextTokenIs(b, "<匹配到了ifStatement>", IF)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, IF_STATEMENT, "<匹配到了ifStatement>");
-    r = consumeToken(b, IF);
-    p = r; // pin = 1
+    r = use_for_debug(b, l + 1, "开始：匹配If语句");
+    r = r && consumeToken(b, "IF");
+    p = r; // pin = 2
     r = r && report_error_(b, parExpression(b, l + 1));
+    r = p && report_error_(b, use_for_debug(b, l + 1, "开始：if的statement")) && r;
     r = p && report_error_(b, statement(b, l + 1)) && r;
-    r = p && ifStatement_3(b, l + 1) && r;
+    r = p && report_error_(b, ifStatement_5(b, l + 1)) && r;
+    r = p && use_for_debug(b, l + 1, "匹配成功：if语句") && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
   // ("ELSE" statement)?
-  private static boolean ifStatement_3(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ifStatement_3")) return false;
-    ifStatement_3_0(b, l + 1);
+  private static boolean ifStatement_5(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ifStatement_5")) return false;
+    ifStatement_5_0(b, l + 1);
     return true;
   }
 
   // "ELSE" statement
-  private static boolean ifStatement_3_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ifStatement_3_0")) return false;
+  private static boolean ifStatement_5_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ifStatement_5_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, "ELSE");
@@ -1118,14 +1143,15 @@ public class ApexParser implements PsiParser, LightPsiParser {
   // "INSERT" accessLevel? expression SEMI
   static boolean insertStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "insertStatement")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
     r = consumeToken(b, "INSERT");
-    r = r && insertStatement_1(b, l + 1);
-    r = r && expression(b, l + 1);
-    r = r && consumeToken(b, SEMI);
-    exit_section_(b, m, null, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, insertStatement_1(b, l + 1));
+    r = p && report_error_(b, expression(b, l + 1)) && r;
+    r = p && consumeToken(b, SEMI) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // accessLevel?
@@ -1136,25 +1162,13 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // "NULL"
-  // 	| integerliteralpattern
-  //     | longliteralpattern
-  //     | numberliteralpattern
-  //     | SINGLEQUOTESTRINGLITERAL
-  //     | BooleanLiteral
-  // //    | SOQL_LITERAL
-  // 	| soqlBlock
+  // soqlBlock | simpleLiteral
   public static boolean literal(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "literal")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, LITERAL, "<literal>");
-    r = consumeToken(b, "NULL");
-    if (!r) r = consumeToken(b, INTEGERLITERALPATTERN);
-    if (!r) r = consumeToken(b, LONGLITERALPATTERN);
-    if (!r) r = consumeToken(b, NUMBERLITERALPATTERN);
-    if (!r) r = consumeToken(b, SINGLEQUOTESTRINGLITERAL);
-    if (!r) r = BooleanLiteral(b, l + 1);
-    if (!r) r = soqlBlock(b, l + 1);
+    r = soqlBlock(b, l + 1);
+    if (!r) r = simpleLiteral(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -1184,13 +1198,15 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // localVariableDeclaration SEMI
+  // <<use_for_debug "开始：本地变量声明">> localVariableDeclaration SEMI <<use_for_debug "匹配成功：本地变量声明">>
   public static boolean localVariableDeclarationStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "localVariableDeclarationStatement")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, LOCAL_VARIABLE_DECLARATION_STATEMENT, "<local variable declaration statement>");
-    r = localVariableDeclaration(b, l + 1);
+    r = use_for_debug(b, l + 1, "开始：本地变量声明");
+    r = r && localVariableDeclaration(b, l + 1);
     r = r && consumeToken(b, SEMI);
+    r = r && use_for_debug(b, l + 1, "匹配成功：本地变量声明");
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -1246,7 +1262,7 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // constructorDeclaration
+  // <<use_for_debug "开始：匹配成员声明">> constructorDeclaration
   // 	| fieldDeclaration
   // 	| methodDeclaration
   // //    | interfaceDeclaration
@@ -1255,7 +1271,7 @@ public class ApexParser implements PsiParser, LightPsiParser {
     if (!recursion_guard_(b, l, "memberDeclaration")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, MEMBER_DECLARATION, "<member declaration>");
-    r = constructorDeclaration(b, l + 1);
+    r = memberDeclaration_0(b, l + 1);
     if (!r) r = fieldDeclaration(b, l + 1);
     if (!r) r = methodDeclaration(b, l + 1);
     if (!r) r = classDeclaration(b, l + 1);
@@ -1263,19 +1279,31 @@ public class ApexParser implements PsiParser, LightPsiParser {
     return r;
   }
 
+  // <<use_for_debug "开始：匹配成员声明">> constructorDeclaration
+  private static boolean memberDeclaration_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "memberDeclaration_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = use_for_debug(b, l + 1, "开始：匹配成员声明");
+    r = r && constructorDeclaration(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
   /* ********************************************************** */
   // "MERGE" accessLevel? expression expression SEMI
   static boolean mergeStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "mergeStatement")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
     r = consumeToken(b, "MERGE");
-    r = r && mergeStatement_1(b, l + 1);
-    r = r && expression(b, l + 1);
-    r = r && expression(b, l + 1);
-    r = r && consumeToken(b, SEMI);
-    exit_section_(b, m, null, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, mergeStatement_1(b, l + 1));
+    r = p && report_error_(b, expression(b, l + 1)) && r;
+    r = p && report_error_(b, expression(b, l + 1)) && r;
+    r = p && consumeToken(b, SEMI) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // accessLevel?
@@ -1286,7 +1314,7 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // ( typeRef | "VOID") identifier  formalParameters  ( block | SEMI )
+  // (  "VOID" | typeRef ) identifier formalParameters  ( block | SEMI ) <<use_for_debug "匹配成功:方法">>
   public static boolean methodDeclaration(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "methodDeclaration")) return false;
     boolean r;
@@ -1295,16 +1323,17 @@ public class ApexParser implements PsiParser, LightPsiParser {
     r = r && consumeToken(b, IDENTIFIER);
     r = r && formalParameters(b, l + 1);
     r = r && methodDeclaration_3(b, l + 1);
+    r = r && use_for_debug(b, l + 1, "匹配成功:方法");
     exit_section_(b, l, m, r, false, null);
     return r;
   }
 
-  // typeRef | "VOID"
+  // "VOID" | typeRef
   private static boolean methodDeclaration_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "methodDeclaration_0")) return false;
     boolean r;
-    r = typeRef(b, l + 1);
-    if (!r) r = consumeToken(b, "VOID");
+    r = consumeToken(b, "VOID");
+    if (!r) r = typeRef(b, l + 1);
     return r;
   }
 
@@ -1355,60 +1384,17 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // "(" expression ")"
+  // "(" expression ")"  <<use_for_debug "匹配成功：if语句的条件">>
   public static boolean parExpression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "parExpression")) return false;
     if (!nextTokenIs(b, LPAREN)) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, PAR_EXPRESSION, null);
+    boolean r;
+    Marker m = enter_section_(b);
     r = consumeToken(b, LPAREN);
-    p = r; // pin = 1
-    r = r && report_error_(b, expression(b, l + 1));
-    r = p && consumeToken(b, RPAREN) && r;
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
-  }
-
-  /* ********************************************************** */
-  // "THIS"
-  //     | "SUPER"
-  //     | typeRef "." CLASS
-  //     | "VOID" "." CLASS
-  //     | identifier
-  //     | literal
-  static boolean primary(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "primary")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, "THIS");
-    if (!r) r = consumeToken(b, "SUPER");
-    if (!r) r = primary_2(b, l + 1);
-    if (!r) r = primary_3(b, l + 1);
-    if (!r) r = consumeToken(b, IDENTIFIER);
-    if (!r) r = literal(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // typeRef "." CLASS
-  private static boolean primary_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "primary_2")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = typeRef(b, l + 1);
-    r = r && consumeTokens(b, 0, DOT, CLASS);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // "VOID" "." CLASS
-  private static boolean primary_3(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "primary_3")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, "VOID");
-    r = r && consumeTokens(b, 0, DOT, CLASS);
-    exit_section_(b, m, null, r);
+    r = r && expression(b, l + 1);
+    r = r && consumeToken(b, RPAREN);
+    r = r && use_for_debug(b, l + 1, "匹配成功：if语句的条件");
+    exit_section_(b, m, PAR_EXPRESSION, r);
     return r;
   }
 
@@ -1447,22 +1433,23 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // "RETURN" expression? ";"
+  // <<use_for_debug "开始:return语句">> "RETURN" expression? ";"
   public static boolean returnStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "returnStatement")) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, RETURN_STATEMENT, "<return statement>");
-    r = consumeToken(b, "RETURN");
-    p = r; // pin = 1
-    r = r && report_error_(b, returnStatement_1(b, l + 1));
+    r = use_for_debug(b, l + 1, "开始:return语句");
+    r = r && consumeToken(b, "RETURN");
+    p = r; // pin = 2
+    r = r && report_error_(b, returnStatement_2(b, l + 1));
     r = p && consumeToken(b, SEMI) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
   // expression?
-  private static boolean returnStatement_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "returnStatement_1")) return false;
+  private static boolean returnStatement_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "returnStatement_2")) return false;
     expression(b, l + 1);
     return true;
   }
@@ -1472,14 +1459,15 @@ public class ApexParser implements PsiParser, LightPsiParser {
   static boolean runAsStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "runAsStatement")) return false;
     if (!nextTokenIs(b, SYSTEMRUNAS)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, SYSTEMRUNAS, LPAREN);
-    r = r && runAsStatement_2(b, l + 1);
-    r = r && consumeToken(b, RPAREN);
-    r = r && block(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeTokens(b, 1, SYSTEMRUNAS, LPAREN);
+    p = r; // pin = 1
+    r = r && report_error_(b, runAsStatement_2(b, l + 1));
+    r = p && report_error_(b, consumeToken(b, RPAREN)) && r;
+    r = p && block(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // expressionList?
@@ -1559,7 +1547,26 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // "[" "SELECT" identifier* "]"
+  // "NULL"
+  //                        	| integerliteralpattern
+  //                            | longliteralpattern
+  //                            | numberliteralpattern
+  //                            | SINGLEQUOTESTRINGLITERAL
+  //                            | BooleanLiteral
+  static boolean simpleLiteral(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "simpleLiteral")) return false;
+    boolean r;
+    r = consumeToken(b, "NULL");
+    if (!r) r = consumeToken(b, INTEGERLITERALPATTERN);
+    if (!r) r = consumeToken(b, LONGLITERALPATTERN);
+    if (!r) r = consumeToken(b, NUMBERLITERALPATTERN);
+    if (!r) r = consumeToken(b, SINGLEQUOTESTRINGLITERAL);
+    if (!r) r = BooleanLiteral(b, l + 1);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // "[" "SELECT" (identifier | "," | "(" | ")" | "{" | "}" | "<" | ">" | "=" | ":" | "." | "NEW" | simpleLiteral)* "]"
   public static boolean soqlBlock(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "soqlBlock")) return false;
     if (!nextTokenIs(b, LBRACK)) return false;
@@ -1567,27 +1574,46 @@ public class ApexParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NONE_, SOQL_BLOCK, null);
     r = consumeToken(b, LBRACK);
     r = r && consumeToken(b, "SELECT");
-    r = r && soqlBlock_2(b, l + 1);
-    p = r; // pin = 3
-    r = r && consumeToken(b, RBRACK);
+    p = r; // pin = 2
+    r = r && report_error_(b, soqlBlock_2(b, l + 1));
+    r = p && consumeToken(b, RBRACK) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
-  // identifier*
+  // (identifier | "," | "(" | ")" | "{" | "}" | "<" | ">" | "=" | ":" | "." | "NEW" | simpleLiteral)*
   private static boolean soqlBlock_2(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "soqlBlock_2")) return false;
     while (true) {
       int c = current_position_(b);
-      if (!consumeToken(b, IDENTIFIER)) break;
+      if (!soqlBlock_2_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "soqlBlock_2", c)) break;
     }
     return true;
   }
 
+  // identifier | "," | "(" | ")" | "{" | "}" | "<" | ">" | "=" | ":" | "." | "NEW" | simpleLiteral
+  private static boolean soqlBlock_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "soqlBlock_2_0")) return false;
+    boolean r;
+    r = consumeToken(b, IDENTIFIER);
+    if (!r) r = consumeToken(b, COMMA);
+    if (!r) r = consumeToken(b, LPAREN);
+    if (!r) r = consumeToken(b, RPAREN);
+    if (!r) r = consumeToken(b, LBRACE);
+    if (!r) r = consumeToken(b, RBRACE);
+    if (!r) r = consumeToken(b, LT);
+    if (!r) r = consumeToken(b, GT);
+    if (!r) r = consumeToken(b, ASSIGN);
+    if (!r) r = consumeToken(b, COLON);
+    if (!r) r = consumeToken(b, DOT);
+    if (!r) r = consumeToken(b, "NEW");
+    if (!r) r = simpleLiteral(b, l + 1);
+    return r;
+  }
+
   /* ********************************************************** */
-  // block
-  //     | ifStatement
+  // ifStatement
   //     | switchStatement
   //     | forStatement
   //     | whileStatement
@@ -1604,14 +1630,14 @@ public class ApexParser implements PsiParser, LightPsiParser {
   //     | upsertStatement
   //     | mergeStatement
   //     | runAsStatement
+  //     | block
   //     | localVariableDeclarationStatement
   //     | expressionStatement
   public static boolean statement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "statement")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, STATEMENT, "<statement>");
-    r = block(b, l + 1);
-    if (!r) r = ifStatement(b, l + 1);
+    r = ifStatement(b, l + 1);
     if (!r) r = switchStatement(b, l + 1);
     if (!r) r = forStatement(b, l + 1);
     if (!r) r = whileStatement(b, l + 1);
@@ -1628,6 +1654,7 @@ public class ApexParser implements PsiParser, LightPsiParser {
     if (!r) r = upsertStatement(b, l + 1);
     if (!r) r = mergeStatement(b, l + 1);
     if (!r) r = runAsStatement(b, l + 1);
+    if (!r) r = block(b, l + 1);
     if (!r) r = localVariableDeclarationStatement(b, l + 1);
     if (!r) r = expressionStatement(b, l + 1);
     exit_section_(b, l, m, r, false, null);
@@ -1799,65 +1826,65 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // typeNameType typeArguments?
+  // <<use_for_debug "tryTypeName">> typeNameType typeArguments?
   public static boolean typeName(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "typeName")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, TYPE_NAME, "<type name>");
-    r = typeNameType(b, l + 1);
-    r = r && typeName_1(b, l + 1);
+    r = use_for_debug(b, l + 1, "tryTypeName");
+    r = r && typeNameType(b, l + 1);
+    r = r && typeName_2(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
 
   // typeArguments?
-  private static boolean typeName_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "typeName_1")) return false;
+  private static boolean typeName_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "typeName_2")) return false;
     typeArguments(b, l + 1);
     return true;
   }
 
   /* ********************************************************** */
-  // identifier | LIST | SET | MAP
+  // identifier
   public static boolean typeNameType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "typeNameType")) return false;
+    if (!nextTokenIs(b, "<参数的类型>", IDENTIFIER)) return false;
     boolean r;
-    Marker m = enter_section_(b, l, _NONE_, TYPE_NAME_TYPE, "<type name type>");
+    Marker m = enter_section_(b, l, _NONE_, TYPE_NAME_TYPE, "<参数的类型>");
     r = consumeToken(b, IDENTIFIER);
-    if (!r) r = consumeToken(b, LIST);
-    if (!r) r = consumeToken(b, SET);
-    if (!r) r = consumeToken(b, MAP);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
 
   /* ********************************************************** */
-  // typeName ("." typeName)* arraySubscripts
+  // <<use_for_debug "开始：类型声明">> typeName ("." typeName)* arraySubscripts
   static boolean typeRef(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "typeRef")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = typeName(b, l + 1);
-    r = r && typeRef_1(b, l + 1);
+    r = use_for_debug(b, l + 1, "开始：类型声明");
+    r = r && typeName(b, l + 1);
+    r = r && typeRef_2(b, l + 1);
     r = r && arraySubscripts(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
   // ("." typeName)*
-  private static boolean typeRef_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "typeRef_1")) return false;
+  private static boolean typeRef_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "typeRef_2")) return false;
     while (true) {
       int c = current_position_(b);
-      if (!typeRef_1_0(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "typeRef_1", c)) break;
+      if (!typeRef_2_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "typeRef_2", c)) break;
     }
     return true;
   }
 
   // "." typeName
-  private static boolean typeRef_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "typeRef_1_0")) return false;
+  private static boolean typeRef_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "typeRef_2_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, DOT);
@@ -1870,14 +1897,15 @@ public class ApexParser implements PsiParser, LightPsiParser {
   // "UNDELETE" accessLevel? expression SEMI
   static boolean undeleteStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "undeleteStatement")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
     r = consumeToken(b, "UNDELETE");
-    r = r && undeleteStatement_1(b, l + 1);
-    r = r && expression(b, l + 1);
-    r = r && consumeToken(b, SEMI);
-    exit_section_(b, m, null, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, undeleteStatement_1(b, l + 1));
+    r = p && report_error_(b, expression(b, l + 1)) && r;
+    r = p && consumeToken(b, SEMI) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // accessLevel?
@@ -1891,14 +1919,15 @@ public class ApexParser implements PsiParser, LightPsiParser {
   // "UPDATE" accessLevel? expression SEMI
   static boolean updateStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "updateStatement")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
     r = consumeToken(b, "UPDATE");
-    r = r && updateStatement_1(b, l + 1);
-    r = r && expression(b, l + 1);
-    r = r && consumeToken(b, SEMI);
-    exit_section_(b, m, null, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, updateStatement_1(b, l + 1));
+    r = p && report_error_(b, expression(b, l + 1)) && r;
+    r = p && consumeToken(b, SEMI) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // accessLevel?
@@ -1912,15 +1941,16 @@ public class ApexParser implements PsiParser, LightPsiParser {
   // "UPSERT" accessLevel? expression qualifiedName? SEMI
   static boolean upsertStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "upsertStatement")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
     r = consumeToken(b, "UPSERT");
-    r = r && upsertStatement_1(b, l + 1);
-    r = r && expression(b, l + 1);
-    r = r && upsertStatement_3(b, l + 1);
-    r = r && consumeToken(b, SEMI);
-    exit_section_(b, m, null, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, upsertStatement_1(b, l + 1));
+    r = p && report_error_(b, expression(b, l + 1)) && r;
+    r = p && report_error_(b, upsertStatement_3(b, l + 1)) && r;
+    r = p && consumeToken(b, SEMI) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // accessLevel?
@@ -1938,7 +1968,7 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // variableDeclaratorId (ASSIGN expression)?
+  // variableDeclaratorId ("=" expression)?
   public static boolean variableDeclarator(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "variableDeclarator")) return false;
     if (!nextTokenIs(b, IDENTIFIER)) return false;
@@ -1950,14 +1980,14 @@ public class ApexParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // (ASSIGN expression)?
+  // ("=" expression)?
   private static boolean variableDeclarator_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "variableDeclarator_1")) return false;
     variableDeclarator_1_0(b, l + 1);
     return true;
   }
 
-  // ASSIGN expression
+  // "=" expression
   private static boolean variableDeclarator_1_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "variableDeclarator_1_0")) return false;
     boolean r;
@@ -1969,7 +1999,7 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // identifier ('[' ']')*
+  // identifier ('[' ']')* <<use_for_debug "匹配成功：变量声明left">>
   public static boolean variableDeclaratorId(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "variableDeclaratorId")) return false;
     if (!nextTokenIs(b, IDENTIFIER)) return false;
@@ -1977,6 +2007,7 @@ public class ApexParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b);
     r = consumeToken(b, IDENTIFIER);
     r = r && variableDeclaratorId_1(b, l + 1);
+    r = r && use_for_debug(b, l + 1, "匹配成功：变量声明left");
     exit_section_(b, m, VARIABLE_DECLARATOR_ID, r);
     return r;
   }
@@ -2003,32 +2034,33 @@ public class ApexParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // variableDeclarator ("," variableDeclarator)*
+  // <<use_for_debug "开始：变量声明">> variableDeclarator ("," variableDeclarator)*
   public static boolean variableDeclarators(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "variableDeclarators")) return false;
-    if (!nextTokenIs(b, IDENTIFIER)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = variableDeclarator(b, l + 1);
-    r = r && variableDeclarators_1(b, l + 1);
-    exit_section_(b, m, VARIABLE_DECLARATORS, r);
-    return r;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, VARIABLE_DECLARATORS, "<variable declarators>");
+    r = use_for_debug(b, l + 1, "开始：变量声明");
+    r = r && variableDeclarator(b, l + 1);
+    p = r; // pin = 2
+    r = r && variableDeclarators_2(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // ("," variableDeclarator)*
-  private static boolean variableDeclarators_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "variableDeclarators_1")) return false;
+  private static boolean variableDeclarators_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "variableDeclarators_2")) return false;
     while (true) {
       int c = current_position_(b);
-      if (!variableDeclarators_1_0(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "variableDeclarators_1", c)) break;
+      if (!variableDeclarators_2_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "variableDeclarators_2", c)) break;
     }
     return true;
   }
 
   // "," variableDeclarator
-  private static boolean variableDeclarators_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "variableDeclarators_1_0")) return false;
+  private static boolean variableDeclarators_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "variableDeclarators_2_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, COMMA);
@@ -2232,14 +2264,14 @@ public class ApexParser implements PsiParser, LightPsiParser {
   /* ********************************************************** */
   // Expression root: expr
   // Operator priority table:
-  // 0: ATOM(primary_expr)
-  // 1: PREFIX(neg_expression_expr)
+  // 0: PREFIX(neg_expression_expr)
+  // 1: ATOM(dot_expr)
   // 2: ATOM(methodCall_expr)
   // 3: ATOM(new_creator_expr)
-  // 4: PREFIX(paren_typef_expr)
-  // 5: PREFIX(paren_expr)
+  // 4: PREFIX(cast_expr)
+  // 5: PREFIX(sub_expr)
   // 6: BINARY(question_expr)
-  // 7: POSTFIX(dot_expr)
+  // 7: ATOM(multi_assign_expr)
   // 8: BINARY(array_expr)
   // 9: POSTFIX(inc_dec_expr)
   // 10: BINARY(mul_div_expr)
@@ -2254,18 +2286,20 @@ public class ApexParser implements PsiParser, LightPsiParser {
   // 19: BINARY(and_expr)
   // 20: BINARY(or_expr)
   // 21: BINARY(coal_expr)
-  // 22: BINARY(multi_assign_expr)
+  // 22: ATOM(literal_expr)
   public static boolean expr(PsiBuilder b, int l, int g) {
     if (!recursion_guard_(b, l, "expr")) return false;
     addVariant(b, "<expr>");
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, "<expr>");
-    r = primary_expr(b, l + 1);
-    if (!r) r = neg_expression_expr(b, l + 1);
+    r = neg_expression_expr(b, l + 1);
+    if (!r) r = dot_expr(b, l + 1);
     if (!r) r = methodCall_expr(b, l + 1);
     if (!r) r = new_creator_expr(b, l + 1);
-    if (!r) r = paren_typef_expr(b, l + 1);
-    if (!r) r = paren_expr(b, l + 1);
+    if (!r) r = cast_expr(b, l + 1);
+    if (!r) r = sub_expr(b, l + 1);
+    if (!r) r = multi_assign_expr(b, l + 1);
+    if (!r) r = literal_expr(b, l + 1);
     p = r;
     r = r && expr_0(b, l + 1, g);
     exit_section_(b, l, m, null, r, p, null);
@@ -2281,10 +2315,6 @@ public class ApexParser implements PsiParser, LightPsiParser {
         r = report_error_(b, expr(b, l, 5));
         r = question_expr_1(b, l + 1) && r;
         exit_section_(b, l, m, QUESTION_EXPR, r, true, null);
-      }
-      else if (g < 7 && dot_expr_0(b, l + 1)) {
-        r = true;
-        exit_section_(b, l, m, DOT_EXPR, r, true, null);
       }
       else if (g < 8 && consumeTokenSmart(b, LBRACK)) {
         r = report_error_(b, expr(b, l, 8));
@@ -2343,25 +2373,11 @@ public class ApexParser implements PsiParser, LightPsiParser {
         r = expr(b, l, 21);
         exit_section_(b, l, m, COAL_EXPR, r, true, null);
       }
-      else if (g < 22 && multi_assign_expr_0(b, l + 1)) {
-        r = expr(b, l, 21);
-        exit_section_(b, l, m, MULTI_ASSIGN_EXPR, r, true, null);
-      }
       else {
         exit_section_(b, l, m, null, false, false, null);
         break;
       }
     }
-    return r;
-  }
-
-  // primary
-  public static boolean primary_expr(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "primary_expr")) return false;
-    boolean r;
-    Marker m = enter_section_(b, l, _NONE_, PRIMARY_EXPR, "<primary expr>");
-    r = primary(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
     return r;
   }
 
@@ -2372,12 +2388,12 @@ public class ApexParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NONE_, null);
     r = neg_expression_expr_0(b, l + 1);
     p = r;
-    r = p && expr(b, l, 1);
+    r = p && expr(b, l, 0);
     exit_section_(b, l, m, NEG_EXPRESSION_EXPR, r, p, null);
     return r || p;
   }
 
-  // TILDE|BANG
+  // "~"|"!"
   private static boolean neg_expression_expr_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "neg_expression_expr_0")) return false;
     boolean r;
@@ -2386,65 +2402,107 @@ public class ApexParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // (identifier | "THIS" | "SUPER") "(" expressionList? ")"
+  // <<use_for_debug "开始：.调用表达式" >>
+  // identifier  ( "." | "?.")  (expression |  anyId )*   <<use_for_debug "成功匹配：.调用表达式" >>
+  public static boolean dot_expr(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "dot_expr")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, DOT_EXPR, "<dotExpression>");
+    r = use_for_debug(b, l + 1, "开始：.调用表达式");
+    r = r && consumeToken(b, IDENTIFIER);
+    r = r && dot_expr_2(b, l + 1);
+    r = r && dot_expr_3(b, l + 1);
+    r = r && use_for_debug(b, l + 1, "成功匹配：.调用表达式");
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // "." | "?."
+  private static boolean dot_expr_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "dot_expr_2")) return false;
+    boolean r;
+    r = consumeTokenSmart(b, DOT);
+    if (!r) r = consumeTokenSmart(b, QUESTIONDOT);
+    return r;
+  }
+
+  // (expression |  anyId )*
+  private static boolean dot_expr_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "dot_expr_3")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!dot_expr_3_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "dot_expr_3", c)) break;
+    }
+    return true;
+  }
+
+  // expression |  anyId
+  private static boolean dot_expr_3_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "dot_expr_3_0")) return false;
+    boolean r;
+    r = expression(b, l + 1);
+    if (!r) r = anyId(b, l + 1);
+    return r;
+  }
+
+  // <<use_for_debug "开始：函数调用">>  identifier "("  <<use_for_debug "函数调用的参数们">> expressionList? ")" expression?
   public static boolean methodCall_expr(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "methodCall_expr")) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, METHOD_CALL_EXPR, "<method call expr>");
-    r = methodCall_expr_0(b, l + 1);
-    r = r && consumeToken(b, LPAREN);
-    p = r; // pin = 2
-    r = r && report_error_(b, methodCall_expr_2(b, l + 1));
-    r = p && consumeToken(b, RPAREN) && r;
+    Marker m = enter_section_(b, l, _NONE_, METHOD_CALL_EXPR, "<函数调用>");
+    r = use_for_debug(b, l + 1, "开始：函数调用");
+    r = r && consumeTokensSmart(b, 2, IDENTIFIER, LPAREN);
+    p = r; // pin = 3
+    r = r && report_error_(b, use_for_debug(b, l + 1, "函数调用的参数们"));
+    r = p && report_error_(b, methodCall_expr_4(b, l + 1)) && r;
+    r = p && report_error_(b, consumeToken(b, RPAREN)) && r;
+    r = p && methodCall_expr_6(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
-  // identifier | "THIS" | "SUPER"
-  private static boolean methodCall_expr_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "methodCall_expr_0")) return false;
-    boolean r;
-    r = consumeTokenSmart(b, IDENTIFIER);
-    if (!r) r = consumeTokenSmart(b, "THIS");
-    if (!r) r = consumeTokenSmart(b, "SUPER");
-    return r;
-  }
-
   // expressionList?
-  private static boolean methodCall_expr_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "methodCall_expr_2")) return false;
+  private static boolean methodCall_expr_4(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "methodCall_expr_4")) return false;
     expressionList(b, l + 1);
     return true;
   }
 
-  // NEW creator
+  // expression?
+  private static boolean methodCall_expr_6(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "methodCall_expr_6")) return false;
+    expression(b, l + 1);
+    return true;
+  }
+
+  // "NEW" creator
   public static boolean new_creator_expr(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "new_creator_expr")) return false;
-    if (!nextTokenIsSmart(b, NEW)) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, NEW_CREATOR_EXPR, null);
-    r = consumeTokenSmart(b, NEW);
+    Marker m = enter_section_(b, l, _NONE_, NEW_CREATOR_EXPR, "<new creator expr>");
+    r = consumeTokenSmart(b, "NEW");
     p = r; // pin = 1
     r = r && creator(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
-  public static boolean paren_typef_expr(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "paren_typef_expr")) return false;
+  public static boolean cast_expr(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "cast_expr")) return false;
     if (!nextTokenIsSmart(b, LPAREN)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, null);
-    r = paren_typef_expr_0(b, l + 1);
+    r = cast_expr_0(b, l + 1);
     p = r;
     r = p && expr(b, l, 4);
-    exit_section_(b, l, m, PAREN_TYPEF_EXPR, r, p, null);
+    exit_section_(b, l, m, CAST_EXPR, r, p, null);
     return r || p;
   }
 
   // "(" typeRef ")"
-  private static boolean paren_typef_expr_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "paren_typef_expr_0")) return false;
+  private static boolean cast_expr_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "cast_expr_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeTokenSmart(b, LPAREN);
@@ -2454,8 +2512,8 @@ public class ApexParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  public static boolean paren_expr(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "paren_expr")) return false;
+  public static boolean sub_expr(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "sub_expr")) return false;
     if (!nextTokenIsSmart(b, LPAREN)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, null);
@@ -2463,7 +2521,7 @@ public class ApexParser implements PsiParser, LightPsiParser {
     p = r;
     r = p && expr(b, l, 5);
     r = p && report_error_(b, consumeToken(b, RPAREN)) && r;
-    exit_section_(b, l, m, PAREN_EXPR, r, p, null);
+    exit_section_(b, l, m, SUB_EXPR, r, p, null);
     return r || p;
   }
 
@@ -2478,32 +2536,56 @@ public class ApexParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // ( "." | "?.") ( dotMethodCall | anyId )
-  private static boolean dot_expr_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "dot_expr_0")) return false;
+  // <<use_for_debug "开始匹配：赋值语句">> expr
+  //   (   "="
+  //       |   "+="
+  //       |   "-="
+  //       |   "*="
+  //       |   "/="
+  //       |   "&="
+  //       |   "!="
+  //       |   "^="
+  //       |   ">>="
+  //       |   ">>>="
+  //       |   "<<="
+  //   ) expr
+  public static boolean multi_assign_expr(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "multi_assign_expr")) return false;
     boolean r;
-    Marker m = enter_section_(b);
-    r = dot_expr_0_0(b, l + 1);
-    r = r && dot_expr_0_1(b, l + 1);
-    exit_section_(b, m, null, r);
+    Marker m = enter_section_(b, l, _NONE_, MULTI_ASSIGN_EXPR, "<multi assign expr>");
+    r = use_for_debug(b, l + 1, "开始匹配：赋值语句");
+    r = r && expr(b, l + 1, -1);
+    r = r && multi_assign_expr_2(b, l + 1);
+    r = r && expr(b, l + 1, -1);
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 
-  // "." | "?."
-  private static boolean dot_expr_0_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "dot_expr_0_0")) return false;
+  // "="
+  //       |   "+="
+  //       |   "-="
+  //       |   "*="
+  //       |   "/="
+  //       |   "&="
+  //       |   "!="
+  //       |   "^="
+  //       |   ">>="
+  //       |   ">>>="
+  //       |   "<<="
+  private static boolean multi_assign_expr_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "multi_assign_expr_2")) return false;
     boolean r;
-    r = consumeTokenSmart(b, DOT);
-    if (!r) r = consumeTokenSmart(b, QUESTIONDOT);
-    return r;
-  }
-
-  // dotMethodCall | anyId
-  private static boolean dot_expr_0_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "dot_expr_0_1")) return false;
-    boolean r;
-    r = dotMethodCall(b, l + 1);
-    if (!r) r = anyId(b, l + 1);
+    r = consumeTokenSmart(b, ASSIGN);
+    if (!r) r = consumeTokenSmart(b, ADD_ASSIGN);
+    if (!r) r = consumeTokenSmart(b, SUB_ASSIGN);
+    if (!r) r = consumeTokenSmart(b, MUL_ASSIGN);
+    if (!r) r = consumeTokenSmart(b, DIV_ASSIGN);
+    if (!r) r = consumeTokenSmart(b, AND_ASSIGN);
+    if (!r) r = consumeTokenSmart(b, NOTEQUAL);
+    if (!r) r = consumeTokenSmart(b, XOR_ASSIGN);
+    if (!r) r = consumeTokenSmart(b, RSHIFT_ASSIGN);
+    if (!r) r = consumeTokenSmart(b, URSHIFT_ASSIGN);
+    if (!r) r = consumeTokenSmart(b, LSHIFT_ASSIGN);
     return r;
   }
 
@@ -2582,7 +2664,7 @@ public class ApexParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // "===" | "!==" | "==" | "!=" | LESSANDGREATER
+  // "===" | "!==" | "==" | "!=" | "<>"
   private static boolean logic_expr_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "logic_expr_0")) return false;
     boolean r;
@@ -2594,31 +2676,26 @@ public class ApexParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // ASSIGN
-  //       |   ADD_ASSIGN
-  //       |   SUB_ASSIGN
-  //       |   MUL_ASSIGN
-  //       |   DIV_ASSIGN
-  //       |   AND_ASSIGN
-  //       |   OR_ASSIGN
-  //       |   XOR_ASSIGN
-  //       |   RSHIFT_ASSIGN
-  //       |   URSHIFT_ASSIGN
-  //       |   LSHIFT_ASSIGN
-  private static boolean multi_assign_expr_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "multi_assign_expr_0")) return false;
+  // identifier | literal | classSomeThing <<use_for_debug "匹配成功：字面量">>
+  public static boolean literal_expr(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "literal_expr")) return false;
     boolean r;
-    r = consumeTokenSmart(b, ASSIGN);
-    if (!r) r = consumeTokenSmart(b, ADD_ASSIGN);
-    if (!r) r = consumeTokenSmart(b, SUB_ASSIGN);
-    if (!r) r = consumeTokenSmart(b, MUL_ASSIGN);
-    if (!r) r = consumeTokenSmart(b, DIV_ASSIGN);
-    if (!r) r = consumeTokenSmart(b, AND_ASSIGN);
-    if (!r) r = consumeTokenSmart(b, OR_ASSIGN);
-    if (!r) r = consumeTokenSmart(b, XOR_ASSIGN);
-    if (!r) r = consumeTokenSmart(b, RSHIFT_ASSIGN);
-    if (!r) r = consumeTokenSmart(b, URSHIFT_ASSIGN);
-    if (!r) r = consumeTokenSmart(b, LSHIFT_ASSIGN);
+    Marker m = enter_section_(b, l, _NONE_, LITERAL_EXPR, "<literal expr>");
+    r = consumeTokenSmart(b, IDENTIFIER);
+    if (!r) r = literal(b, l + 1);
+    if (!r) r = literal_expr_2(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // classSomeThing <<use_for_debug "匹配成功：字面量">>
+  private static boolean literal_expr_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "literal_expr_2")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = classSomeThing(b, l + 1);
+    r = r && use_for_debug(b, l + 1, "匹配成功：字面量");
+    exit_section_(b, m, null, r);
     return r;
   }
 

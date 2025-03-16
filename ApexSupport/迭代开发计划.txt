@@ -15,3 +15,15 @@ laxer保持不变
 	作为一个整体去解析
 	[select xxx from yy where zzzz];
 	上面的语句作为一个整体的token
+作为整体去解析，不行，因为[] 之间还可以有空格、换行、注释，无法作为一个整体去解析
+还得使用语法去解析
+
+3、在 语法层面去解析SOQL
+
+done
+TODO 还需要解决 x = b的赋值语句的左递归问题
+
+4、集成cli
+参考官方的cli文档
+
+https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_install_cli.htm#sfdx_setup_install_cli_macos

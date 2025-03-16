@@ -132,7 +132,7 @@ LINE_COMMENT = "//" {InputCharacter}* {LineTerminator}?
   "final"                          { return FINAL; }
   "finally"                        { return FINALLY; }
   "for"                            { return FOR; }
-  "get"                            { return GET; }
+//  "get"                            { return GET; }
   "global"                         { return GLOBAL; }
   "if"                             { return IF; }
   "implements"                     { return IMPLEMENTS; }
@@ -150,13 +150,13 @@ LINE_COMMENT = "//" {InputCharacter}* {LineTerminator}?
   "public"                         { return PUBLIC; }
   "return"                         { return RETURN; }
   "system.runas"                   { return SYSTEMRUNAS; }
-  "set"                            { return SET; }
+//  "set"                            { return SET; }
   "sharing"                        { return SHARING; }
   "static"                         { return STATIC; }
-  "super"                          { return SUPER; }
+// "super"                          { return SUPER; }
   "switch"                         { return SWITCH; }
   "testmethod"                     { return TESTMETHOD; }
-  "this"                           { return THIS; }
+//  "this"                           { return THIS; }
   "throw"                          { return THROW; }
   "transient"                      { return TRANSIENT; }
   "trigger"                        { return TRIGGER; }
@@ -171,8 +171,8 @@ LINE_COMMENT = "//" {InputCharacter}* {LineTerminator}?
   "while"                          { return WHILE; }
   "with"                           { return WITH; }
   "without"                        { return WITHOUT; }
-  "list"                           { return LIST; }
-  "map"                            { return MAP; }
+//  "list"                           { return LIST; }
+//  "map"                            { return MAP; }
 
   "("                              { return LPAREN; }
   ")"                              { return RPAREN; }

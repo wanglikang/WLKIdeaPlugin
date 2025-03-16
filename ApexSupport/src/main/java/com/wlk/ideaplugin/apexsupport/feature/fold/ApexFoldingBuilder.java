@@ -47,15 +47,15 @@ public class ApexFoldingBuilder extends FoldingBuilderEx implements DumbAware {
             @Override
             public void visitElement(@NotNull PsiElement element) {
                 super.visitElement(element);
-                if(element instanceof  FoldAble block){
-                    System.out.println("visited block:"+block.getText());
-                    TextRange textRange = block.getTextRange();
-                    descriptors.add(new FoldingDescriptor(block.getNode(),textRange, group, Sets.newHashSet()));
-
-                    Class<? extends PsiElement> aClass = element.getOriginalElement().getClass();
-//                    Notification notification = new Notification("ApexNotification", "代码块"+ aClass.getSimpleName() +"折叠", "折叠了："+block.getText(), NotificationType.INFORMATION);
-//                    Notifications.Bus.notify(notification);
-                }
+//                if(element instanceof  FoldAble block){
+//                    System.out.println("visited block:"+block.getText());
+//                    TextRange textRange = block.getTextRange();
+//                    descriptors.add(new FoldingDescriptor(block.getNode(),textRange, group, Sets.newHashSet()));
+//
+//                    Class<? extends PsiElement> aClass = element.getOriginalElement().getClass();
+////                    Notification notification = new Notification("ApexNotification", "代码块"+ aClass.getSimpleName() +"折叠", "折叠了："+block.getText(), NotificationType.INFORMATION);
+////                    Notifications.Bus.notify(notification);
+//                }
             }
         };
 

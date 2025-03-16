@@ -36,9 +36,38 @@ public without sharing class UserTriggerHandler {
 BufferedReader bufferedReader = new BufferedReader(reader);
 StringBuilder sb = new StringBuilder();
 char[] buff = new char[1024];
-String newLine ;
-while(bufferedReader.read(buff)>0){
-sb.append(buff);
+int readCount = -1 ;
+while((readCount= bufferedReader.read(buff))>0){
+	sb.append(buff,0,readCount);
 }
 scanner = new _ApexLexer(reader);
 scanner.reset(sb,0,sb.length(),YYINITIAL);
+
+
+4、 对于表达式，重点关注 函数调用这种类型的
+一般需要考虑如下几种情况
+```
+a
+a()
+a.b
+a.b()
+a().b
+a().b()
+a.b.c
+a.b.c()
+a.b().c
+a.b().c()
+a().b.c
+a().b.()
+a().b().c
+a().b().c()
+
+a(b).c
+a(b()).c
+a(b()).c()
+a(b.c)
+a(b.c())
+a(b().c)
+a(b().c())
+
+```

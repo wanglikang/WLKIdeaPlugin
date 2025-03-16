@@ -1,0 +1,5 @@
+/build/
+/.gradle/
+/.idea/
+
+src/main/gen/com/wlk/ideaplugin/apexsupport/language/gen
