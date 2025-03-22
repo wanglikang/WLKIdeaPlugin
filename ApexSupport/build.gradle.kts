@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.wlk.ideaPlugin"
-version = "1.0-SNAPSHOT"
+version = "1.1.1-SNAPSHOT"
 
 // 使用init.gradle 去配置全局的加速
 repositories {
@@ -17,9 +17,9 @@ repositories {
   mavenCentral()
 }
 
-//dependencies {
-//  implementation("com.jetbrains:ideaIC:2024.2.3")
-//}
+dependencies {
+  implementation("org.antlr:antlr4-runtime:4.9.3")
+}
 
 // Include the generated files in the source set
 sourceSets {
