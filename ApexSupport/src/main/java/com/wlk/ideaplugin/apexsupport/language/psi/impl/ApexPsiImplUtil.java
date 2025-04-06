@@ -1,18 +1,6 @@
 package com.wlk.ideaplugin.apexsupport.language.psi.impl;
 
 
-import com.intellij.lang.ASTNode;
-import com.intellij.navigation.ItemPresentation;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-//import com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexQualifiedName;
-import com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexTypes;
-import com.wlk.ideaplugin.apexsupport.language.psi.ApexElementFactory;
-import com.wlk.ideaplugin.apexsupport.language.psi.ApexNamedElement;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.*;
-
 public class ApexPsiImplUtil {
 //
 //    public static String getKey(ApexQualifiedName element) {

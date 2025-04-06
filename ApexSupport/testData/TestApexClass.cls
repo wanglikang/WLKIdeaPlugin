@@ -8,7 +8,9 @@ public without sharing class AccountManageCommonUtil {
 	public static final Map<String, Object> responseMap = new Map<String, Object>();
 
 	  public void tt(){
-
+	          accId2BiddingMap.get(bid.Opportunity__r.AccountId);
+	        // String SOQL_STRING = [select Id from User ];
+			//String arrayVar = xt[1+2];
 			switch on entry.btnType {
 					// 认领客户
 					when 'claimAccount' {
@@ -89,7 +91,7 @@ public without sharing class AccountManageCommonUtil {
 			if(!accId2BiddingMap.containsKey(bid.Opportunity__r.AccountId)) {
 				accId2BiddingMap.put(bid.Opportunity__r.AccountId, new List<Bidding__c>());
 			}
-			accId2BiddingMap.get(bid.Opportunity__r.AccountId).add(bid);
+			// accId2BiddingMap.get(bid.Opportunity__r.AccountId);
 		}
 		return hasInProgressProjectMap;
 	}

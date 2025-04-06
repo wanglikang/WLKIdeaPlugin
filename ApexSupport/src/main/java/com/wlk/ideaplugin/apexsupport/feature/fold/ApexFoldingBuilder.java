@@ -1,30 +1,17 @@
 package com.wlk.ideaplugin.apexsupport.feature.fold;
 
-import com.google.common.collect.Sets;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.folding.FoldingBuilderEx;
 import com.intellij.lang.folding.FoldingDescriptor;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.FoldingGroup;
 import com.intellij.openapi.project.DumbAware;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.*;
-import com.intellij.psi.util.PsiLiteralUtil;
-import com.intellij.util.containers.ContainerUtil;
-import com.wlk.ideaplugin.apexsupport.language.ApexUtil;
-//import com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexBlock;
-import com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexVisitor;
-import com.wlk.ideaplugin.apexsupport.language.psi.ApexNamedElement;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiRecursiveElementVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class ApexFoldingBuilder extends FoldingBuilderEx implements DumbAware {

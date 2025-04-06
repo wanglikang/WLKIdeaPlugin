@@ -4,7 +4,7 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
-import com.wlk.ideaplugin.apexsupport.language.ApexUtil;
+import com.wlk.ideaplugin.apexsupport.util.ApexUtil;
 import com.wlk.ideaplugin.apexsupport.language.psi.ApexNamedElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
