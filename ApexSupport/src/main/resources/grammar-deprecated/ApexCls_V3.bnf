@@ -2,7 +2,7 @@
 // Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 {
 //  classHeader="//自动生成的语法分析器"
-  parserClass="com.wlk.ideaplugin.apexsupport.language.parser.ApexParser"
+  parserClass="com.wlk.ideaplugin.apexsupport.language.gen.ApexParser"
   parserUtilClass="com.wlk.ideaplugin.apexsupport.language.parser.ApexParserUtil"
   // 在此文件中，运行 【Generate Parse Util】 后，会自动生成一个ApexParserUtil  放到和 parserClass 同一个文件夹下，
   // 并自动生成此配置，然后，此文件的右键选项中，就没有【Generate Parse Util】 的选项了
@@ -432,8 +432,7 @@ sub_expr::= "(" expr ")"
 
 // 左递归的内容，得一个一个的去声明
 //  使用 (identifier | expr) 提前命中 xxx(yy   的情况，避免左递归一直死循环
-dot_expr::=<<use_for_debug "开始：.调用表达式" >>
-identifier  ( "." | "?.")  (expression |  anyId )*   <<use_for_debug "成功匹配：.调用表达式" >>  { name='dotExpression'}
+dot_expr::=<<use_for_debug "开始：.调用表达式" >> identifier  ( "." | "?.")  (dot_expr | methodCall_expr | anyId )*   <<use_for_debug "成功匹配：.调用表达式" >>  { name='dotExpression'}
 //dotMethodCall::= <<use_for_debug "开始：.调用的后半段">> identifier "(" expressionList? ")"
 
 // methodCall_expr::= (identifier | "THIS" | "SUPER") "(" expressionList? ")" {pin=2 name="函数调用"}

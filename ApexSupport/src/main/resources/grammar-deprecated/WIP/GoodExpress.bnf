@@ -1,7 +1,7 @@
 // Copyright 2000-2022 JetBrains s.r.o. and other contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 {
-//  classHeader="//自动生成的语法分析器"
-  parserClass="com.wlk.ideaplugin.apexsupport.language.parser.ApexParser"
+  classHeader="//自动生成的语法分析器"
+  parserClass="com.wlk.ideaplugin.apexsupport.language.gen.ApexParser"
   parserUtilClass="com.wlk.ideaplugin.apexsupport.language.parser.ApexParserUtil"
   // 在此文件中，运行 【Generate Parse Util】 后，会自动生成一个ApexParserUtil  放到和 parserClass 同一个文件夹下，
   // 并自动生成此配置，然后，此文件的右键选项中，就没有【Generate Parse Util】 的选项了
@@ -25,17 +25,17 @@
   tokenTypeClass="com.wlk.ideaplugin.apexsupport.language.psi.ApexTokenType"
 
 // psiImplUtilClass 暂不知道是干什么的
-  psiImplUtilClass="com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexPsiImplUtil"
+//  psiImplUtilClass="com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexPsiImplUtil"
   extends(".*expr")=expr
   tokens=[
     // 有几个内置的flex 变量可以用，参考【Grammar-kit】项目中的：org.intellij.grammar.actions.BnfGenerateLexerAction#text2JFlex
     // [:letter:]、[:digit:]、[:lowercase:]、[:uppercase:]、([:letter:]|[:digit:])、[\x00-\x7F]
 
-    identifier="regexp:[a-zA-Z_]+[a-zA-Z0-9_]*"
+    identifier="regexp:[a-zA-Z]+[a-zA-Z0-9]*"
     keywordidentifier="regexp:(String|Integer)"
-    WHITE_SPACE = "regexp:\s+"
+    space = "regexp:\s+"
     string = "regexp:\"[^\"]*\"|'[^']*'"
-    number = "regexp:(\\+|\\-)?\d*"
+//    number = "regexp:(\\+|\\-)?\d*"
 //    id = "regexp:\p{Alpha}\w*"
 
 
@@ -65,8 +65,8 @@
     //字符串字面量(单引号包裹的）
 
 //    singlequotestringliteral = "regexp:[a-zA-Z0-9]+"
-//    singlequotestringliteral = "regexp:'[a-zA-Z]+'"
-	ARRAY_DEFINE = "regexp:(\[])*"
+    singlequotestringliteral = "regexp:\\'[a-zA-Z0-9]+\\'"
+
     // 分隔符
     LPAREN = "("
     RPAREN = ")"
@@ -159,8 +159,6 @@
   ]
 }
 
-apexFile::= compilationUnit
-
 compilationUnit ::= packageDeclaration? importDeclaration* typeDeclaration*
 
 packageDeclaration::=  annotation* "PACKAGE" qualifiedName ';'
@@ -184,8 +182,8 @@ classOrInterfaceModifier::= annotation           // class or interface
     | "OVERRIDE"             // method only
     | "VIRTUAL"              // method only
     | "TESTMETHOD"           // method only
-    | "with sharing"    // class only
-    | "without sharing" //class only
+    | "APEX_WITH_SHARING"    // class only
+    | "APEX_WITHOUT_SHARING" //class only
 
 classDeclaration::= "CLASS" identifier typeParameters? ("EXTENDS" type_)? ("IMPLEMENTS" typeList)? classBody
 
@@ -205,77 +203,15 @@ classBodyDeclaration ::= ';'
     | modifier* memberDeclaration
 
 memberDeclaration::= methodDeclaration
-    | genericMethodDeclaration
+//    | genericMethodDeclaration
     | fieldDeclaration
-    | constructorDeclaration
-    | genericConstructorDeclaration
-    | interfaceDeclaration
+//    | constructorDeclaration
+//    | genericConstructorDeclaration
+//    | interfaceDeclaration
 //    | annotationTypeDeclaration
     | classDeclaration
 //    | enumDeclaration
 //    | propertyDeclaration
-
-
-interfaceDeclaration::= "INTERFACE" identifier typeParameters? ("EXTENDS" typeList)? interfaceBody
-
-interfaceBody::= '{' interfaceBodyDeclaration* '}'
-
-interfaceBodyDeclaration::= modifier* interfaceMemberDeclaration
-    | ';'
-interfaceMemberDeclaration::= constDeclaration
-    | interfaceMethodDeclaration
-    | genericInterfaceMethodDeclaration
-    | interfaceDeclaration
-    | annotationTypeDeclaration
-    | classDeclaration
-    | enumDeclaration
-
-genericInterfaceMethodDeclaration::= typeParameters interfaceMethodDeclaration
-
-annotationTypeDeclaration::= '@' "INTERFACE" identifier annotationTypeBody
-
-annotationTypeBody::= '{' annotationTypeElementDeclaration* '}'
-
-annotationTypeElementDeclaration::= modifier* annotationTypeElementRest
-    | ';' // this is not allowed by the grammar, but apparently allowed by the actual compiler
-
-annotationTypeElementRest::= type_ annotationMethodOrConstantRest ';'
-    | classDeclaration ';'?
-    | interfaceDeclaration ';'?
-    | enumDeclaration ';'?
-    | annotationTypeDeclaration ';'?
-enumDeclaration::= "ENUM" identifier ("IMPLEMENTS" typeList)? '{' enumConstants? ','? enumBodyDeclarations? '}'
-enumConstants::= enumConstant (',' enumConstant)*
-enumConstant::= annotation* identifier arguments? classBody?
-enumBodyDeclarations::= ';' classBodyDeclaration*
-    ;
-
-annotationMethodOrConstantRest::= annotationMethodRest
-    | annotationConstantRest
-    ;
-annotationMethodRest::= identifier '(' ')' defaultValue?
-
-defaultValue::= "DEFAULT" elementValue
-
-annotationConstantRest::= variableDeclarators
-
-
-interfaceMethodDeclaration::= (type_ | "VOID") identifier formalParameters ARRAY_DEFINE ("THROWS" qualifiedNameList)? ';'
-    ;
-
-constDeclaration::= type_ constantDeclarator (',' constantDeclarator)* ';'
-
-constantDeclarator::= identifier ARRAY_DEFINE '=' variableInitializer
-    ;
-
-
-genericConstructorDeclaration::= typeParameters constructorDeclaration
-
-constructorDeclaration::= identifier formalParameters ("THROWS" qualifiedNameList)? constructorBody
-constructorBody::= block
-
-genericMethodDeclaration::= typeParameters methodDeclaration
-
 
 methodDeclaration::= "OVERRIDE"? (type_ | "VOID") identifier formalParameters ('[' ']')* ("THROWS" qualifiedNameList)? (
         methodBody
@@ -325,14 +261,20 @@ variableInitializer::= arrayInitializer
 arrayInitializer::= '{' (variableInitializer (',' variableInitializer)* ','?)? '}'
 
 
-variableDeclaratorId::= identifier ('[' ']')* {pin=1}
+variableDeclaratorId::= variableDeclaratorType ('[' ']')*
+
+variableDeclaratorType::=
+     "INTEGER" | "INT"
+//    | "DOUBLE" | "FLOAT"
+    | identifier
+
 
 
 variableModifier::= "FINAL"
     | annotation
 
 
-annotation::= '@' annotationName ('(' ( elementValuePairs | elementValue)? ')')? {pin = 2}
+annotation::= '@' annotationName ('(' ( elementValuePairs | elementValue)? ')')?
 
 annotationName::= qualifiedName
 
@@ -352,19 +294,18 @@ elementValueArrayInitializer::= '{' (elementValue (',' elementValue)*)? ','? '}'
 ////////直接使用示例中的expr的编写方法，开始
 expression ::= expr
 // the root expression rule
-expr ::=
-    primary_group
+expr ::=  primary_group
     | qualification_expr
-    | suffix_expr
     | left_recursion_group
+    | suffix_expr
     | right_assoc_expr
 
-suffix_expr::= '(' type_ ')' expression
+suffix_expr::= '(' type_ ')' expr
     | ('+' | '-' | '++' | '--') expression
     |  ('~' | '!') expression
 
 qualification_expr ::= expr '?'? '.' identifier
-private primary_group ::= identifier  | paren_expr | primary_expr
+private primary_group ::= simple_ref_expr  | paren_expr | primary_expr
 paren_expr::= '(' expr ')'
 primary_expr::= primary
 
@@ -378,8 +319,8 @@ new_expr::=expr '.' "NEW"
 this_expr::=expr '.' "THIS"
 super_expr::=expr '.' "SUPER" superSuffix
 gene_invocation_expr::= expr '.' explicitGenericInvocation
-expr_arr_index_expr::= expression '[' expression? ']'
-expr_list_expr::=expr '(' expressionList? ')'
+expr_arr_index_expr::=expr '[' expr? ']'
+expr_list_expr::=expr '(' expr? ')'
 plus_minus_expr::= expr ('++' | '--')
 if_else_expr::= expr '?' expr ':' expr
 
@@ -391,8 +332,7 @@ right_assoc_expr::= expr ('=' | '+=' | '-=' | '*=' | '/=' | '&=' | '|=' | '^=' |
 //simple_ref_expr ::= identifier {extends=ref_expr elementType=ref_expr}
 //qualification_expr ::= expr '?'? '.' identifier {extends=ref_expr elementType=ref_expr}
 
-//simple_ref_expr ::= identifier
-
+simple_ref_expr ::= identifier
 ////////直接使用示例中的expr的编写方法，结束
 
 
@@ -446,8 +386,8 @@ right_assoc_expr::= expr ('=' | '+=' | '-=' | '*=' | '/=' | '&=' | '|=' | '^=' |
 
 primary::= "THIS"
     | "SUPER"
-    | identifier
     | literal
+    | identifier
     | type_ '.' "CLASS"
     | "VOID" '.' "CLASS"
     | nonWildcardTypeArguments (explicitGenericInvocationSuffix | "THIS" arguments)
@@ -455,14 +395,13 @@ primary::= "THIS"
 
 literal::=
     number
-	| StringLiteral
     | IntegerLiteral
     | FloatingPointLiteral
 //    | CharacterLiteral
+    | StringLiteral
 //    | BooleanLiteral
     | "NULL"
 
-StringLiteral::=  string
 
 IntegerLiteral::= DecIntegerLiteral
     |   DecLongLiteral
@@ -474,18 +413,17 @@ IntegerLiteral::= DecIntegerLiteral
 FloatingPointLiteral::= FloatLiteral
     |   DoubleLiteral
 
-
+StringLiteral::=  singlequotestringliteral
 
 nonWildcardTypeArguments::= '<' typeList '>'
     ;
 typeList::= type_ (',' type_)*
     ;
-type_::= classOrInterfaceType ARRAY_DEFINE
-    | primitiveType ARRAY_DEFINE
+type_::= classOrInterfaceType ('[' ']')*
+    | primitiveType ('[' ']')*
     ;
-classOrInterfaceType ::= identifier typeArguments? ('.' identifier typeArguments?)
+classOrInterfaceType ::= identifier typeArguments? ('.' identifier typeArguments?)*
     | "SET" typeArguments // 'set <' has to be defined explisitly, otherwise it clashes with SET of property setter
-    | "MAP" typeArguments // 'set <' has to be defined explisitly, otherwise it clashes with SET of property setter
     ;
 
 typeArguments
@@ -514,60 +452,23 @@ expressionList::= expression (',' expression)*
 explicitGenericInvocation::= nonWildcardTypeArguments explicitGenericInvocationSuffix
     ;
 
-forStatement ::= FOR '(' forControl ')' statement {
-	pin=2
-//    mixin="com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexNamedElementImpl"
-//    implements="com.intellij.psi.PsiNameIdentifierOwner"
-//    methods=[getKey getValue getName setName getNameIdentifier getPresentation]
-}
-//private forStatement_recover ::= !(':')
 statement::= block
-    | "IF" parExpression statement ("ELSE" statement)?
-    | forStatement
-    | "WHILE" parExpression statement
-    | "DO" statement "WHILE" parExpression ';'
-    | "RUNAS" '(' expression ')' statement
-    | "TRY" block (catchClause+ finallyBlock? | finallyBlock)
-    | "TRY" resourceSpecification block catchClause* finallyBlock?
-    | "RETURN" expression? ';'
-    | "THROW" expression ';'
-    | "BREAK" identifier? ';'
-    | "CONTINUE" identifier? ';'
+//    | IF parExpression statement (ELSE statement)?
+//    | FOR '(' forControl ')' statement
+//    | WHILE parExpression statement
+//    | DO statement WHILE parExpression ';'
+//    | RUNAS '(' expression ')' statement
+//    | TRY block (catchClause+ finallyBlock? | finallyBlock)
+//    | TRY resourceSpecification block catchClause* finallyBlock?
+//    | RETURN expression? ';'
+//    | THROW expression ';'
+//    | BREAK identifier? ';'
+//    | CONTINUE identifier? ';'
     | ';'
     | statementExpression ';'
     | identifier ':' statement
     | apexDbExpression ';'
-
-resourceSpecification::= '(' resources ';'? ')'
-
-resources::= resource (';' resource)*
     ;
-
-resource::= variableModifier* classOrInterfaceType variableDeclaratorId '=' expression
-    ;
-
-
-finallyBlock::= "FINALLY" block
-    ;
-catchClause::= "CATCH" '(' variableModifier* catchType identifier ')' block
-    ;
-
-catchType::= qualifiedName ('|' qualifiedName)*
-    ;
-
-
-forControl::= forInit? ';' expression? ';' forUpdate?
-	| enhancedForControl
-
-
-forInit::= localVariableDeclaration
-    | expressionList
-
-forUpdate::= expressionList
-
-enhancedForControl ::= variableModifier* type_ variableDeclaratorId ':' expression
-
-parExpression::= '(' expression ')'
 
 statementExpression::= expression
 

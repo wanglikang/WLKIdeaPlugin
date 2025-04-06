@@ -2,7 +2,7 @@
 // Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 {
 //  classHeader="//自动生成的语法分析器"
-  parserClass="com.wlk.ideaplugin.apexsupport.language.parser.ApexParser"
+  parserClass="com.wlk.ideaplugin.apexsupport.language.gen.ApexParser"
   parserUtilClass="com.wlk.ideaplugin.apexsupport.language.parser.ApexParserUtil"
   // 在此文件中，运行 【Generate Parse Util】 后，会自动生成一个ApexParserUtil  放到和 parserClass 同一个文件夹下，
   // 并自动生成此配置，然后，此文件的右键选项中，就没有【Generate Parse Util】 的选项了

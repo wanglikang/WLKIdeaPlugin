@@ -1,0 +1,526 @@
+// Copyright 2000-2022 JetBrains s.r.o. and other contributors.
+// Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+{
+//  classHeader="//自动生成的语法分析器"
+  parserClass="com.wlk.ideaplugin.apexsupport.language.gen.ApexParser"
+  parserUtilClass="com.wlk.ideaplugin.apexsupport.language.parser.ApexParserUtil"
+  // 在此文件中，运行 【Generate Parse Util】 后，会自动生成一个ApexParserUtil  放到和 parserClass 同一个文件夹下，
+  // 并自动生成此配置，然后，此文件的右键选项中，就没有【Generate Parse Util】 的选项了
+//  parserUtilClass="com.wlk.ideaplugin.apexsupport.language.parser.ApexParserUtil"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+  psiImplPackage="com.wlk.ideaplugin.apexsupport.language.gen.psi.impl"
+  psiClassPrefix="Apex"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.wlk.ideaplugin.apexsupport.language.gen.psi"
+
+// 这个 type ，应该是会自动生成的,,生成后，可以被.flex文件所用的
+  elementTypeHolderClass="com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexTypes"
+
+
+	// 非终结符的语法元素类型
+  elementTypeClass  ="com.wlk.ideaplugin.apexsupport.language.psi.ApexElementType"
+
+
+  // 应该是根据name，自动生成token的工厂类,应该还用不到
+  tokenTypeFactory  ="com.wlk.ideaplugin.apexsupport.language.psi.ApexTokenType.createTokenType"
+  // 终结符的语法元素类型（token）
+  tokenTypeClass    ="com.wlk.ideaplugin.apexsupport.language.psi.ApexTokenType"
+
+// psiImplUtilClass 暂不知道是干什么的
+  psiImplUtilClass="com.wlk.ideaplugin.apexsupport.language.psi.impl.ApexPsiImplUtil"
+//  extends(".*Name")='NamedElement'
+//  mixin(".*Name")="com.wlk.ideaplugin.apexsupport.language.ApexCommonNamedElementImpl"
+//  implements(".*Name")="com.wlk.ideaplugin.apexsupport.language.psi.ApexNamedElement"
+  // 会给对应节点的接口里，加伤对应的
+//  methods(".*Name")=[getKey getValue getName setName getNameIdentifier getPresentation]
+
+  // 看起来，bnf中，要想解决左递归的错误提醒，需要将所有的左递归的表达式和表达式本身，都声明为expr结尾
+  // 并使用 下面的 extends 处理一下才行
+  extends(".*expr")=expr
+  implements(".*block")="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"
+
+
+  tokens=[
+    // 有几个内置的flex 变量可以用，参考【Grammar-kit】项目中的：org.intellij.grammar.actions.BnfGenerateLexerAction#text2JFlex
+    // [:letter:]、[:digit:]、[:lowercase:]、[:uppercase:]、([:letter:]|[:digit:])、[\x00-\x7F]
+
+	// 对应的词法，有如下几种
+	// 关键字：apex类型（list、map）、DML关键字、SOQL关键字、SOQL数据函数关键字、SOQL数据公式关键字、SOQL数据和时间字面量、
+	//      SOQL 币种字面量、SOSL 关键字、
+
+	// 分隔符
+	// 操作符
+	// 其他类型的
+
+	// Keywords     // 这些关键字其实不用特定在tokens里定义，因为Grammar-kit 和 antlr不一样，在文法里使用的时候，不能引用，只能使用字面量
+	// 这个定义的keyword，不使用，因为看起来这里定义了之后，大小写就确定了，后续不太方便
+
+	ABSTRACT	="abstract"
+	AFTER	="after"
+	BEFORE	="before"
+	BREAK	="break"
+	CATCH	="catch"
+	CLASS	= "class"
+	CONTINUE	="continue"
+	DELETE	="delete"
+	DO	="do"
+	ELSE	="else"
+	ENUM	="enum"
+	EXTENDS	="extends"
+	FINAL	="final"
+	FINALLY	="finally"
+	FOR	="for"
+//	GET	="get"
+	GLOBAL	="global"
+	IF	="if"
+	IMPLEMENTS	="implements"
+	INHERITED	="inherited"
+	INSERT	="insert"
+	INSTANCEOF	="instanceof"
+	INTERFACE	="interface"
+	MERGE	="merge"
+	NEW	="new"
+	NULL	="null"
+	ON	="on"
+	OVERRIDE	="override"
+	PRIVATE	="private"
+	PROTECTED	="protected"
+	PUBLIC	="public"
+	RETURN	="return"
+	SYSTEMRUNAS	="system.runas"
+//	SET	="set"
+	SHARING	="sharing"
+	STATIC	="static"
+//	SUPER	="super"
+	SWITCH	="switch"
+	TESTMETHOD	="testmethod"
+//	THIS	="this"
+	THROW	="throw"
+	TRANSIENT	="transient"
+	TRIGGER	="trigger"
+	TRY	="try"
+	UNDELETE	="undelete"
+	UPDATE	="update"
+	UPSERT	="upsert"
+	VIRTUAL	="virtual"
+	VOID	="void"
+	WEBSERVICE	="webservice"
+	WHEN	="when"
+	WHILE	="while"
+	WITH	="with"
+	WITHOUT	="without"
+	SELECT = "select"
+
+	// Apex generic types, Set is defined above for properties
+//	LIST	="list"
+//	MAP	="map"
+
+	// DML keywords
+//	SYSTEM	="system"
+//	USER	="user"
+
+	// SOQL literal （此处不重要，有个定义就行，，会使用jflex去进行词法解析）
+//	SOQL_LITERAL = "SOQL_Literal"
+
+
+	// §3.11 Separators
+	LPAREN	=	"("
+	RPAREN	=	")"
+	LBRACE	=	"{"
+	RBRACE	=	"}"
+	LBRACK	=	"["
+	RBRACK	=	"]"
+	SEMI	=	";"
+	COMMA	=	","
+	DOT	=	"."
+
+	// §3.12 Operators
+
+	ASSIGN	=	"="
+	GT	=	">"
+	LT	=	"<"
+	BANG	=	"!"
+	TILDE	=	"~"
+	QUESTIONDOT	=	"?."
+	QUESTION	=	"?"
+	COLON	=	":"
+	EQUAL	=	"=="
+	TRIPLEEQUAL	=	"==="
+	NOTEQUAL	=	"!="
+	LESSANDGREATER	=	"<>"
+	TRIPLENOTEQUAL	=	"!=="
+	AND	=	"&&"
+	OR	=	"||"
+	COAL	=	"??"
+	INC	=	"++"
+	DEC	=	"--"
+	ADD	=	"+"
+	SUB	=	"-"
+	MUL	=	"*"
+	DIV	=	"/"
+	BITAND	=	"&"
+	BITOR	=	"|"
+	CARET	=	"^"
+	MAPTO	=	"=>"
+
+	ADD_ASSIGN	=	"+="
+	SUB_ASSIGN	=	"-="
+	MUL_ASSIGN	=	"*="
+	DIV_ASSIGN	=	"/="
+	AND_ASSIGN	=	"&="
+	OR_ASSIGN	=	"|="
+	XOR_ASSIGN	=	"^="
+	LSHIFT_ASSIGN	=	"<<="
+	RSHIFT_ASSIGN	=	">>="
+	URSHIFT_ASSIGN	=	">>>="
+
+
+	// Additional symbols not defined in the lexical specification
+	ATSIGN	=	"@"
+
+    LINE_COMMENT = "regexp://[^\r\n\t]*[\r|\n|\t]?"
+    WS = "regexp:\s"
+
+	// 更好的支持多行注释，参考文章：
+	// https://zhuanlan.zhihu.com/p/706946101
+	// http://www.cs.man.ac.uk/~pjj/cs212/ex2_str_comm.html
+
+	// 占位的几个token类型，因为使用bnf自动生成tokenType，可能会自动删掉已有的token，因此，在这里占个位置，后续将尽量少自动生成.flex
+	BLOCK_COMMENT="BLOCK_COMMENT"
+	INNER_BLOCK_DOC_COMMENT="INNER_BLOCK_DOC_COMMENT"
+	OUTER_BLOCK_DOC_COMMENT="OUTER_BLOCK_DOC_COMMENT"
+
+
+	// identifier 的token 定义应该放到最后面，优先级应该是最低的
+	// 否则，其他的关键字可能会被解析为identifer,就无法很好的匹配了
+	//[\u4e00-\u9fff]
+    identifier="regexp:[a-zA-Z_]+[a-zA-Z0-9_]*"
+    SINGLEQUOTESTRINGLITERAL = "regexp:\\'[\w\u4e00-\u9fff][\w\u4e00-\u9fff]+\\'"         // 不重要，这个会在flex中单独去配置
+
+
+
+	// 字面量：
+	//  Integer、Long、数字、十六进制
+	//  bool
+	//  string 字面量
+
+//	DateLiteral =  Digit Digit Digit Digit '-' Digit Digit '-' Digit Digit
+	DateLiteral =  "regexp:\d\d\d\d-\d\d-\d\d"
+//	TimeLiteral =  Digit Digit ':' Digit Digit ':' Digit Digit ('.' Digit+ )? ('z' | (('+' | '-') Digit+ ( ':' Digit+)? ))
+	TimeLiteral =  "regexp:\d\d:\d\d:\d\d[\.\d+]?[z|[[+-]\d+[:\d+]?]]"
+//	DateTimeLiteral =  DateLiteral 't' TimeLiteral
+	DateTimeLiteral =  "regexp:\d\d\d\d-\d\d-\d\dt\d\d:\d\d:\d\d[\.\d+]?[z|[[+-]\d+[:\d+]?]]"
+
+	integerliteralpattern = "regexp:\d+"
+	longLiteralpattern = "regexp:\d+[lL]"
+	numberliteralpattern = "regexp:\d*\.\d+[dD]"
+	booleanLiteral = "regexp:false|true"
+  ]
+
+}
+
+//COMMENT::= LINE_COMMENT | TRADITIONAL_COMMENT | DOCUMENTATION_COMMENT
+
+// 基于 https://github.com/apex-dev-tools/apex-parser 的开源的apex文法来进行适配
+//V2: 基于 https://github.com/neowit/tooling-force.com 的开源文法进行适配
+apexFile::= classUnit
+
+classUnit::= modifier*  typeDeclaration {name='classunitName'}
+typeDeclaration::= classDeclaration {name="typeDec"}
+
+classDeclaration::= "CLASS" identifier
+ ('EXTENDS' typeRef)?
+ ("IMPLEMENTS" typeList)?
+ classBody {pin=2 name="cls" }
+//private typeParameters::=   "<" typeParameter ("," typeParameter)* ">" {name="typeParameters"}
+//typeParameter::=   identifier ("EXTENDS" typeBound)? {name="typePar"}
+//typeBound::=   typeRef (BITAND typeRef)*
+
+
+
+classBody::= "{" classBodyDeclaration* "}" {pin=1}
+classBodyDeclaration::=  modifier* memberDeclaration
+memberDeclaration::= <<use_for_debug "开始：匹配成员声明">> constructorDeclaration
+	| fieldDeclaration
+	| methodDeclaration
+//    | interfaceDeclaration
+    | classDeclaration
+//    | enumDeclaration
+//    | propertyDeclaration
+//    | staticBlock
+
+constructorDeclaration::= <<use_for_debug "开始匹配：构造器">> qualifiedName formalParameters block
+methodDeclaration::= (  "VOID" | typeRef ) identifier formalParameters  ( block | SEMI ) <<use_for_debug "匹配成功:方法">>
+
+statement::=
+    ifStatement
+    | switchStatement
+    | forStatement
+    | whileStatement
+    | doWhileStatement
+    | tryStatement
+    | returnStatement
+    | throwStatement
+    | breakStatement
+    | continueStatement
+    | insertStatement
+    | updateStatement
+    | deleteStatement
+    | undeleteStatement
+    | upsertStatement
+    | mergeStatement
+    | runAsStatement
+    | block
+    | localVariableDeclarationStatement
+    | expressionStatement
+    {implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
+
+private whileStatement::= "WHILE" parExpression (statement | SEMI) {pin=1}
+private doWhileStatement::= "DO" block "WHILE" parExpression SEMI {pin=1}
+private tryStatement::= "TRY" block (catchClause+ finallyBlock? | finallyBlock) {pin=1}
+private catchClause::= "CATCH" "(" modifier* qualifiedName identifier ")" block {pin=2}
+private finallyBlock::= "FINALLY" block {pin=1}
+private throwStatement::= "THROW" expression SEMI {pin=1}
+private breakStatement::= "BREAK" SEMI  {pin=1}
+private continueStatement::= "CONTINUE" SEMI  {pin=1}
+private insertStatement::= "INSERT" accessLevel? expression SEMI {pin=1}
+accessLevel::= AS (SYSTEM | USER)
+private updateStatement::= "UPDATE" accessLevel? expression SEMI {pin=1}
+private deleteStatement::= "DELETE" accessLevel? expression SEMI {pin=1}
+private undeleteStatement::= "UNDELETE" accessLevel? expression SEMI {pin=1}
+private upsertStatement::= "UPSERT" accessLevel? expression qualifiedName? SEMI {pin=1}
+private mergeStatement::= "MERGE" accessLevel? expression expression SEMI {pin=1}
+//left runAsStatement::= SYSTEMRUNAS "(" expressionList? ")" block
+private runAsStatement::= "system.runas" "(" expressionList? ")" block {pin=1}
+
+
+
+switchStatement::= "SWITCH" "ON" expression "{" whenControl+ "}"
+	{pin=2 name="需要switch关键字" implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
+whenControl::= "WHEN" whenValue block
+whenValue::= "ELSE"
+    | whenLiteral ("," whenLiteral)*
+    | typeRef identifier
+
+whenLiteral::= ("-"|"+")* integerliteralpattern
+    | ("-"|"+")* longliteralpattern
+    | SINGLEQUOTESTRINGLITERAL
+    | NULL
+    | identifier
+    // Salesforce tolerates paren pairs around each litersal,
+    // although this is not explicitly documented.
+    | "(" whenLiteral ")"
+
+
+
+expressionStatement::= <<use_for_debug "开始：表达式声明">>  expression SEMI <<use_for_debug "匹配成功：表达式语句">> {recoverWhile=expressRW}
+private expressRW::=!(";")
+forStatement::= "FOR" "(" forControl ")" (statement | SEMI) {pin=2 implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
+forControl::= enhancedForControl | forInit? SEMI expression? SEMI forUpdate?
+enhancedForControl::= typeRef identifier ":" expression
+forInit::= localVariableDeclaration | expressionList
+forUpdate::= expressionList
+
+
+localVariableDeclarationStatement::= <<use_for_debug "开始：本地变量声明">> localVariableDeclaration SEMI <<use_for_debug "匹配成功：本地变量声明">>
+localVariableDeclaration::= modifier* typeRef variableDeclarators
+
+returnStatement::= <<use_for_debug "开始:return语句">> "RETURN" expression? ";" {pin=2 }
+block::=  <<use_for_debug "开始:普通语句块">> "{" statement* "}" <<use_for_debug "匹配成功：语句块">> {
+	// pin=1
+	name="block语句"
+	implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"
+//	recoverWhile=blockRecoverWhile
+	}
+//private blockRecoverWhile::=('}')
+
+ifStatement::= <<use_for_debug "开始：匹配If语句">> "IF" parExpression  <<use_for_debug "开始：if的statement">> statement ("ELSE" statement)?   <<use_for_debug "匹配成功：if语句">> {pin=2 name="匹配到了ifStatement"}
+parExpression::= "(" expression ")"  <<use_for_debug "匹配成功：if语句的条件">> {implements="com.wlk.ideaplugin.apexsupport.feature.fold.FoldAble"}
+
+
+
+fieldDeclaration::= typeRef variableDeclarators SEMI {name='字段声明'}
+
+formalParameters::= <<use_for_debug "开始:公式参数们">> "(" formalParameterList? ")" <<use_for_debug "匹配成功:公式参数们">>
+formalParameterList::= <<use_for_debug "开始:公式参数项">> formalParameter ("," formalParameter)*
+formalParameter::= <<use_for_debug "开始:公式参数">> modifier* typeRef identifier
+
+variableDeclarators::= <<use_for_debug "开始：变量声明">> variableDeclarator ("," variableDeclarator)* {pin=2}
+//variableDeclarator::= variableDeclaratorId (ASSIGN expression)?
+variableDeclarator::= variableDeclaratorId ("=" expression)? {pin=2}
+variableDeclaratorId::= identifier ('[' ']')* <<use_for_debug "匹配成功：变量声明left">>
+
+annotation::= "@" qualifiedName ( "(" ( elementValuePairs | elementValue )? ")" )? {pin=2}
+qualifiedName::= identifier ("." identifier)*
+elementValuePairs::= elementValuePair (","? elementValuePair)*
+elementValuePair::= identifier "=" elementValue
+
+elementValue::= expression
+	| annotation
+    | elementValueArrayInitializer
+elementValueArrayInitializer::= "{" (elementValue ("," elementValue)*)? (",")? "}"
+
+
+private typeRef::= <<use_for_debug "开始：类型声明">> typeName ("." typeName)* arraySubscripts
+arraySubscripts::= (LBRACK RBRACK)*
+typeName::= <<use_for_debug "tryTypeName">> typeNameType typeArguments?
+typeNameType::= identifier {name='参数的类型'}
+//| LIST | SET | MAP
+typeArguments::= "<" typeList ">" {pin=1 name='类型参数'}
+typeList::= typeRef ("," typeRef)*
+modifier::=
+	annotation
+    | "GLOBAL"
+    | "PUBLIC"
+    | "PROTECTED"
+    | "PRIVATE"
+    | "TRANSIENT"
+    | "STATIC"
+    | "ABSTRACT"
+    | "FINAL"
+    | "WEBSERVICE"
+    | "OVERRIDE"
+    | "VIRTUAL"
+    | "TESTMETHOD"
+    | sharingModifier
+
+private sharingModifier::= ("with" | "without" ) "sharing"
+
+
+
+/////// 表达式相关的声明，，开始
+// 要想 expression 能解决左递归的报错，需要添加一下 extends(".*expr")=expr
+// 对于expressin 内的元素，除来相同层级的xxx_group,内层的xxx_expr 元素禁 用private，否则还是会被识别为 左递归的
+// 使用 !("}") 提前预测，剪枝 if  statement else statement 中 statemen的 } 和 之后的语句无法匹配，造成死循环的问题
+expression::= <<use_for_debug "开始:表达式">> !("}" | ")" | "," | ";" | ".") expr <<use_for_debug "匹配成功：表达式">>
+expr::=
+	 literal_expr            //  xxxx 'xx' 123 this super  void.class       xxx.class  字面量，不可能是函数调用、方法调用、下标调用的内容
+	// 运算符的优先级越低，应该在解析的时候，越靠前
+	// or，越容易被匹配，应该越被提前考虑
+	| cast_expr             // (a)b         类型转换表达式
+//	| multi_assign_expr      // a = b    a+=b    a-=b    a*=b... a>>=b   a>>>=b  a<<=b
+
+	| sub_expr              // (a)
+//	| and_expr              // a&&b
+//	| or_expr               // a||b
+//	| coal_expr             // a??b
+//	| inc_dec_expr          // a++  b--
+//	| mul_div_expr          // a*b       a/b
+//	| add_sub_expr          // a+b       a-b
+//	| lt_gt_expr            // a << b       a <<< b     a >> b
+//	| lt_gt_assi_expr       // a <= b       a >= b
+//	| instance_expr         // a instanceof b
+//	| logic_expr            // a === b  a!==b   a==b    a!=b    a<>b
+//	| bit_and_expr          // a&b
+//	| caret_expr            // a&b
+//	| bitor_expr            // a|b
+//	| question_expr         // a ? b : c
+//	| array_expr            // a[b]
+
+
+// 属性调用 和 方法调用这两个比较特殊，因为会有嵌套、多个重复的情况
+	| dot_expr              // a.x   ,如：a.b      a.b()
+							// aaa().x   = 函数调用.dot调用
+	| methodCall_expr       // xxx(a,b,c)   this(a,b,c)     super(a,b,c)
+
+
+	| neg_expression_expr   // ~a    !a
+	| new_creator_expr      // new a()  new a(exp,exp)  new a{} new a[1,2,3]    new a{ exp => exp,,}    new a{1,2,3}
+
+//	| primary_expr
+//	{recoverWhile=cemaRw}
+//private cemaRw::=!(':')
+
+//      {extraRoot=true}
+
+cast_expr::= <<use_for_debug "开始:类型转换表达式" >> "(" typeRef ")" expr
+sub_expr::= "(" expr ")"
+
+// 左递归的内容，得一个一个的去声明
+//  使用 (identifier | expr) 提前命中 xxx(yy   的情况，避免左递归一直死循环
+// dot_expr::=<<use_for_debug "开始：.调用表达式" >> identifier  ( "." | "?.")  ( dotMethodCall | anyId )* <<use_for_debug "成功匹配：.调用表达式" >> { name='dotExpression'}
+dot_expr::= <<use_for_debug "开始：.调用表达式" >> dot_expr_item ("." | "?.") dot_expr_item <<use_for_debug "匹配成功：.调用表达式" >>
+dot_expr_item::= anyId "(" expressionList* ")"
+	| anyId "[" expression "]"
+//	| anyId "{" expression "}"      // 这种情况，应该不会出现
+	| new_creator_expr
+	| anyId
+
+//dotMethodCall::= <<use_for_debug "开始：.调用的后半段">> identifier "(" expressionList? ")"
+
+//methodCall_expr::= (identifier | "THIS" | "SUPER") "(" expressionList? ")" { name="函数调用"}
+methodCall_expr::=<<use_for_debug "开始：函数调用">>
+identifier "("  <<use_for_debug "函数调用的参数们">> expressionList? ")" { name="函数调用"}
+
+inc_dec_expr::= expr ("++" | "--")
+array_expr::= expr "[" expr "]"
+mul_div_expr::= expr ("*"|"/") expr
+add_sub_expr::= expr ("+"|"-") expr
+lt_gt_expr::= expr ("<<" | ">>>" | ">>") expr
+lt_gt_assi_expr::=  expr (">" | "<") ASSIGN? expr
+instance_expr::= expr "INSTANCEOF" typeRef
+logic_expr::= expr ("===" | "!==" | "==" | "!=" | "<>" ) expr
+bit_and_expr::= expr "&" expr
+caret_expr::= expr "^" expr
+bitor_expr::= expr "|" expr
+and_expr::= expr "&&" expr
+or_expr::= expr "||" expr
+coal_expr::= expr "??" expr
+question_expr::= expr "?" expr ":" expr   {rightAssociative=true }
+//TODO 这里也可能有递归调用的问题
+multi_assign_expr::= <<use_for_debug "开始匹配：赋值语句">> expr
+  (   "="
+      |   "+="
+      |   "-="
+      |   "*="
+      |   "/="
+      |   "&="
+      |   "!="
+      |   "^="
+      |   ">>="
+      |   ">>>="
+      |   "<<="
+  ) <<use_for_debug "开始匹配：赋值语句2">> expr
+   {rightAssociative=true }
+
+//primary_expr::= <<use_for_debug "尝试匹配基本元素">> identifier
+
+//simple_ref_expr ::= identifier
+neg_expression_expr::= ("~"|"!") expr
+new_creator_expr::= "NEW" creator
+creator::=  createdName ( "{" "}" | arguments | arrayCreatorRest | mapCreatorRest | setCreatorRest)
+createdName::= idCreatedNamePair ("." idCreatedNamePair)* {pin(".*")=1}
+idCreatedNamePair::= anyId ("<" typeList ">")?
+arguments::= "(" expressionList? ")"
+arrayCreatorRest::= "[" expr "]" | "[]" arrayInitializer?
+mapCreatorRest::= "{" mapCreatorRestPair ("," mapCreatorRestPair )* "}"
+setCreatorRest ::= "{" expr ("," ( expr ))* "}"
+mapCreatorRestPair::=  expr "=>" expr
+
+
+arrayInitializer::= "{" (expr ("," expr)* (",")? )? "}"
+
+
+expressionList::=  <<use_for_debug "尝试匹配函数调用的参数们">> expression (<<use_for_debug "尝试匹配函数调用的不定参数">> "," expression)* {pin(".*")=3}
+
+/////// 表达式相关的声明，，结束
+
+
+//private primary::= identifier
+// 提前预测是否为标识符、字面量，避免在表达式expr中无限循环
+literal_expr::=<<advanceIdentifierOrLiteral>> identifier | literal | classSomeThing <<use_for_debug "匹配成功：字面量">>
+private classSomeThing::= <<use_for_debug "开始：class类型">> ("VOID" | typeRef ) "." CLASS
+
+literal::= soqlBlock | simpleLiteral
+
+private simpleLiteral::= "NULL"
+	| integerliteralpattern
+	| longliteralpattern
+	| numberliteralpattern
+	| SINGLEQUOTESTRINGLITERAL
+	| BooleanLiteral
+BooleanLiteral::= ('TRUE'|'FALSE')
+
+soqlBlock::="[" "SELECT" (identifier | "," | "(" | ")" | "{" | "}" | "<" | ">" | "=" | ":" | "." | "NEW" | simpleLiteral)* "]"{pin = 2}
+anyId::=  identifier | "CLASS"
