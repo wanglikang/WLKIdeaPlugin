@@ -17,6 +17,7 @@ import com.wlk.ideaplugin.apexsupport.language.parser.antlr4.Antlr4PsiElement;
 import com.wlk.ideaplugin.apexsupport.language.psi.ApexFile;
 import org.antlr.intellij.adaptor.lexer.ANTLRLexerAdaptor;
 import org.antlr.intellij.adaptor.lexer.PSIElementTypeFactory;
+import org.antlr.intellij.adaptor.lexer.RuleIElementType;
 import org.antlr.intellij.adaptor.lexer.TokenIElementType;
 import org.antlr.intellij.adaptor.parser.ANTLRParserAdaptor;
 import org.antlr.v4.runtime.Parser;
@@ -29,18 +30,29 @@ public class ApexParserDefinition implements ParserDefinition {
 
     public static final IFileElementType FILE = new IFileElementType(ApexLanguage.INSTANCE);
 
-//    public static TokenIElementType ID;
     static {
         PSIElementTypeFactory.defineLanguageIElementTypes(ApexLanguage.INSTANCE, ApexLexer.tokenNames, ApexParser.ruleNames);
         List<TokenIElementType> tokenIElementTypes = PSIElementTypeFactory.getTokenIElementTypes(ApexLanguage.INSTANCE);
-//        ID = tokenIElementTypes.get(JarlLexer.RULE);
+        List<RuleIElementType> ruleIElementTypes = PSIElementTypeFactory.getRuleIElementTypes(ApexLanguage.INSTANCE);
     }
 
     public static final TokenSet COMMENTS = PSIElementTypeFactory.createTokenSet(ApexLanguage.INSTANCE, ApexLexer.COMMENT,ApexLexer.DOC_COMMENT,ApexLexer.LINE_COMMENT);
 
     public static final TokenSet WHITESPACE = PSIElementTypeFactory.createTokenSet(ApexLanguage.INSTANCE, ApexLexer.WS);
+    public static final TokenSet IDENTIFIERS = PSIElementTypeFactory.createTokenSet(ApexLanguage.INSTANCE, ApexLexer.Identifier);
 
-    public static final TokenSet STRING = PSIElementTypeFactory.createTokenSet(ApexLanguage.INSTANCE, ApexLexer.StringLiteral, ApexLexer.NumberLiteral);
+    public static final TokenSet STRING = PSIElementTypeFactory.createTokenSet(ApexLanguage.INSTANCE,
+            ApexLexer.StringLiteral,
+            ApexLexer.NumberLiteral);
+
+    public static final TokenSet LITERALS = PSIElementTypeFactory.createTokenSet(ApexLanguage.INSTANCE,
+            ApexLexer.StringLiteral,
+            ApexLexer.TimeLiteral,
+            ApexLexer.DateTimeLiteral,
+            ApexLexer.LongLiteral,
+            ApexLexer.BooleanLiteral,
+            ApexLexer.IntegerLiteral,
+            ApexLexer.NumberLiteral);
 
 
     @NotNull
@@ -49,8 +61,6 @@ public class ApexParserDefinition implements ParserDefinition {
     public Lexer createLexer(Project project) {
         ANTLRLexerAdaptor antlrLexerAdaptor = new ANTLRLexerAdaptor(ApexLanguage.INSTANCE,new ApexLexer(null));
         return antlrLexerAdaptor;
-//        return new Antlr4LexerAdapter();
-//        return new ApexLexerAdapter();
     }
 
     @NotNull
@@ -65,9 +75,6 @@ public class ApexParserDefinition implements ParserDefinition {
             }
         };
         return antlrParserAdaptor;
-//        System.out.println("ApexParserDefinition.createParser:"+project.getName());
-//        return new Antlr4ParserAdapter();
-//        return new com.wlk.ideaplugin.apexsupport.language.gen.ApexParser();
     }
 
 
@@ -100,16 +107,12 @@ public class ApexParserDefinition implements ParserDefinition {
     @NotNull
     @Override
     public PsiFile createFile(@NotNull FileViewProvider viewProvider) {
-        System.out.println("ApexParserDefinition.createFile:"+viewProvider.getVirtualFile().getPath());
         return new ApexFile(viewProvider);
     }
 
     @NotNull
     @Override
     public PsiElement createElement(ASTNode node) {
-        //TODO 需要修改为antlr4的
-        System.out.println("ApexParserDefinition.createElement:"+node.getText());
-//        return ApexTypes.Factory.createElement(node);
         return new Antlr4PsiElement(node);
     }
 

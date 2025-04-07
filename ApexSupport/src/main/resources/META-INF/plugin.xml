@@ -24,7 +24,7 @@
   <extensions defaultExtensionNs="com.intellij">
     <fileType name="Apex File" implementationClass="com.wlk.ideaplugin.apexsupport.language.ApexFileType" fieldName="INSTANCE" language="Apex" extensions="cls;trigger" />
     <lang.parserDefinition language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.language.ApexParserDefinition"/>
-    <lang.syntaxHighlighterFactory language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.feature.highlight.SpexSyntaxHighlighterFactory"/>
+    <lang.syntaxHighlighterFactory language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.feature.highlight.ApexSyntaxHighlighterFactory"/>
     <colorSettingsPage implementation="com.wlk.ideaplugin.apexsupport.feature.highlight.ApexColorSettingsPage"/>
 
 <!--     自动补全的配置-->
@@ -34,8 +34,15 @@
  -->
 <!--    <psi.referenceContributor language="JAVA" implementation="com.wlk.ideaplugin.apexsupport.feature.autoreference.ApexReferenceContributor"/>-->
 
-<!--定义Find Usage 的功能-->
-<!--    <lang.findUsagesProvider language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.language.ApexFindUsagesProvider"/>-->
+    <!--定义Find Usage 的功能-->
+    <lang.findUsagesProvider language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.feature.findusage.ApexFindUsagesProvider"/>
 
+<!--    定义折叠生成器，用于替换内容，如，使用key所对应的value替换代码中的key、将代码块进行这叠等-->
+<!--    <lang.foldingBuilder language="Apex"  implementationClass="com.wlk.ideaplugin.apexsupport.feature.fold.ApexFoldingBuilder"/>-->
+
+<!--    通知的分组-->
+    <notificationGroup displayType="BALLOON" id="ApexNotification"/>
   </extensions>
+
+
 </idea-plugin>
