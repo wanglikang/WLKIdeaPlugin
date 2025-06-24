@@ -28,13 +28,17 @@
     <colorSettingsPage implementation="com.wlk.ideaplugin.apexsupport.feature.highlight.ApexColorSettingsPage"/>
 
 <!--     自动补全的配置-->
-<!--    <completion.contributor language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.feature.highlight.autocomplete.ApexCompletionContributor"/>-->
+    <completion.contributor language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.feature.autocomplete.ApexCompletionContributor"/>
+
+
 <!--    引用的配置，可以在不同语言之间引用？？？
         配置里的language  应该是指可以在其他什么语言中被引用的意思吧
  -->
-<!--    <psi.referenceContributor language="JAVA" implementation="com.wlk.ideaplugin.apexsupport.feature.autoreference.ApexReferenceContributor"/>-->
+
+
 
     <!--定义Find Usage 的功能-->
+    <psi.referenceContributor language="JAVA" implementation="com.wlk.ideaplugin.apexsupport.feature.autoreference.ApexReferenceContributor"/>
     <lang.findUsagesProvider language="Apex" implementationClass="com.wlk.ideaplugin.apexsupport.feature.findusage.ApexFindUsagesProvider"/>
 
 <!--    定义折叠生成器，用于替换内容，如，使用key所对应的value替换代码中的key、将代码块进行这叠等-->
@@ -42,7 +46,62 @@
 
 <!--    通知的分组-->
     <notificationGroup displayType="BALLOON" id="ApexNotification"/>
+
+<!--    用于在侧边栏添加自定义的工具窗-->
+    <toolWindow id="ApexToolWindows"
+                factoryClass="com.wlk.ideaplugin.apexsupport.feature.toolwindows.ApexToolWindowFactory"
+                anchor="right"
+    />
+    <toolWindow id="SqlToolWindow"
+                factoryClass="com.wlk.ideaplugin.apexsupport.sql.SqlToolWindow"
+                anchor="right"
+                icon="AllIcons.Toolwindows.ToolWindowChanges"
+    />
+
+<!--    用于在偏好设置中，添加应用级的设置页-->
+<!--    <applicationConfigurable></applicationConfigurable>-->
+
+<!--    用于在偏好设置中添加项目级的设置页-->
+    <projectConfigurable instance="com.wlk.ideaplugin.apexsupport.sql.SqlConfigUI"
+                        displayName="SQL 查询设置"
+                        id="preferences.sqlConfig"
+    />
+
+<!--    服务，，idea平台保证的单例组件，只有一个实例，可以跨多个插件项目使用-->
+<!--    应用级别的服务-->
+<!--    <projectService serviceImplementation="com"></projectService>-->
+<!--    项目级别的服务-->
+<!--    <applicationService serviceImplementation="com"></applicationService>-->
+<!--    模块级别的服务，（容易导致内存泄露）-->
+<!--    <moduleService serviceImplementation="com"></moduleService>-->
+
   </extensions>
 
+  <actions>
+    <group id="ApexActionGroup"
+           popup="true"
+           text="Apex开发工具">
+      <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+      <action id="DiffAction"
+              class="com.wlk.ideaplugin.apexsupport.feature.action.DiffAction"
+              text="Diff"
+              description="Apex的deploy、diff、reverse快捷工具之Diff">
+      </action>
+      <separator/>
+      <action id="DeployAction"
+              class="com.wlk.ideaplugin.apexsupport.feature.action.DeployAction"
+              text="Deploy"
+              description="Apex的deploy、diff、reverse快捷工具之Deploy">
+      </action>
+    </group>
+  </actions>
+
+<!--  扩展点，用于允许其他插件进行扩展以实现自身功能，，一般不需要-->
+<!--  <extensionPoints></extensionPoints>-->
+<!--  扩展点和监听器列表：https://plugins.jetbrains.com/docs/intellij/intellij-platform-extension-point-list.html-->
+
+<!--监听器，分应用级别的application、项目级别的project-->
+<!--  <applicationListeners></applicationListeners>-->
+<!--  <projectListeners></projectListeners>-->
 
 </idea-plugin>

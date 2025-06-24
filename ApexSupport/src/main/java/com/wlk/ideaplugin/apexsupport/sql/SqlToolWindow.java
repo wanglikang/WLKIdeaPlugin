@@ -1,6 +1,11 @@
 package com.wlk.ideaplugin.apexsupport.sql;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
@@ -9,6 +14,9 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * SQL工具窗口主类
@@ -56,9 +64,35 @@ public class SqlToolWindow implements ToolWindowFactory {
      * 调用时机：用户点击运行按钮时
      */
     private void executeSql(Project project) {
-        String sql = sqlEditor.getText();
-        // 这里会调用SqlRunner执行SQL
-        // String result = SqlRunner.execute(project, sql);
-        // resultViewer.displayResult(result);
+        try {
+            // 1. 创建临时文件保存SQL
+            Path tempFile = Files.createTempFile("apex_sql_", ".sql");
+            sqlEditor.saveToFile(tempFile.toString());
+            
+            // 2. 显示执行状态
+            ProgressManager.getInstance().run(new Task.Backgroundable(project, "执行SQL查询") {
+                @Override
+                public void run(@NotNull ProgressIndicator indicator) {
+                    indicator.setText("正在执行SQL查询...");
+                    
+                    // 3. 异步执行SQL
+                    SqlRunner.executeSqlAsync(project, tempFile.toString())
+                        .thenAccept(result -> {
+                            // 4. 显示结果
+                            ApplicationManager.getApplication().invokeLater(() -> {
+                                resultViewer.displayResult(result);
+                            });
+                        })
+                        .exceptionally(e -> {
+                            ApplicationManager.getApplication().invokeLater(() -> {
+                                Messages.showErrorDialog("执行SQL失败: " + e.getMessage(), "SQL执行错误");
+                            });
+                            return null;
+                        });
+                }
+            });
+        } catch (IOException e) {
+            Messages.showErrorDialog("创建临时文件失败: " + e.getMessage(), "文件错误");
+        }
     }
 }
