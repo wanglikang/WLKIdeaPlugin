@@ -9,7 +9,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -36,8 +35,11 @@ public class SqlRunner {
                 @Override
                 public void processTerminated(@NotNull ProcessEvent event) {
                     if (event.getExitCode() == 0) {
-                        future.complete(handler.getProcess().getInputStream().readAllBytes()
-                                .toString(StandardCharsets.UTF_8));
+                        try {
+                            future.complete(handler.getProcess().getInputStream().readAllBytes().toString());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     } else {
                         future.completeExceptionally(new ExecutionException("SQL执行失败，退出码: " + event.getExitCode()));
                     }
@@ -45,7 +47,7 @@ public class SqlRunner {
             });
             
             handler.startNotify();
-        } catch (ExecutionException | IOException e) {
+        } catch (ExecutionException e) {
             LOG.error("执行SQL命令失败", e);
             future.completeExceptionally(e);
         }

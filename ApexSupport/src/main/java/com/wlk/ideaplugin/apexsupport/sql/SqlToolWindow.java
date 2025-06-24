@@ -54,7 +54,7 @@ public class SqlToolWindow implements ToolWindowFactory {
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
         
         // 将主面板添加到工具窗口
-        Content content = ContentFactory.getInstance().createContent(mainPanel, "", false);
+        Content content = ContentFactory.getInstance().createContent(mainPanel, "SOQL工具", false);
         toolWindow.getContentManager().addContent(content);
     }
     
@@ -76,7 +76,7 @@ public class SqlToolWindow implements ToolWindowFactory {
                     indicator.setText("正在执行SQL查询...");
                     
                     // 3. 异步执行SQL
-                    SqlRunner.executeSqlAsync(project, tempFile.toString())
+                    SqlRunner.executeSqlAsync(tempFile.toString())
                         .thenAccept(result -> {
                             // 4. 显示结果
                             ApplicationManager.getApplication().invokeLater(() -> {
