@@ -26,6 +26,7 @@ public class ResultViewer extends JPanel {
     private final JBTable resultTable;
     private DefaultTableModel tableModel;
     private JLabel totalSizeLabel;
+    private JLabel loadingLabel;
     
     public ResultViewer() {
         super(new BorderLayout());
@@ -34,9 +35,14 @@ public class ResultViewer extends JPanel {
         totalSizeLabel = new JLabel();
         totalSizeLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         
+        // 创建加载状态标签
+        loadingLabel = new JLabel("加载中...");
+        loadingLabel.setVisible(false);
+        
         // 创建顶部面板
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(totalSizeLabel, BorderLayout.WEST);
+        topPanel.add(loadingLabel, BorderLayout.EAST);
         
         // 初始化表格模型，创建不可编辑的表格模型
         tableModel = new DefaultTableModel() {
@@ -128,12 +134,8 @@ public class ResultViewer extends JPanel {
         SwingUtilities.invokeLater(() -> {
             // 更新总数显示
             totalSizeLabel.setText("总行数: " + totalSize);
-            
-
-            
             // 设置表头
             tableModel.setColumnIdentifiers(columns.toArray());
-            
             // 添加数据行
             for (Map<String, String> row : data) {
                 Object[] rowData = new Object[columns.size()];
@@ -142,7 +144,6 @@ public class ResultViewer extends JPanel {
                 }
                 tableModel.addRow(rowData);
             }
-            
             // 设置表格选择模式
             resultTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         });
@@ -162,6 +163,16 @@ public class ResultViewer extends JPanel {
         SwingUtilities.invokeLater(() -> {
             tableModel.setRowCount(0);
             tableModel.setColumnCount(0);
+        });
+    }
+    
+    /**
+     * 显示/隐藏加载状态
+     * @param loading 是否显示加载状态
+     */
+    public void showLoading(boolean loading) {
+        SwingUtilities.invokeLater(() -> {
+            loadingLabel.setVisible(loading);
         });
     }
 }
