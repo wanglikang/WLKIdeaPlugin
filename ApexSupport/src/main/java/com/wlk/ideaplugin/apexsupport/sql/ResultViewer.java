@@ -24,7 +24,7 @@ public class ResultViewer extends JPanel {
     private static final Logger LOG = Logger.getInstance(ResultViewer.class);
 
     private final JBTable resultTable;
-    private final DefaultTableModel tableModel;
+    private DefaultTableModel tableModel;
     private JLabel totalSizeLabel;
     
     public ResultViewer() {
@@ -38,8 +38,13 @@ public class ResultViewer extends JPanel {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(totalSizeLabel, BorderLayout.WEST);
         
-        // 初始化表格模型
-        tableModel = new DefaultTableModel();
+        // 初始化表格模型，创建不可编辑的表格模型
+        tableModel = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         resultTable = new JBTable(tableModel);
         resultTable.setPreferredScrollableViewportSize(JBUI.size(500, 200));
         
@@ -124,6 +129,8 @@ public class ResultViewer extends JPanel {
             // 更新总数显示
             totalSizeLabel.setText("总行数: " + totalSize);
             
+
+            
             // 设置表头
             tableModel.setColumnIdentifiers(columns.toArray());
             
@@ -135,6 +142,9 @@ public class ResultViewer extends JPanel {
                 }
                 tableModel.addRow(rowData);
             }
+            
+            // 设置表格选择模式
+            resultTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         });
     }
     
