@@ -2,7 +2,6 @@ package com.wlk.ideaplugin.apexsupport.sql;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -49,17 +48,30 @@ public class SqlToolWindow implements ToolWindowFactory {
         editorField.setPreferredSize(new Dimension(600, 200));
         
         // 创建工具栏面板
-        JPanel toolbarPanel = new JPanel(new BorderLayout());
+        JPanel toolbarPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        
+        // 添加运行按钮
         JButton runButton = new JButton("运行SQL");
+        
+        // 添加参数选择下拉框
+        JComboBox<String> optionComboBox = new com.intellij.openapi.ui.ComboBox<>(new String[]{"boe","prod", "bp-prod", "bp-boe"});
+        optionComboBox.setSelectedItem("json");
+        optionComboBox.setToolTipText("选择输出格式");
+        
         runButton.addActionListener(e -> {
             try {
                 resultViewer.clear();
-                executeSql(project, editorField.getDocument());
+                String selectedOption = (String) optionComboBox.getSelectedItem();
+                String sql = editorField.getDocument().getText();
+                executeSqlWithOption(project, sql, selectedOption);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         });
-        toolbarPanel.add(runButton, BorderLayout.CENTER);
+        
+        toolbarPanel.add(runButton);
+        toolbarPanel.add(new JLabel("输出格式:"));
+        toolbarPanel.add(optionComboBox);
         
         // 组装UI
         mainPanel.add(toolbarPanel, BorderLayout.NORTH);
@@ -71,19 +83,21 @@ public class SqlToolWindow implements ToolWindowFactory {
         toolWindow.getContentManager().addContent(content);
     }
     
-    private void executeSql(Project project, Document document) throws IOException {
-        String sql = document.getText();
-        LOG.warn("待执行的soql："+sql);
+    private void executeSqlWithOption(Project project, String sql, String option) throws IOException {
+        String env = "boe";
+        if (option != null && !option.isEmpty()) {
+            env  = option;
+        }
         
         resultViewer.clear();
         resultViewer.showLoading(true);
-        
+
+        String finalEnv = env;
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "执行SQL查询") {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 indicator.setText("正在执行SQL查询...:"+sql);
-                // 3. 异步执行SQL
-                SqlRunner.executeSqlStringAsync(sql)
+                SqlRunner.executeSqlStringAsync(sql, finalEnv)
                     .thenAccept(result -> {
                         indicator.setText("执行SOQL结束");
                         LOG.warn("命令运行结果为："+result);

@@ -24,12 +24,12 @@ public class SqlRunner {
      * @param sql SQL命令字符串
      * @return 包含执行结果的CompletableFuture
      */
-    public static CompletableFuture<String> executeSqlStringAsync(String sql) {
+    public static CompletableFuture<String> executeSqlStringAsync(String sql,String env) {
         CompletableFuture<String> future = new CompletableFuture<>();
         
         try {
             GeneralCommandLine commandLine = new GeneralCommandLine()
-                    .withExePath("sf").withParameters("data", "query", "--query").withParameters(sql).withParameters("--json", "-o", "boe");
+                    .withExePath("sf").withParameters("data", "query", "--query").withParameters(sql).withParameters("--json", "-o", env);
 //                    .withExePath("ls");
 
             OSProcessHandler handler = new OSProcessHandler(commandLine);
