@@ -21,16 +21,17 @@ import java.nio.charset.StandardCharsets;
 public class SqlEditor extends EditorTextField {
     private final Project project;
     
-    /**
-     * 构造函数
-     * @param project 当前项目实例
-     * 调用时机：工具窗口初始化时
-     */
     public SqlEditor(@NotNull Project project) {
         super(project, FileTypes.PLAIN_TEXT);
         this.project = project;
         setFontInheritedFromLAF(false);
         setFont(JBUI.Fonts.create("Monospaced", 14));
+        
+        // 启用多行模式
+        setOneLineMode(false);
+        
+        // 设置默认SQL语句
+        setText("select ID,Name from Account limit 10");
     }
     
     /**

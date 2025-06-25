@@ -8,7 +8,9 @@ import com.intellij.execution.process.ProcessEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -18,30 +20,68 @@ public class SqlRunner {
     private static final Logger LOG = Logger.getInstance(SqlRunner.class);
 
     /**
-     * 异步执行SQL命令
-     * @param sqlFile 包含SQL命令的文件路径
+     * 异步执行SQL字符串
+     * @param sql SQL命令字符串
      * @return 包含执行结果的CompletableFuture
      */
-    public static CompletableFuture<String> executeSqlAsync(String sqlFile) {
+    public static CompletableFuture<String> executeSqlStringAsync(String sql) {
         CompletableFuture<String> future = new CompletableFuture<>();
         
         try {
             GeneralCommandLine commandLine = new GeneralCommandLine()
-                    .withExePath("sf")
-                    .withParameters("data", "query", "--file", sqlFile, "--json");
-            
+                    .withExePath("sf").withParameters("data", "query", "--query").withParameters(sql).withParameters("--json", "-o", "boe");
+//                    .withExePath("ls");
+
             OSProcessHandler handler = new OSProcessHandler(commandLine);
+            StringBuilder outputBuffer = new StringBuilder();
+            StringBuilder errorBuffer = new StringBuilder();
+            
+            // 实时读取输出流
+            Thread outputThread = new Thread(() -> {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(handler.getProcess().getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        outputBuffer.append(line).append("\n");
+                    }
+                } catch (IOException e) {
+                    LOG.warn("读取命令输出流异常", e);
+                }
+            });
+            
+            // 实时读取错误流
+            Thread errorThread = new Thread(() -> {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(handler.getProcess().getErrorStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        errorBuffer.append(line).append("\n");
+                    }
+                } catch (IOException e) {
+                    LOG.warn("读取命令错误流异常", e);
+                }
+            });
+            
             handler.addProcessListener(new ProcessAdapter() {
                 @Override
+                public void startNotified(@NotNull ProcessEvent event) {
+                    outputThread.start();
+                    errorThread.start();
+                }
+                
+                @Override
                 public void processTerminated(@NotNull ProcessEvent event) {
-                    if (event.getExitCode() == 0) {
-                        try {
-                            future.complete(handler.getProcess().getInputStream().readAllBytes().toString());
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
+                    try {
+                        outputThread.join();
+                        errorThread.join();
+                        
+                        if (event.getExitCode() == 0) {
+                            future.complete(outputBuffer.toString());
+                        } else {
+                            LOG.warn("命令执行失败，错误输出: " + errorBuffer.toString());
+                            future.completeExceptionally(new ExecutionException("SQL执行失败，退出码: " + 
+                                event.getExitCode() + "; " + errorBuffer.toString()));
                         }
-                    } else {
-                        future.completeExceptionally(new ExecutionException("SQL执行失败，退出码: " + event.getExitCode()));
+                    } catch (InterruptedException e) {
+                        future.completeExceptionally(e);
                     }
                 }
             });
