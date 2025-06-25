@@ -25,9 +25,18 @@ public class ResultViewer extends JPanel {
 
     private final JBTable resultTable;
     private final DefaultTableModel tableModel;
+    private JLabel totalSizeLabel;
     
     public ResultViewer() {
         super(new BorderLayout());
+        
+        // 创建总数标签
+        totalSizeLabel = new JLabel();
+        totalSizeLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        
+        // 创建顶部面板
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(totalSizeLabel, BorderLayout.WEST);
         
         // 初始化表格模型
         tableModel = new DefaultTableModel();
@@ -36,6 +45,9 @@ public class ResultViewer extends JPanel {
         
         // 添加滚动面板
         JScrollPane scrollPane = new JScrollPane(resultTable);
+        
+        // 添加组件到主面板
+        add(topPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
     }
     
@@ -109,6 +121,9 @@ public class ResultViewer extends JPanel {
     
     private void updateTable(List<String> columns, List<Map<String, String>> data, int totalSize) {
         SwingUtilities.invokeLater(() -> {
+            // 更新总数显示
+            totalSizeLabel.setText("总行数: " + totalSize);
+            
             // 设置表头
             tableModel.setColumnIdentifiers(columns.toArray());
             
@@ -120,9 +135,6 @@ public class ResultViewer extends JPanel {
                 }
                 tableModel.addRow(rowData);
             }
-            
-            // 显示总行数
-            JOptionPane.showMessageDialog(this, "总行数: " + totalSize, "查询结果", JOptionPane.INFORMATION_MESSAGE);
         });
     }
     
