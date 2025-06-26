@@ -1,5 +1,7 @@
 package com.wlk.ideaplugin.apexsupport.sql;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.process.OSProcessHandler;
@@ -31,7 +33,8 @@ public class SqlRunner {
             GeneralCommandLine commandLine = new GeneralCommandLine()
                     .withExePath("sf").withParameters("data", "query", "--query").withParameters(sql).withParameters("--json", "-o", env);
 //                    .withExePath("ls");
-
+            String commandLineStr = commandLine.toString();
+            LOG.warn("待执行的命令:"+commandLineStr);
             OSProcessHandler handler = new OSProcessHandler(commandLine);
             StringBuilder outputBuffer = new StringBuilder();
             StringBuilder errorBuffer = new StringBuilder();
@@ -76,9 +79,19 @@ public class SqlRunner {
                         if (event.getExitCode() == 0) {
                             future.complete(outputBuffer.toString());
                         } else {
-                            LOG.warn("命令执行失败，错误输出: " + errorBuffer.toString());
-                            future.completeExceptionally(new ExecutionException("SQL执行失败，退出码: " + 
-                                event.getExitCode() + "; " + errorBuffer.toString()));
+                            // 虽然失败，但是还会返回结果，解析展示即可
+                            if(outputBuffer.length()>0){
+                                String errorInfo = outputBuffer.toString();
+                                JsonObject jsonObject = JsonParser.parseString(errorInfo).getAsJsonObject();
+                                String errorType = jsonObject.get("name").getAsString();
+                                String errorMessage = jsonObject.get("message").getAsString();//"\nin('001BA00000FMfn6YAD','0015g00000CffZ7AAJ'')\n                                           ^\nERROR at Row:1:Column:102\nunexpected token: '''",
+                                future.completeExceptionally(new ExecutionException("SQL执行失败 " +
+                                        "\n错误原因：" + errorType + errorMessage));
+                            }else {
+                                LOG.warn("命令执行失败，错误输出: " + errorBuffer.toString());
+                                future.completeExceptionally(new ExecutionException("\nSQL执行失败，退出码: " +
+                                        event.getExitCode() + "; " + errorBuffer.toString()));
+                            }
                         }
                     } catch (InterruptedException e) {
                         future.completeExceptionally(e);

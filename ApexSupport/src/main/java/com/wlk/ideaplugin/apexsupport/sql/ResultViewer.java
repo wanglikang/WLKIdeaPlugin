@@ -146,6 +146,7 @@ public class ResultViewer extends JPanel {
             }
             // 设置表格选择模式
             resultTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+            resultTable.setCellSelectionEnabled(true);
         });
     }
     

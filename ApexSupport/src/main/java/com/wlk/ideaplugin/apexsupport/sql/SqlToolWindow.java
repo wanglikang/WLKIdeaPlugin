@@ -116,7 +116,7 @@ public class SqlToolWindow implements ToolWindowFactory {
                                 String string = stackTraceElement.toString();
                                 LOG.warn("stackTraceElement:" + string);
                             }
-                            Messages.showErrorDialog("执行SQL失败: " + e.getMessage(), "SQL执行错误");
+                            Messages.showErrorDialog( e.getMessage(), "SQL执行错误");
                         });
                         return null;
                     });
