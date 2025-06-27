@@ -27,6 +27,7 @@ import java.io.IOException;
 public class SqlToolWindow implements ToolWindowFactory {
     private static final Logger LOG = Logger.getInstance(SqlToolWindow.class);
     private ResultViewer resultViewer;
+    private JLabel executionTimeLabel;
     
     /**
      * 创建工具窗口内容
@@ -53,6 +54,10 @@ public class SqlToolWindow implements ToolWindowFactory {
         // 添加运行按钮
         JButton runButton = new JButton("运行SQL");
         
+        // 添加耗时显示标签
+        executionTimeLabel = new JLabel("耗时: 0ms");
+        executionTimeLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        
         // 添加参数选择下拉框
         JComboBox<String> optionComboBox = new com.intellij.openapi.ui.ComboBox<>(new String[]{"boe","prod", "bp-prod", "bp-boe"});
         optionComboBox.setSelectedItem("json");
@@ -72,11 +77,16 @@ public class SqlToolWindow implements ToolWindowFactory {
         toolbarPanel.add(runButton);
         toolbarPanel.add(new JLabel("输出格式:"));
         toolbarPanel.add(optionComboBox);
+        toolbarPanel.add(executionTimeLabel);
+        
+        // 创建可调整的分割面板
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, editorField, resultViewer);
+        splitPane.setResizeWeight(0.5);
+        splitPane.setOneTouchExpandable(true);
         
         // 组装UI
         mainPanel.add(toolbarPanel, BorderLayout.NORTH);
-        mainPanel.add(editorField, BorderLayout.CENTER);
-        mainPanel.add(resultViewer, BorderLayout.SOUTH);
+        mainPanel.add(splitPane, BorderLayout.CENTER);
         
         // 将主面板添加到工具窗口
         Content content = ContentFactory.getInstance().createContent(mainPanel, "", false);
@@ -91,7 +101,9 @@ public class SqlToolWindow implements ToolWindowFactory {
         
         resultViewer.clear();
         resultViewer.showLoading(true);
-
+        
+        long startTime = System.currentTimeMillis();
+        
         String finalEnv = env;
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "执行SQL查询") {
             @Override
@@ -105,6 +117,8 @@ public class SqlToolWindow implements ToolWindowFactory {
                         ApplicationManager.getApplication().invokeLater(() -> {
                             resultViewer.showLoading(false);
                             resultViewer.displayResult(result);
+                            long endTime = System.currentTimeMillis();
+                            executionTimeLabel.setText("耗时: " + (endTime - startTime) + "ms");
                         });
                     })
                     .exceptionally(e -> {

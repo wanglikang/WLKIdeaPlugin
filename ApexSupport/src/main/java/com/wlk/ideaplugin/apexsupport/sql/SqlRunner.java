@@ -3,12 +3,7 @@ package com.wlk.ideaplugin.apexsupport.sql;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.intellij.execution.ExecutionException;
-import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.execution.process.OSProcessHandler;
-import com.intellij.execution.process.ProcessAdapter;
-import com.intellij.execution.process.ProcessEvent;
 import com.intellij.openapi.diagnostic.Logger;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,22 +25,27 @@ public class SqlRunner {
         CompletableFuture<String> future = new CompletableFuture<>();
         
         try {
-            GeneralCommandLine commandLine = new GeneralCommandLine()
-                    .withExePath("sf").withParameters("data", "query", "--query").withParameters(sql).withParameters("--json", "-o", env);
-//                    .withExePath("ls");
-            String commandLineStr = commandLine.toString();
+            ProcessBuilder processBuilder = new ProcessBuilder("sf", "data", "query", "--query", sql, "--json", "-o", env);
+            Process process = processBuilder.start();
+            String commandLineStr = String.join(" ", processBuilder.command());
             LOG.warn("待执行的命令:"+commandLineStr);
-            OSProcessHandler handler = new OSProcessHandler(commandLine);
+//            OSProcessHandler handler = new OSProcessHandler(process);
             StringBuilder outputBuffer = new StringBuilder();
             StringBuilder errorBuffer = new StringBuilder();
             
             // 实时读取输出流
             Thread outputThread = new Thread(() -> {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(handler.getProcess().getInputStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        outputBuffer.append(line).append("\n");
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                    char[] buf = new char[102400];
+                    int read = -1;
+                    while ((read = reader.read(buf))>0) {
+                        outputBuffer.append(String.valueOf(buf, 0, read));
                     }
+
+                    while ((read = reader.read(buf))>0) {
+                        outputBuffer.append(String.valueOf(buf, 0, read));
+                    }
+                    LOG.warn("读取命令输出流完毕:"+ outputBuffer.toString());
                 } catch (IOException e) {
                     LOG.warn("读取命令输出流异常", e);
                 }
@@ -53,7 +53,7 @@ public class SqlRunner {
             
             // 实时读取错误流
             Thread errorThread = new Thread(() -> {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(handler.getProcess().getErrorStream()))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         errorBuffer.append(line).append("\n");
@@ -62,49 +62,44 @@ public class SqlRunner {
                     LOG.warn("读取命令错误流异常", e);
                 }
             });
+
+            outputThread.start();
+            errorThread.start();
             
-            handler.addProcessListener(new ProcessAdapter() {
-                @Override
-                public void startNotified(@NotNull ProcessEvent event) {
-                    outputThread.start();
-                    errorThread.start();
-                }
-                
-                @Override
-                public void processTerminated(@NotNull ProcessEvent event) {
-                    try {
-                        outputThread.join();
-                        errorThread.join();
-                        
-                        if (event.getExitCode() == 0) {
-                            future.complete(outputBuffer.toString());
-                        } else {
-                            // 虽然失败，但是还会返回结果，解析展示即可
-                            if(outputBuffer.length()>0){
-                                String errorInfo = outputBuffer.toString();
-                                JsonObject jsonObject = JsonParser.parseString(errorInfo).getAsJsonObject();
-                                String errorType = jsonObject.get("name").getAsString();
-                                String errorMessage = jsonObject.get("message").getAsString();//"\nin('001BA00000FMfn6YAD','0015g00000CffZ7AAJ'')\n                                           ^\nERROR at Row:1:Column:102\nunexpected token: '''",
-                                future.completeExceptionally(new ExecutionException("SQL执行失败 " +
-                                        "\n错误原因：" + errorType + errorMessage));
-                            }else {
-                                LOG.warn("命令执行失败，错误输出: " + errorBuffer.toString());
-                                future.completeExceptionally(new ExecutionException("\nSQL执行失败，退出码: " +
-                                        event.getExitCode() + "; " + errorBuffer.toString()));
-                            }
+            new Thread(() -> {
+                try {
+                    outputThread.join();
+                    errorThread.join();
+                    
+                    int exitCode = process.waitFor();
+                    if (exitCode == 0) {
+                        future.complete(outputBuffer.toString());
+                    } else {
+                        // 虽然失败，但是还会返回结果，解析展示即可
+                        if(outputBuffer.length()>0){
+                            String errorInfo = outputBuffer.toString();
+                            JsonObject jsonObject = JsonParser.parseString(errorInfo).getAsJsonObject();
+                            String errorType = jsonObject.get("name").getAsString();
+                            String errorMessage = jsonObject.get("message").getAsString();
+                            future.completeExceptionally(new ExecutionException("SQL执行失败 " +
+                                    "\n错误原因：" + errorType + errorMessage));
+                        }else {
+                            LOG.warn("命令执行失败，错误输出: " + errorBuffer.toString());
+                            future.completeExceptionally(new ExecutionException("\nSQL执行失败，退出码: " +
+                                    exitCode + "; " + errorBuffer.toString()));
                         }
-                    } catch (InterruptedException e) {
-                        future.completeExceptionally(e);
                     }
+                } catch (InterruptedException e) {
+                    LOG.error("执行SQL命令失败", e);
+                    future.completeExceptionally(e);
                 }
-            });
-            
-            handler.startNotify();
-        } catch (ExecutionException e) {
+            }).start();
+//            handler.startNotify();
+        } catch (IOException e) {
             LOG.error("执行SQL命令失败", e);
-            future.completeExceptionally(e);
+            throw new RuntimeException(e);
         }
-        
+
         return future;
     }
 }
