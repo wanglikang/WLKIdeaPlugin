@@ -1,0 +1,43 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin require-restart="false">
+  <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+  <id>com.wlk.ideaPlugin.SOQLSupport</id>
+
+  <!-- Public plugin name should be written in Title Case.
+       Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+  <name>SOQLSupport</name>
+
+  <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+  <vendor email="1024196018@qq.com" url="http://wlkol.top">王利康</vendor>
+
+  <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+       Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+       Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+  <description><![CDATA[Salesforce的SOQL语言的支持，用于在Idea上的工具栏里直接运行SQOL，并可以将结果复制粘贴<br/>不过暂不支持原地修改数据]]></description>
+
+  <!-- Product and plugin compatibility requirements.
+       Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+  <depends>com.intellij.modules.platform</depends>
+
+  <!-- Extension points defined by the plugin.
+       Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+  <extensions defaultExtensionNs="com.intellij">
+
+      <!-- 注册SqlConfig为项目服务 -->
+    <projectService serviceImplementation="com.wlk.ideaplugin.soqlsupport.sql.SqlConfig" />
+
+      <!--    SOQL执行器-->
+    <toolWindow id="SqlToolWindow"
+                factoryClass="com.wlk.ideaplugin.soqlsupport.sql.SqlToolWindow"
+                anchor="right"
+                icon="/icons/sqlToolWindowIcon.svg" />
+
+    <!--    用于在偏好设置中添加项目级的设置页-->
+    <projectConfigurable instance="com.wlk.ideaplugin.soqlsupport.sql.SqlConfigUI"
+                         displayName="SQL 查询设置"
+                         id="preferences.sqlConfigUI"
+    />
+
+
+  </extensions>
+</idea-plugin>

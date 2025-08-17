@@ -14,7 +14,6 @@ public class Antlr4PsiElement extends ASTWrapperPsiElement implements PsiElement
     }
     @Override
     public void accept(@NotNull PsiElementVisitor visitor) {
-        System.out.println("Antlr4PsiElement accept");
         super.accept(visitor);
     }
 }

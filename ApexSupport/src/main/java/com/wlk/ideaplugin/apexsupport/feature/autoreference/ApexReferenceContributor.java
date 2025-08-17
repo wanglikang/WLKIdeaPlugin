@@ -16,13 +16,12 @@ public class ApexReferenceContributor extends PsiReferenceContributor {
                     @Override
                     public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element,
                                                                            @NotNull ProcessingContext context) {
-                        System.out.println("待引用的元素是:"+element.getText());
-                        System.out.println("待引用的原始元素是:"+element.getOriginalElement());
+                        System.out.println("待引用的元素是:" + element.getText());
+                        System.out.println("待引用的原始元素是:" + element.getOriginalElement());
                         PsiLiteralExpression literalExpression = (PsiLiteralExpression) element;
                         String value = literalExpression.getValue() instanceof String ? (String) literalExpression.getValue() : null;
-                            TextRange property = new TextRange(0, value.length() + 1);
-                            return new PsiReference[]{new ApexReference(element, property)};
-//                        }
+                        TextRange property = new TextRange(0, value.length() + 1);
+                        return new PsiReference[]{new ApexReference(element, property)};
                     }
                 });
     }

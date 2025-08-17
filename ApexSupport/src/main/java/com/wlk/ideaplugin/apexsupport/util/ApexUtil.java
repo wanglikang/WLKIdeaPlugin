@@ -13,7 +13,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 //import com.wlk.ideaplugin.apexsupport.language.gen.psi.ApexQualifiedName;
 import com.wlk.ideaplugin.apexsupport.language.ApexFileType;
-import com.wlk.ideaplugin.apexsupport.language.psi.ApexFile;
+import com.wlk.ideaplugin.apexsupport.language.ApexFile;
 import com.wlk.ideaplugin.apexsupport.language.psi.ApexNamedElement;
 import org.jetbrains.annotations.NotNull;
 

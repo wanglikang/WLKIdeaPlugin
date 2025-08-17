@@ -1,0 +1,43 @@
+[{"Sales":"yujielyu@bytedance.com","Weight":100,"Count":1},{"Sales":"chengxu.123@bytedance.com","Weight":100,"Count":1},{"Sales":"tanwei.280618@bytedance.com","Weight":100,"Count":1},{"Sales":"xushuaiquan@bytedance.com","Weight":100,"Count":1},{"Sales":"xiaoguangguo@bytedance.com","Weight":100,"Count":1},{"Sales":"liyuting.525@bytedance.com","Weight":100,"Count":1},{"Sales":"renjunjie.1204@bytedance.com","Weight":100,"Count":1},{"Sales":"qingling.hu@bytedance.com","Weight":100,"Count":1},{"Sales":"zhangyuan.2022@bytedance.com","Weight":100,"Count":1},{"Sales":"zhaoheming.11joe@bytedance.com","Weight":100,"Count":1},{"Sales":"liuyun.74@bytedance.com","Weight":100,"Count":1}]
+
+update assign_lead_group set assign_sales = '[{"Sales":"yujielyu@bytedance.com","Weight":100,"Count":1},{"Sales":"chengxu.123@bytedance.com","Weight":100,"Count":1},{"Sales":"tanwei.280618@bytedance.com","Weight":100,"Count":1},{"Sales":"xushuaiquan@bytedance.com","Weight":100,"Count":1},{"Sales":"xiaoguangguo@bytedance.com","Weight":100,"Count":1},{"Sales":"liyuting.525@bytedance.com","Weight":100,"Count":1},{"Sales":"renjunjie.1204@bytedance.com","Weight":100,"Count":1},{"Sales":"qingling.hu@bytedance.com","Weight":100,"Count":1},{"Sales":"zhangyuan.2022@bytedance.com","Weight":100,"Count":1},{"Sales":"zhaoheming.11joe@bytedance.com","Weight":100,"Count":1},{"Sales":"liuyun.74@bytedance.com","Weight":100,"Count":1}]'
+where id = 19;
+
+
+
+
+执行SOQL
+sf data query --json -o boe --query "SELECT Id, Name, OwnerId,Owner.Name FROM Account where Id in('001BA00000FMfn6YAD','0015g00000CffZ7AAJ')"
+sf data query --json -o boe --query "select ID,Name from Account limit 100" --use-tooling-api
+sf data query -r human -o boe --query "select ID,Name from Account limit 100" 
+
+
+sf data query --json -o boe -t --query "SELECT Id, Name, OwnerId,Owner.Name FROM Account where Id in('001BA00000FMfn6YAD','0015g00000CffZ7AAJ')"
+不行，直接报错
+
+
+使用bulkapi
+sf data export bulk --json -o boe -w 10 --query "SELECT Id, Name, OwnerId,Owner.Name FROM Account where Id in('001BA00000FMfn6YAD','0015g00000CffZ7AAJ')" --output-file export-accounts.json --result-format json
+
+
+sf org list
+
+
+
+select Id,Name,Owner.Name,ABMLeadStatus__c,ExpectedNextAssignTime__c,IsConverted
+     ,MatchingAccount__c,MatchingAccount__r.Name,MatchingAccount__r.OwnerId
+from Lead where ABMLeadStatus__c = '2' and ExpectedNextAssignTime__c < 2025-06-25T00:00:00.000+0000 and IsConverted = false and Owner.Name != '线索公海'
+
+
+
+# 可视化展示sobject的内容
+1、从 源码的默认路径下：
+force-app/main/default/objects/Account/fields/AcceleratorFollow__c.field-meta.xml
+ 获取每个对象的信息
+
+2、将获取到的数据，放到一个map中，key为对象名，value为对象的信息
+3、新建一个树状的显示控件，用于展示每个对象的信息
+	每个树的节点，展示对象的名称
+	每个树展开后，展示对象的字段信息
+4、双击树的节点，在新的tab里展示这个对象所有的对象信息
+	展示的内容，是一个结构化的对象，

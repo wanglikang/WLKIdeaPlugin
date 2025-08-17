@@ -1,6 +1,7 @@
 package com.wlk.ideaplugin.test;
 
-import com.wlk.ideaplugin.apexsupport.language.parser.antlr4.Antlr4ApexParserSimpleVisitor;
+import com.wlk.ideaplugin.apexsupport.language.antlr4.ApexLexer;
+import com.wlk.ideaplugin.apexsupport.language.antlr4.ApexParser;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -43,8 +44,8 @@ public class TestAntlr4Parser {
         ParseTree parseTree = (ParseTree)apexFileContext;
         String text = parseTree.getText();
 
-        Antlr4ApexParserSimpleVisitor apexParserVisitor = new Antlr4ApexParserSimpleVisitor(null);
-        apexParserVisitor.visit(apexFileContext);
+//        Antlr4ApexParserSimpleVisitor apexParserVisitor = new Antlr4ApexParserSimpleVisitor(null);
+//        apexParserVisitor.visit(apexFileContext);
 
 
     }

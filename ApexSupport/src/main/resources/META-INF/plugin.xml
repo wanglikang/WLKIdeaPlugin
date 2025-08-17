@@ -1,5 +1,5 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
-<idea-plugin>
+<idea-plugin require-restart="false">
   <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
   <id>com.wlk.ideaPlugin.ApexSupport</id>
 
@@ -52,11 +52,11 @@
                 factoryClass="com.wlk.ideaplugin.apexsupport.feature.toolwindows.ApexToolWindowFactory"
                 anchor="right"
     />
-    <toolWindow id="SqlToolWindow"
-                factoryClass="com.wlk.ideaplugin.apexsupport.sql.SqlToolWindow"
-                anchor="right"
-                icon="AllIcons.Toolwindows.ToolWindowChanges"
-    />
+<!--    <toolWindow id="SqlToolWindow"-->
+<!--                factoryClass="com.wlk.ideaplugin.apexsupport.sql.SqlToolWindow"-->
+<!--                anchor="right"-->
+<!--                icon="/icons/sqlToolWindowIcon.svg"-->
+<!--    />-->
 
 <!--    用于在偏好设置中，添加应用级的设置页-->
 <!--    <applicationConfigurable></applicationConfigurable>-->

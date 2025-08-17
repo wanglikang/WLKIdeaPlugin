@@ -7,9 +7,9 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.tree.IElementType;
 import com.wlk.ideaplugin.apexsupport.language.ApexLanguage;
+import com.wlk.ideaplugin.apexsupport.language.ApexWrapperLexer;
 import com.wlk.ideaplugin.apexsupport.language.antlr4.ApexLexer;
-import com.wlk.ideaplugin.apexsupport.language.antlr4.ApexParser;
-import org.antlr.intellij.adaptor.lexer.ANTLRLexerAdaptor;
+import com.wlk.ideaplugin.apexsupport.util.ApexPsiConstants;
 import org.antlr.intellij.adaptor.lexer.PSIElementTypeFactory;
 import org.antlr.intellij.adaptor.lexer.TokenIElementType;
 import org.jetbrains.annotations.NotNull;
@@ -45,14 +45,11 @@ public class ApexSyntaxHighlighter extends SyntaxHighlighterBase {
     private static final TextAttributesKey[] COMMENT_KEYS = new TextAttributesKey[]{COMMENT};
     private static final TextAttributesKey[] EMPTY_KEYS = new TextAttributesKey[0];
 
-    static {
-        //需要提前声明一下，避免后续用到lexer的时候，找不到token的定义
-        PSIElementTypeFactory.defineLanguageIElementTypes(ApexLanguage.INSTANCE, ApexLexer.tokenNames, ApexParser.ruleNames);
-    }
     @NotNull
     @Override
     public Lexer getHighlightingLexer() {
-        return new ANTLRLexerAdaptor(ApexLanguage.INSTANCE,new ApexLexer(null));
+//        return new ANTLRLexerAdaptor(ApexLanguage.INSTANCE, new ApexLexer(null));
+        return ApexWrapperLexer.getNewInstance();
     }
 
     @Override
@@ -60,20 +57,24 @@ public class ApexSyntaxHighlighter extends SyntaxHighlighterBase {
 //        if (tokenType.equals(TokenType.BAD_CHARACTER)) {
 //            return BAD_CHAR_KEYS;
 //        }
-        int antlrTokenType = ((TokenIElementType) tokenType).getANTLRTokenType();
+        int antlrTokenType = -1;
+        if (tokenType instanceof TokenIElementType tokenIElementType){
+            antlrTokenType = tokenIElementType.getANTLRTokenType();
+        }else{
+            return EMPTY_KEYS;
+        }
+//        int antlrTokenType = ((TokenIElementType) tokenType).getANTLRTokenType();
         List<TokenIElementType> tokenIElementTypes = PSIElementTypeFactory.getTokenIElementTypes(ApexLanguage.INSTANCE);
-        for (TokenIElementType tokenIElementType : tokenIElementTypes) {
-            int tokenIndex = tokenIElementType.getANTLRTokenType();
+        for (TokenIElementType tokenEleType : tokenIElementTypes) {
+            int tokenIndex = tokenEleType.getANTLRTokenType();
             if( antlrTokenType != tokenIndex){
                 continue;
             }
-
-            System.out.println("高亮:"+tokenIElementType);
+            if(ApexPsiConstants.KEY_WORDS.contains(tokenEleType)){
+                return  KEYWORD_KEYS;
+            }
 
             switch (tokenIndex){
-//                case ApexParser.RULE_classBody:  return  CLASS_KEYS;
-                case ApexLexer.STATIC,ApexLexer.PUBLIC,ApexLexer.VOID:  return  KEYWORD_KEYS;
-//                case ApexLexer.RULE_modifier:  return  STATIC_KEYS;
                 case ApexLexer.Identifier:  return  IDENTIFIER_KEYS;
                 case ApexLexer.COMMENT,
                      ApexLexer.DOC_COMMENT,

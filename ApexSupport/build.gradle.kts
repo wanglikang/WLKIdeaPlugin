@@ -2,7 +2,7 @@ plugins {
   id("java")
   id("org.jetbrains.kotlin.jvm") version "1.9.25"
   id("org.jetbrains.intellij") version "1.17.4"
-  id("antlr") // https://docs.gradle.org/current/userguide/antlr_plugin.html
+//  id("antlr") // https://docs.gradle.org/current/userguide/antlr_plugin.html
 //  id("org.jetbrains.intellij.platform") version "2.2.0"
 }
 
@@ -24,7 +24,7 @@ dependencies {
   implementation("org.antlr:antlr4-intellij-adaptor:0.1")
 
 //  antlr("org.antlr:antlr4:4.5") // use ANTLR version 4,上面的 antlr 插件需要
-  antlr("org.antlr:antlr4:4.13.2") // use ANTLR version 4,上面的 antlr 插件需要
+//  antlr("org.antlr:antlr4:4.13.2") // use ANTLR version 4,上面的 antlr 插件需要
 }
 
 // Include the generated files in the source set
@@ -70,6 +70,11 @@ tasks {
 
   publishPlugin {
     token.set(System.getenv("PUBLISH_TOKEN"))
+  }
+
+  //
+  buildSearchableOptions{
+    enabled = false
   }
 }
 
