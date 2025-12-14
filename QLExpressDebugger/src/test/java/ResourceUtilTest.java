@@ -4,7 +4,7 @@ import com.wlk.ideaPlugin.qldebugger.util.ResourcesUtil;
 import org.junit.Test;
 
 /**
- * @author 奈昕
+ * @author 王利康
  * @date 2024/7/9 21:45:56
  */
 public class ResourceUtilTest {

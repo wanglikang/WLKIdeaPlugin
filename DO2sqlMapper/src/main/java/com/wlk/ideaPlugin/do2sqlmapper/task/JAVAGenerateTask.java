@@ -1,7 +1,7 @@
 package com.wlk.ideaPlugin.do2sqlmapper.task;
 
 /**
- * @author 奈昕
+ * @author 王利康
  * @date 2020/7/6
  */
 public class JAVAGenerateTask  implements  Runnable{

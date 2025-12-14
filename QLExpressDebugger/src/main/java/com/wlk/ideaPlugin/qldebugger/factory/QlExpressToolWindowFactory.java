@@ -13,7 +13,7 @@ import com.wlk.ideaPlugin.qldebugger.window.QlPanel;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * @author 奈昕
+ * @author 王利康
  * @date 2023/9/24 10:28:47
  */
 public class QlExpressToolWindowFactory implements ToolWindowFactory, DumbAware {

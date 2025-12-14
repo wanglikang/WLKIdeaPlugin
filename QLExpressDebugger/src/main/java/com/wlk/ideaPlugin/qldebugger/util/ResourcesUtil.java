@@ -9,7 +9,7 @@ import com.google.common.collect.Lists;
 import com.wlk.ideaPlugin.qldebugger.window.QlPanel;
 
 /**
- * @author 奈昕
+ * @author 王利康
  * @date 2023/9/24 22:46:03
  */
 public class ResourcesUtil {

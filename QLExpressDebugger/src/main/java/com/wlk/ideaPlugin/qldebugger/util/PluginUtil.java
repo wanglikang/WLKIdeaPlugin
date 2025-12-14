@@ -5,7 +5,7 @@ import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
 
 /**
- * @author 奈昕
+ * @author 王利康
  * @date 2024/1/7 16:09:57
  */
 public class PluginUtil {

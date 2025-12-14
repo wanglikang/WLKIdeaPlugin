@@ -8,7 +8,7 @@ import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 
 /**
- * @author 奈昕
+ * @author 王利康
  * @date 2023/9/24 12:58:24
  */
 public class QlExpressUtil {

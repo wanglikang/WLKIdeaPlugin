@@ -13,7 +13,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.intellij.openapi.progress.ProgressIndicator;
 
 /**
- * @author 奈昕
+ * @author 王利康
  * @date 2024/1/6 14:19:04
  */
 public class RunnerProxy {

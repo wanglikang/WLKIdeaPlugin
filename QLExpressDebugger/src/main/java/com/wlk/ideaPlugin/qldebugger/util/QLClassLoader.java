@@ -6,7 +6,7 @@ import java.net.URL;
 import com.intellij.ide.plugins.cl.PluginClassLoader;
 
 /**
- * @author 奈昕
+ * @author 王利康
  * @date 2024/7/10 18:56:47
  */
 public class QLClassLoader extends ClassLoader {

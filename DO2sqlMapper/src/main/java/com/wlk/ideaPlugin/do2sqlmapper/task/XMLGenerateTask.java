@@ -11,7 +11,7 @@ import com.wlk.ideaPlugin.do2sqlmapper.BeanGenerateContext;
 import com.wlk.ideaPlugin.do2sqlmapper.util.Utils;
 
 /**
- * @author 奈昕
+ * @author 王利康
  * @date 2020/7/6
  */
 public class XMLGenerateTask implements  Runnable{

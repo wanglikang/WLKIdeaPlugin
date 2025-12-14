@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author 奈昕
+ * @author 王利康
  * @date 2020/7/6
  */
 public class BeanGenerateContext {

@@ -42,7 +42,7 @@ import com.wlk.ideaPlugin.qldebugger.util.RunnerProxy;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * @author 奈昕
+ * @author 王利康
  * @date 2023/9/24 13:19:14
  */
 public class QlPanel {

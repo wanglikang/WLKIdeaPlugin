@@ -1,7 +1,7 @@
 package com.wlk.ideaPlugin.do2sqlmapper.classloader;
 
 /**
- * @author 奈昕
+ * @author 王利康
  * @date 2023/10/1 18:41:26
  */
 public class BeanClassLoader extends  ClassLoader {

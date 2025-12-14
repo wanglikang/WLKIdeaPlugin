@@ -3,7 +3,7 @@ package com.wlk.ideaPlugin.qldebugger.domain;
 import java.util.Objects;
 
 /**
- * @author 奈昕
+ * @author 王利康
  * @date 2024/1/6 19:38:17
  */
 public class DependencyDTO {
